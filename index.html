@@ -90,6 +90,13 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 .crow button{padding:.2em .55em;font-size:.85em}
 #toast{position:fixed;left:50%;bottom:1.2em;transform:translateX(-50%);background:#fff;border:1px solid var(--deep);border-radius:8px;padding:.6em 1em;z-index:30;max-width:90vw;box-shadow:0 4px 16px rgba(42,104,168,.2)}
 
+/* 맵 탭 */
+.maptabs{display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-bottom:.3em}
+.mtabs{display:flex;gap:.3em;flex-wrap:wrap;flex:1}
+.mtabs .live{color:var(--deep);font-weight:700}
+.mtabs button{padding:.35em .7em}
+.maplegend{margin:.2em 0 .5em}
+
 /* 카드 */
 .pilerow{display:flex;gap:.8em;align-items:flex-start}
 .pilerow #others{flex:1;padding-top:.3em}
@@ -183,6 +190,12 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   <div id="banner" hidden></div>
   <main class="layout">
     <section class="board">
+      <div class="maptabs" data-gm>
+        <div id="mapTabs" class="mtabs" role="group" aria-label="맵 목록"></div>
+        <button id="showPlayers" class="primary" type="button">플레이어에게 이 맵 보여주기</button>
+      </div>
+      <p class="small maplegend" data-gm>◉ 표시는 지금 플레이어가 보고 있는 맵이에요. 다른 맵을 편집해도 플레이어 화면은 바뀌지 않아요.</p>
+      <p id="mapTitle" class="small maplegend" data-player></p>
       <div class="tools" data-gm>
         <button data-mode="move" class="on" type="button">말 이동·선택</button>
         <button data-mode="wall" type="button">벽 그리기</button>
@@ -287,7 +300,18 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       </section>
 
       <section id="tab-gm" class="pane" data-gm hidden>
-        <h3 style="margin-top:.2em">맵 그림</h3>
+        <h3 style="margin-top:.2em">맵 관리 <span id="editingName" class="small"></span></h3>
+        <label for="mapName">맵 이름 (플레이어에게도 보여요)</label>
+        <input id="mapName" maxlength="20">
+        <div class="inline">
+          <button id="mapLeft" type="button">◀ 앞으로</button>
+          <button id="mapRight" type="button">뒤로 ▶</button>
+          <button id="mapDup" type="button">복제</button>
+          <button id="mapDel" class="danger" type="button">이 맵 삭제</button>
+        </div>
+        <p class="small">아래 설정(그림, 크기, 벽, 시야, NPC)은 지금 편집 중인 맵에만 적용돼요. 복제는 그림·벽·설정만 복사하고 NPC는 복사하지 않아요. 플레이어 캐릭터는 어느 맵으로 가든 따라가고, 맵마다 마지막 위치를 기억해요.</p>
+
+        <h3>맵 그림</h3>
         <div class="inline">
           <button id="mapPick" class="primary" type="button">이미지 불러오기</button>
           <button id="mapClear" type="button">그림 지우기</button>
@@ -330,7 +354,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         <input id="moveMax" type="number" min="0" max="30" value="0">
 
         <h3>방 파일 (저장·불러오기)</h3>
-        <p class="small">이 탁자는 서버가 없고 자동 저장도 하지 않아요. 맵 그림, 벽, 카드덱(이미지 포함), 캐릭터와 시트, 손패까지 모두 "방 파일" 하나로 저장돼요. 방을 닫으면 그림은 사라지니, 이어서 하려면 저장해 두세요.</p>
+        <p class="small">이 탁자는 서버가 없고 자동 저장도 하지 않아요. 모든 맵(그림·벽·NPC 포함), 카드덱(이미지 포함), 캐릭터와 시트, 손패까지 모두 "방 파일" 하나로 저장돼요. 방을 닫으면 그림은 사라지니, 이어서 하려면 저장해 두세요.</p>
         <div class="inline">
           <button id="exportBtn" class="primary" type="button">방 파일 저장</button>
           <button id="importBtn" type="button">방 파일 불러오기</button>
@@ -787,17 +811,17 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var _verifSchnorr = (signature, message, publicKey2, challengeFn) => {
     const sig = abytes(signature, 64, "signature");
     const msg = abytes(message, void 0, "message");
-    const pub2 = abytes(publicKey2, L, "publicKey");
+    const pub = abytes(publicKey2, L, "publicKey");
     let P_;
     let r;
     let s;
     let chalInput;
     try {
-      const x = bytesToNumBE(pub2);
+      const x = bytesToNumBE(pub);
       P_ = lift_x(x);
       r = FpIsValidNot0(sliceBytesNumBE(sig, 0, L));
       s = FnIsValidNot0(sliceBytesNumBE(sig, L, 64));
-      chalInput = concatBytes(numTo32b(r), pub2, msg);
+      chalInput = concatBytes(numTo32b(r), pub, msg);
     } catch (error) {
       return false;
     }
@@ -4191,6 +4215,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   var safeColor = (c) => validColor(c) ? c : "#a9d3f7";
   var IMG_RE = /^data:image\/(jpeg|png|webp);base64,/;
+  var cleanMapName = (s) => String(s == null ? "" : s).trim().replace(/[<>&"'`]/g, "").slice(0, 20);
   function h(tag2, props, ...kids) {
     const el = document.createElement(tag2);
     for (const [k, v] of Object.entries(props || {})) {
@@ -4216,6 +4241,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var connected = false;
   var joinedAt = 0;
   var S = newState();
+  var M2 = newMap("", "");
   var G2 = newPrivate();
   var myHand = [];
   var dirty = false;
@@ -4236,6 +4262,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var mapImgVer = null;
   var mapAsked = null;
   var mapAskedAt = 0;
+  var mapLoadingVer = null;
   var backC = null;
   var backAsked = { ver: null, at: 0 };
   var faceC = {};
@@ -4244,12 +4271,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var pendingFaces = false;
   function newState() {
     return {
-      cols: 24,
-      rows: 16,
-      grid: true,
-      map: null,
-      walls: defaultWalls(24, 16),
-      tokens: {},
       players: {},
       table: [],
       handCounts: {},
@@ -4257,12 +4278,11 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       deckName: "\uD2B8\uB7FC\uD504 54\uC7A5",
       deckLeft: 0,
       discardN: 0,
-      backVer: null,
-      vision: 6,
-      fog: true,
-      share: false,
-      moveMax: 0
+      backVer: null
     };
+  }
+  function newMap(id, name) {
+    return { id, name, cols: 24, rows: 16, grid: true, img: null, walls: borderWalls(24, 16), tokens: {}, vision: 6, fog: true, share: false, moveMax: 0 };
   }
   function newPrivate() {
     return {
@@ -4271,7 +4291,13 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       hands: {},
       sheets: {},
       watch: {},
-      mapData: null,
+      maps: {},
+      mapOrder: [],
+      mapImgs: {},
+      mapSeq: 0,
+      activeId: null,
+      viewId: null,
+      pcs: {},
       faces: [],
       faceSeq: 0,
       back: null,
@@ -4280,12 +4306,21 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       nameByPeer: {}
     };
   }
-  var pub = () => ({ ...S });
+  var activeMap = () => G2.maps[G2.activeId];
+  function mapPub(m) {
+    const { tokens, ...rest } = m;
+    return { ...rest, tokens: Object.fromEntries(Object.entries(tokens).filter(([, t]) => t.kind === "pc" || t.reveal)) };
+  }
   function pubFor(name) {
-    const p = pub();
-    p.tokens = Object.fromEntries(Object.entries(S.tokens).filter(([, t]) => t.kind === "pc" || t.reveal));
+    const p = { ...S };
     p.table = S.table.map((x) => x.down && x.by !== name ? { k: x.k, by: x.by, down: true } : x);
+    p.map = mapPub(activeMap());
     return p;
+  }
+  function receiveState(d) {
+    const { map, ...rest } = d;
+    S = Object.assign(newState(), rest);
+    M2 = Object.assign(newMap("", ""), map || {});
   }
   var toastTimer;
   function toast(msg) {
@@ -4344,6 +4379,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     mapImg = null;
     mapImgVer = null;
     mapAsked = null;
+    mapLoadingVer = null;
     backAsked = { ver: null, at: 0 };
   }
   function fileToImage(file) {
@@ -4438,7 +4474,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       gmId = peerId;
       connected = true;
       myName = d.you;
-      S = Object.assign(newState(), d.st);
+      receiveState(d.st);
       myHand = d.hand || [];
       for (const k of Object.keys(faceC)) delete faceC[k];
       for (const k of Object.keys(faceAsked)) delete faceAsked[k];
@@ -4448,7 +4484,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     };
     A.st.onMessage = (d, { peerId }) => {
       if (role !== "player" || peerId !== gmId) return;
-      S = Object.assign(newState(), d);
+      receiveState(d);
       afterState();
     };
     A.hd.onMessage = (hand, { peerId }) => {
@@ -4511,6 +4547,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       gmId = null;
       clearAssets();
       S = newState();
+      M2 = newMap("", "");
       myHand = [];
       ui.sel = null;
       ui.mine = null;
@@ -4527,7 +4564,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     const n = Object.keys(room.getPeers()).length;
     if (role === "gm") {
       const on = Object.entries(S.players).filter(([, p]) => p.online).map(([k]) => k);
-      $("#status").textContent = on.length ? `GM \xB7 \uC811\uC18D ${on.length}\uBA85: ${on.join(", ")}` : "GM \xB7 \uC544\uC9C1 \uC811\uC18D\uD55C \uD50C\uB808\uC774\uC5B4\uAC00 \uC5C6\uC5B4\uC694";
+      const am = activeMap();
+      $("#status").textContent = (on.length ? `GM \xB7 \uC811\uC18D ${on.length}\uBA85: ${on.join(", ")}` : "GM \xB7 \uC544\uC9C1 \uC811\uC18D\uD55C \uD50C\uB808\uC774\uC5B4\uAC00 \uC5C6\uC5B4\uC694") + (am ? ` \xB7 \uD50C\uB808\uC774\uC5B4\uAC00 \uBCF4\uB294 \uB9F5: ${am.name}` : "");
     } else if (connected) {
       $("#status").textContent = `${myName} \xB7 GM\uACFC \uC5F0\uACB0\uB428`;
       ensureAssets();
@@ -4538,15 +4576,106 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       }
     }
   }
+  function addMap(name) {
+    const id = "m" + ++G2.mapSeq;
+    const m = newMap(id, cleanMapName(name) || `\uB9F5 ${G2.mapOrder.length + 1}`);
+    G2.maps[id] = m;
+    G2.mapOrder.push(id);
+    return m;
+  }
+  function setView(id) {
+    if (!G2.maps[id]) return;
+    G2.viewId = id;
+    M2 = G2.maps[id];
+    ui.sel = null;
+    ui.pending = null;
+    ui.drag = null;
+    renderAll();
+  }
+  function setActive(id) {
+    if (!G2.maps[id]) return;
+    G2.activeId = id;
+    ensurePCsOn(G2.maps[id]);
+    toast(`\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C "${G2.maps[id].name}" \uB9F5\uC744 \uBCF4\uC5EC\uC918\uC694`);
+    sync();
+  }
+  function dupMap() {
+    const src = M2, m = addMap(src.name + " \uBCF5\uC0AC");
+    Object.assign(m, JSON.parse(JSON.stringify({ cols: src.cols, rows: src.rows, grid: src.grid, walls: src.walls, vision: src.vision, fog: src.fog, share: src.share, moveMax: src.moveMax })));
+    if (src.img && G2.mapImgs[src.id]) {
+      m.img = { ...src.img, ver: m.id + ":" + Date.now() };
+      G2.mapImgs[m.id] = G2.mapImgs[src.id];
+    }
+    G2.viewId = m.id;
+    M2 = m;
+    sync();
+  }
+  function delMap() {
+    if (G2.mapOrder.length <= 1) return toast("\uB9C8\uC9C0\uB9C9 \uB0A8\uC740 \uB9F5\uC740 \uC9C0\uC6B8 \uC218 \uC5C6\uC5B4\uC694");
+    if (!confirm(`"${M2.name}" \uB9F5\uC744 \uC0AD\uC81C\uD560\uAE4C\uC694?
+\uC774 \uB9F5\uC758 \uADF8\uB9BC, \uBCBD, NPC\uAC00 \uD568\uAED8 \uC0AC\uB77C\uC838\uC694. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) return;
+    const id = M2.id, idx = G2.mapOrder.indexOf(id);
+    for (const t of Object.values(M2.tokens)) if (t.kind === "npc") {
+      delete G2.sheets[t.id];
+      delete G2.watch[t.id];
+    }
+    delete G2.maps[id];
+    delete G2.mapImgs[id];
+    G2.mapOrder.splice(idx, 1);
+    const next = G2.mapOrder[Math.min(idx, G2.mapOrder.length - 1)];
+    if (G2.activeId === id) {
+      G2.activeId = next;
+      ensurePCsOn(G2.maps[next]);
+    }
+    G2.viewId = next;
+    M2 = G2.maps[next];
+    ui.sel = null;
+    sync();
+  }
+  function moveMapTab(d) {
+    const i = G2.mapOrder.indexOf(G2.viewId), j = i + d;
+    if (i < 0 || j < 0 || j >= G2.mapOrder.length) return;
+    [G2.mapOrder[i], G2.mapOrder[j]] = [G2.mapOrder[j], G2.mapOrder[i]];
+    sync();
+  }
+  function renderMapTabs() {
+    if (role !== "gm") return;
+    const box = $("#mapTabs");
+    box.textContent = "";
+    for (const id of G2.mapOrder) {
+      const m = G2.maps[id];
+      box.append(h(
+        "button",
+        { type: "button", class: id === G2.viewId ? "on" : "", "aria-pressed": id === G2.viewId ? "true" : "false", onclick: () => setView(id) },
+        m.name,
+        id === G2.activeId ? h("span", { class: "live", title: "\uD50C\uB808\uC774\uC5B4\uAC00 \uBCF4\uACE0 \uC788\uB294 \uB9F5", text: " \u25C9" }) : null
+      ));
+    }
+    box.append(h("button", { type: "button", text: "+ \uC0C8 \uB9F5", onclick: () => {
+      const m = addMap();
+      G2.viewId = m.id;
+      M2 = m;
+      ui.sel = null;
+      sync();
+    } }));
+    const sp = $("#showPlayers");
+    sp.disabled = G2.viewId === G2.activeId;
+    sp.textContent = G2.viewId === G2.activeId ? "\uC774 \uB9F5\uC744 \uD50C\uB808\uC774\uC5B4\uAC00 \uBCF4\uACE0 \uC788\uC5B4\uC694" : "\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uC774 \uB9F5 \uBCF4\uC5EC\uC8FC\uAE30";
+    $("#editingName").textContent = `\xB7 \uD3B8\uC9D1 \uC911: ${M2.name}`;
+  }
   function freshGM() {
     S = newState();
     G2 = newPrivate();
+    const m = addMap("\uB9F5 1");
+    m.walls = defaultWalls(24, 16);
+    G2.activeId = G2.viewId = m.id;
+    M2 = m;
     buildDeck("std54");
   }
   function makeSave() {
     return {
       app: "roundtable",
-      v: 3,
+      v: 4,
       savedAt: (/* @__PURE__ */ new Date()).toISOString(),
       S: { ...S },
       G: {
@@ -4555,7 +4684,12 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         hands: G2.hands,
         sheets: G2.sheets,
         tableSeq: G2.tableSeq,
-        mapData: G2.mapData,
+        pcs: G2.pcs,
+        maps: G2.maps,
+        mapOrder: G2.mapOrder,
+        mapImgs: G2.mapImgs,
+        mapSeq: G2.mapSeq,
+        activeId: G2.activeId,
         faces: G2.faces,
         faceSeq: G2.faceSeq,
         back: G2.back,
@@ -4563,36 +4697,69 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       }
     };
   }
+  function cleanMap(id, raw, imgs) {
+    const m = Object.assign(newMap(id, cleanMapName(raw.name) || "\uB9F5"), raw);
+    m.id = id;
+    m.cols = clamp(Math.round(+m.cols || 24), 4, 60);
+    m.rows = clamp(Math.round(+m.rows || 16), 4, 40);
+    if (!Array.isArray(m.walls)) m.walls = [];
+    if (!m.tokens || typeof m.tokens !== "object") m.tokens = {};
+    if (!(m.img && imgs[id])) m.img = null;
+    return m;
+  }
   function applySave(o) {
-    var _a;
+    var _a, _b, _c;
     if (!o || typeof o !== "object" || !o.S || !o.G) throw new Error("\uC6D0\uD0C1 \uBC29 \uD30C\uC77C\uC774 \uC544\uB2C8\uC5D0\uC694");
-    S = Object.assign(newState(), o.S);
-    delete S.log;
-    delete S.wallsVisible;
-    S.cols = clamp(Math.round(+S.cols || 24), 4, 60);
-    S.rows = clamp(Math.round(+S.rows || 16), 4, 40);
-    if (!Array.isArray(S.walls)) S.walls = [];
-    if (!o.S.deckKind) S.deckKind = /직접/.test(o.S.deckName || "") ? "custom" : /52/.test(o.S.deckName || "") ? "std52" : "std54";
-    const keepPeers = { peerByName: G2.peerByName, nameByPeer: G2.nameByPeer };
     const g = o.G;
+    const keepPeers = { peerByName: G2.peerByName, nameByPeer: G2.nameByPeer };
+    S = newState();
+    for (const k of Object.keys(S)) if (o.S[k] !== void 0) S[k] = o.S[k];
+    if (!o.S.deckKind) S.deckKind = /직접/.test(o.S.deckName || "") ? "custom" : /52/.test(o.S.deckName || "") ? "std52" : "std54";
     G2 = Object.assign(newPrivate(), {
       deck: g.deck || [],
       discard: g.discard || [],
       hands: g.hands || {},
       sheets: g.sheets || {},
-      mapData: g.mapData || null,
+      pcs: g.pcs || {},
       faces: Array.isArray(g.faces) ? g.faces : [],
       faceSeq: +g.faceSeq || 0,
       back: g.back || null,
       tableSeq: +g.tableSeq || 0
     }, keepPeers);
     $("#deckCustom").value = g.customText || "";
-    for (const [k, t] of Object.entries(S.tokens)) {
-      if (!t.id) t.id = k;
-      if (!t.owner) t.owner = t.kind === "npc" ? "GM" : t.name;
-      if (t.kind === "npc" && t.reveal === void 0) t.reveal = false;
-      G2.sheets[t.id] = G2.sheets[t.id] ? cleanSheet(G2.sheets[t.id]) : newSheet("free", t.kind === "pc");
+    if (g.maps && typeof g.maps === "object") {
+      G2.mapImgs = g.mapImgs || {};
+      G2.mapOrder = (Array.isArray(g.mapOrder) ? g.mapOrder : Object.keys(g.maps)).filter((id) => g.maps[id]);
+      for (const id of G2.mapOrder) G2.maps[id] = cleanMap(id, g.maps[id], G2.mapImgs);
+      G2.mapSeq = Math.max(+g.mapSeq || 0, G2.mapOrder.length);
+      G2.activeId = G2.maps[g.activeId] ? g.activeId : G2.mapOrder[0];
+    } else {
+      G2.mapImgs = {};
+      if (g.mapData) G2.mapImgs.m1 = g.mapData;
+      G2.maps.m1 = cleanMap("m1", { name: "\uB9F5 1", cols: o.S.cols, rows: o.S.rows, grid: o.S.grid !== false, img: o.S.map, walls: o.S.walls, tokens: o.S.tokens, vision: o.S.vision, fog: o.S.fog !== false, share: !!o.S.share, moveMax: o.S.moveMax }, G2.mapImgs);
+      G2.mapOrder = ["m1"];
+      G2.mapSeq = 1;
+      G2.activeId = "m1";
     }
+    if (!G2.mapOrder.length) {
+      const m = addMap("\uB9F5 1");
+      G2.activeId = m.id;
+    }
+    G2.viewId = G2.activeId;
+    M2 = G2.maps[G2.viewId];
+    for (const id of G2.mapOrder) {
+      for (const [k, t] of Object.entries(G2.maps[id].tokens)) {
+        if (!t.id) t.id = k;
+        if (!t.owner) t.owner = t.kind === "npc" ? "GM" : t.name;
+        if (t.kind === "npc" && t.reveal === void 0) t.reveal = false;
+        if (t.kind !== "npc") {
+          t.kind = "pc";
+          (_a = G2.pcs)[_b = t.id] || (_a[_b] = { id: t.id, name: t.name, color: t.color, owner: t.owner });
+        }
+        G2.sheets[t.id] = G2.sheets[t.id] ? cleanSheet(G2.sheets[t.id]) : newSheet("free", t.kind === "pc");
+      }
+    }
+    for (const id of Object.keys(G2.pcs)) G2.sheets[id] = G2.sheets[id] ? cleanSheet(G2.sheets[id]) : newSheet("free", true);
     S.table = Array.isArray(S.table) ? S.table : [];
     for (const x of S.table) {
       if (!x.k) x.k = ++G2.tableSeq;
@@ -4602,16 +4769,14 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     S.players = {};
     for (const name of Object.keys(G2.peerByName)) {
       S.players[name] = { online: true };
-      (_a = G2.hands)[name] || (_a[name] = []);
+      (_c = G2.hands)[name] || (_c[name] = []);
     }
     for (const name of Object.keys(G2.peerByName)) ensureChar(name);
-    if (S.map && G2.mapData) loadMapImage(S.map.ver, G2.mapData);
-    else {
-      S.map = null;
-      mapImg = null;
-      mapImgVer = null;
-    }
+    ensurePCsOn(activeMap());
     refreshDerived();
+    mapImg = null;
+    mapImgVer = null;
+    mapLoadingVer = null;
   }
   function resyncAll() {
     for (const [pid, name] of Object.entries(G2.nameByPeer)) {
@@ -4629,7 +4794,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 5e3);
     setDirty(false);
-    toast("\uBC29 \uD30C\uC77C\uC744 \uC800\uC7A5\uD588\uC5B4\uC694. \uB9F5 \uADF8\uB9BC\uACFC \uCE74\uB4DC \uADF8\uB9BC\uB3C4 \uBAA8\uB450 \uB4E4\uC5B4 \uC788\uC5B4\uC694");
+    toast(`\uBC29 \uD30C\uC77C\uC744 \uC800\uC7A5\uD588\uC5B4\uC694. \uB9F5 ${G2.mapOrder.length}\uAC1C\uC640 \uCE74\uB4DC \uADF8\uB9BC\uC774 \uBAA8\uB450 \uB4E4\uC5B4 \uC788\uC5B4\uC694`);
   }
   var legacyKeys = () => {
     try {
@@ -4683,6 +4848,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     S.players[name] = { online: true };
     (_a = G2.hands)[name] || (_a[name] = []);
     const created = ensureChar(name);
+    ensurePCsOn(activeMap());
     refreshDerived();
     A.full.send({ you: name, st: pubFor(name), hand: G2.hands[name] }, { target: peerId });
     sync(!created);
@@ -4711,68 +4877,99 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     const pid = G2.peerByName[name];
     if (pid) A.hd.send(G2.hands[name] || [], { target: pid });
   }
-  function freePos(owner) {
-    const used = new Set(Object.values(S.tokens).map((t) => t.x + "," + t.y));
+  function freePos(owner, m) {
+    const used = new Set(Object.values(m.tokens).map((t) => t.x + "," + t.y));
     const ox = owner === "GM" ? 10 : 1, oy = owner === "GM" ? 5 : 1;
     for (let i = 0; i < 400; i++) {
       const x = ox + i % 6, y = oy + Math.floor(i / 6);
-      if (x < S.cols && y < S.rows && !used.has(x + "," + y)) return { x, y };
+      if (x < m.cols && y < m.rows && !used.has(x + "," + y)) return { x, y };
     }
     return { x: 0, y: 0 };
   }
+  function pcToken(pc, m) {
+    return { id: pc.id, name: pc.name, color: pc.color, kind: "pc", owner: pc.owner, ...freePos(pc.owner, m) };
+  }
+  function ensurePCsOn(m) {
+    for (const pc of Object.values(G2.pcs)) if (!m.tokens[pc.id]) m.tokens[pc.id] = pcToken(pc, m);
+  }
   function makeChar(owner, name, color, tpl) {
     const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
-    const kind = owner === "GM" ? "npc" : "pc";
-    const idx = Object.values(S.tokens).length;
-    const t = { id, name, color: validColor(color) ? color : COLORS[idx % COLORS.length], kind, owner, ...freePos(owner) };
-    if (kind === "npc") t.reveal = false;
-    S.tokens[id] = t;
-    G2.sheets[id] = newSheet(tpl, kind === "pc");
+    const idx = Object.keys(G2.pcs).length + Object.values(M2.tokens).length;
+    const col = validColor(color) ? color : COLORS[idx % COLORS.length];
+    if (owner === "GM") {
+      const t = { id, name, color: col, kind: "npc", owner, reveal: false, ...freePos("GM", M2) };
+      M2.tokens[id] = t;
+    } else {
+      G2.pcs[id] = { id, name, color: col, owner };
+      ensurePCsOn(activeMap());
+    }
+    G2.sheets[id] = newSheet(tpl, owner !== "GM");
     return id;
   }
   function ensureChar(owner) {
-    if (Object.values(S.tokens).some((t) => t.owner === owner)) return false;
+    if (Object.values(G2.pcs).some((p) => p.owner === owner)) return false;
     makeChar(owner, owner, null, "free");
     return true;
   }
+  function findNpc(id) {
+    for (const mid of G2.mapOrder) {
+      const t = G2.maps[mid].tokens[id];
+      if (t && t.kind === "npc") return t;
+    }
+    return null;
+  }
+  function charOf(id) {
+    if (role !== "gm") return M2.tokens[id] || null;
+    return G2.pcs[id] ? { ...G2.pcs[id], kind: "pc" } : findNpc(id);
+  }
   function newChar(name, c) {
-    const mine = Object.values(S.tokens).filter((t) => t.owner === name);
+    const mine = Object.values(G2.pcs).filter((p) => p.owner === name);
     if (name !== "GM" && mine.length >= 6) return tellTo(name, "\uCE90\uB9AD\uD130\uB294 \uCD5C\uB300 6\uBA85\uAE4C\uC9C0 \uB9CC\uB4E4 \uC218 \uC788\uC5B4\uC694");
-    if (Object.keys(S.tokens).length >= 80) return tellTo(name, "\uB9D0\uC774 \uB108\uBB34 \uB9CE\uC544\uC694");
+    if (Object.keys(G2.pcs).length + Object.keys(M2.tokens).length >= 120) return tellTo(name, "\uB9D0\uC774 \uB108\uBB34 \uB9CE\uC544\uC694");
     const cn = cleanName(c.name) || (name === "GM" ? "NPC" : name);
     const id = makeChar(name, cn, c.color, String(c.tpl || "free"));
     if (name === "GM") ui.sel = id;
     sync();
   }
   function delChar(name, id) {
-    const t = S.tokens[id];
-    if (!t || !(name === "GM" || t.owner === name)) return;
-    delete S.tokens[id];
+    const c = role === "gm" ? charOf(id) : null;
+    if (!c || !(name === "GM" || c.owner === name)) return;
+    delete G2.pcs[id];
     delete G2.sheets[id];
     delete G2.watch[id];
+    for (const mid of G2.mapOrder) delete G2.maps[mid].tokens[id];
     sync();
   }
   function reqSheet(name, id) {
     var _a;
     const pid = G2.peerByName[name];
     if (!pid) return;
-    const t = S.tokens[id], sh = G2.sheets[id];
-    if (!t || !sh || !(t.owner === name || sh.public)) return A.sh.send({ id, err: "\uBE44\uACF5\uAC1C \uC2DC\uD2B8\uC608\uC694" }, { target: pid });
+    const c = charOf(id), sh = G2.sheets[id];
+    if (!c || !sh || !(c.owner === name || sh.public)) return A.sh.send({ id, err: "\uBE44\uACF5\uAC1C \uC2DC\uD2B8\uC608\uC694" }, { target: pid });
     ((_a = G2.watch)[id] || (_a[id] = /* @__PURE__ */ new Set())).add(pid);
-    A.sh.send({ id, sheet: sh, canEdit: t.owner === name }, { target: pid });
+    A.sh.send({ id, sheet: sh, canEdit: c.owner === name }, { target: pid });
   }
   function setSheet(name, c) {
-    const id = String(c.id), t = S.tokens[id];
-    if (!t || !(name === "GM" || t.owner === name)) return;
+    const id = String(c.id), ch = charOf(id);
+    if (!ch || !(name === "GM" || ch.owner === name)) return;
     const sh = G2.sheets[id] = cleanSheet(c.sheet);
-    const nm = cleanName(c.name);
-    if (nm) t.name = nm;
-    if (validColor(c.color)) t.color = c.color;
+    const nm = cleanName(c.name), col = validColor(c.color) ? c.color : null;
+    if (G2.pcs[id]) {
+      if (nm) G2.pcs[id].name = nm;
+      if (col) G2.pcs[id].color = col;
+    }
+    for (const mid of G2.mapOrder) {
+      const t = G2.maps[mid].tokens[id];
+      if (t) {
+        if (nm) t.name = nm;
+        if (col) t.color = col;
+      }
+    }
     const sender = G2.peerByName[name];
     for (const pid of G2.watch[id] || []) {
       if (pid === sender) continue;
       const n2 = G2.nameByPeer[pid];
-      if (n2 && (t.owner === n2 || sh.public)) A.sh.send({ id, sheet: sh, canEdit: t.owner === n2 }, { target: pid });
+      if (n2 && (ch.owner === n2 || sh.public)) A.sh.send({ id, sheet: sh, canEdit: ch.owner === n2 }, { target: pid });
     }
     if (role === "gm" && name !== "GM" && ui.sheetId === id && !editingSheet(id)) showSheet(id, sh, true);
     sync();
@@ -4813,15 +5010,16 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         break;
     }
   }
-  function movePC(actor, id, x, y, byGM) {
-    const t = S.tokens[id];
+  function movePC(actor, id, x, y, byGM, m) {
+    m = m || (byGM ? M2 : activeMap());
+    const t = m.tokens[id];
     x = Math.floor(x);
     y = Math.floor(y);
-    if (!t || !(x >= 0 && x < S.cols && y >= 0 && y < S.rows)) return;
+    if (!t || !(x >= 0 && x < m.cols && y >= 0 && y < m.rows)) return;
     if (!byGM) {
       if (t.owner !== actor) return;
-      if (S.moveMax > 0 && Math.max(Math.abs(x - t.x), Math.abs(y - t.y)) > S.moveMax) return tellTo(actor, `\uD55C \uBC88\uC5D0 ${S.moveMax}\uCE78\uAE4C\uC9C0\uB9CC \uC6C0\uC9C1\uC77C \uC218 \uC788\uC5B4\uC694`);
-      if (blocked(S.walls, t, { x, y })) return tellTo(actor, "\uBCBD\uC5D0 \uB9C9\uD600\uC11C \uAC08 \uC218 \uC5C6\uC5B4\uC694");
+      if (m.moveMax > 0 && Math.max(Math.abs(x - t.x), Math.abs(y - t.y)) > m.moveMax) return tellTo(actor, `\uD55C \uBC88\uC5D0 ${m.moveMax}\uCE78\uAE4C\uC9C0\uB9CC \uC6C0\uC9C1\uC77C \uC218 \uC788\uC5B4\uC694`);
+      if (blocked(m.walls, t, { x, y })) return tellTo(actor, "\uBCBD\uC5D0 \uB9C9\uD600\uC11C \uAC08 \uC218 \uC5C6\uC5B4\uC694");
     }
     t.x = x;
     t.y = y;
@@ -4927,7 +5125,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     const pid = G2.peerByName[name];
     if (!pid) return;
     if (c.k === "map") {
-      if (G2.mapData && S.map) A.img.send({ k: "map", ver: S.map.ver, data: G2.mapData }, { target: pid });
+      const am = activeMap(), data = am && G2.mapImgs[am.id];
+      if (am && am.img && data) A.img.send({ k: "map", ver: am.img.ver, data }, { target: pid });
     } else if (c.k === "back") {
       if (G2.back && S.backVer) A.img.send({ k: "back", ver: S.backVer, data: G2.back }, { target: pid });
     } else if (c.k === "face") {
@@ -4990,7 +5189,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   function loadMapImage(ver, data) {
     const img = new Image();
     img.onload = () => {
-      if (S.map && S.map.ver === ver) {
+      mapLoadingVer = null;
+      if (M2.img && M2.img.ver === ver) {
         mapImg = img;
         mapImgVer = ver;
         drawSoon();
@@ -4998,14 +5198,28 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     };
     img.src = data;
   }
+  function ensureGMImage() {
+    if (role !== "gm") return;
+    if (!M2.img) {
+      mapImg = null;
+      mapImgVer = null;
+      return;
+    }
+    if (mapImgVer === M2.img.ver || mapLoadingVer === M2.img.ver) return;
+    const data = G2.mapImgs[M2.id];
+    if (data) {
+      mapLoadingVer = M2.img.ver;
+      loadMapImage(M2.img.ver, data);
+    }
+  }
   function ensureAssets() {
     if (role !== "player" || !connected) return;
     const now2 = Date.now();
-    if (!S.map) {
+    if (!M2.img) {
       mapImg = null;
       mapImgVer = null;
-    } else if (mapImgVer !== S.map.ver && !(mapAsked === S.map.ver && now2 - mapAskedAt < 1e4)) {
-      mapAsked = S.map.ver;
+    } else if (mapImgVer !== M2.img.ver && !(mapAsked === M2.img.ver && now2 - mapAskedAt < 1e4)) {
+      mapAsked = M2.img.ver;
       mapAskedAt = now2;
       act({ t: "need", k: "map" });
     }
@@ -5033,24 +5247,25 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     }
     if (!r.ok) return toast("\uADF8\uB9BC\uC774 \uB108\uBB34 \uCEE4\uC11C \uC904\uC77C \uC218 \uC5C6\uC5C8\uC5B4\uC694. \uB354 \uC791\uC740 \uC774\uBBF8\uC9C0\uB97C \uC368 \uC8FC\uC138\uC694");
     const { data, cw, ch, nw } = r;
-    G2.mapData = data;
-    const scale = S.cols * CELL / cw;
-    S.map = { ver: Date.now(), natW: cw, natH: ch, x: 0, y: 0, scale, srcRatio: cw / nw };
-    S.rows = clamp(Math.ceil(ch * scale / CELL), 4, 40);
+    G2.mapImgs[M2.id] = data;
+    const scale = M2.cols * CELL / cw;
+    M2.img = { ver: M2.id + ":" + Date.now(), natW: cw, natH: ch, x: 0, y: 0, scale, srcRatio: cw / nw };
+    M2.rows = clamp(Math.ceil(ch * scale / CELL), 4, 40);
     fitTokens();
-    if (confirm("\uBCBD\uC744 \uB9F5 \uBC14\uAE65 \uD14C\uB450\uB9AC\uB9CC \uB0A8\uAE30\uACE0 \uC815\uB9AC\uD560\uAE4C\uC694?\n(\uCDE8\uC18C\uD558\uBA74 \uC9C0\uAE08 \uBCBD\uC744 \uADF8\uB300\uB85C \uB46C\uC694)")) S.walls = borderWalls(S.cols, S.rows);
-    loadMapImage(S.map.ver, data);
+    if (confirm("\uBCBD\uC744 \uB9F5 \uBC14\uAE65 \uD14C\uB450\uB9AC\uB9CC \uB0A8\uAE30\uACE0 \uC815\uB9AC\uD560\uAE4C\uC694?\n(\uCDE8\uC18C\uD558\uBA74 \uC9C0\uAE08 \uBCBD\uC744 \uADF8\uB300\uB85C \uB46C\uC694)")) M2.walls = borderWalls(M2.cols, M2.rows);
+    mapLoadingVer = M2.img.ver;
+    loadMapImage(M2.img.ver, data);
     sync();
   }
   function fitTokens() {
-    for (const t of Object.values(S.tokens)) {
-      t.x = clamp(t.x, 0, S.cols - 1);
-      t.y = clamp(t.y, 0, S.rows - 1);
+    for (const t of Object.values(M2.tokens)) {
+      t.x = clamp(t.x, 0, M2.cols - 1);
+      t.y = clamp(t.y, 0, M2.rows - 1);
     }
   }
   function clearMap() {
-    S.map = null;
-    G2.mapData = null;
+    M2.img = null;
+    delete G2.mapImgs[M2.id];
     mapImg = null;
     mapImgVer = null;
     sync();
@@ -5064,11 +5279,11 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var Z = 2;
   var dimsKey = "";
   function applyDims() {
-    const key = S.cols + "x" + S.rows;
+    const key = M2.cols + "x" + M2.rows;
     if (key === dimsKey) return;
     dimsKey = key;
-    W = S.cols * CELL;
-    H = S.rows * CELL;
+    W = M2.cols * CELL;
+    H = M2.rows * CELL;
     Z = Math.max(1, Math.min(2, 3200 / W));
     cv.width = fogCv.width = Math.round(W * Z);
     cv.height = fogCv.height = Math.round(H * Z);
@@ -5085,8 +5300,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var lastPolys = [];
   var visibleIds = /* @__PURE__ */ new Set();
   function viewers() {
-    const pcs = Object.values(S.tokens).filter((t) => t.kind === "pc");
-    if (role === "gm" || S.share) return pcs;
+    const pcs = Object.values(M2.tokens).filter((t) => t.kind === "pc");
+    if (role === "gm" || M2.share) return pcs;
     return pcs.filter((t) => t.owner === myName);
   }
   function drawBoard() {
@@ -5095,17 +5310,17 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#fbfdff";
     ctx.fillRect(0, 0, W, H);
-    const m = S.map;
-    if (m && mapImg && mapImgVer === m.ver) ctx.drawImage(mapImg, m.x, m.y, m.natW * m.scale, m.natH * m.scale);
-    if (S.grid) {
+    const im = M2.img;
+    if (im && mapImg && mapImgVer === im.ver) ctx.drawImage(mapImg, im.x, im.y, im.natW * im.scale, im.natH * im.scale);
+    if (M2.grid) {
       ctx.strokeStyle = "rgba(42,104,168,0.25)";
       ctx.lineWidth = 1;
       ctx.beginPath();
-      for (let x = 0; x <= S.cols; x++) {
+      for (let x = 0; x <= M2.cols; x++) {
         ctx.moveTo(x * CELL, 0);
         ctx.lineTo(x * CELL, H);
       }
-      for (let y = 0; y <= S.rows; y++) {
+      for (let y = 0; y <= M2.rows; y++) {
         ctx.moveTo(0, y * CELL);
         ctx.lineTo(W, y * CELL);
       }
@@ -5116,15 +5331,15 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       ctx.lineWidth = 4;
       ctx.lineCap = "round";
       ctx.beginPath();
-      for (const w of S.walls) {
+      for (const w of M2.walls) {
         ctx.moveTo(w[0] * CELL, w[1] * CELL);
         ctx.lineTo(w[2] * CELL, w[3] * CELL);
       }
       ctx.stroke();
     }
-    const R = S.vision * CELL;
-    const segs = S.walls.map((w) => w.map((v) => v * CELL));
-    const fogOn = S.fog && (role === "player" || ui.preview);
+    const R = M2.vision * CELL;
+    const segs = M2.walls.map((w) => w.map((v) => v * CELL));
+    const fogOn = M2.fog && (role === "player" || ui.preview);
     lastPolys = viewers().map((t) => ({ t, poly: visibility((t.x + 0.5) * CELL, (t.y + 0.5) * CELL, R, segs) }));
     if (fogOn) {
       fx.setTransform(Z, 0, 0, Z, 0, 0);
@@ -5174,7 +5389,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       return lastPolys.some(({ t: v, poly }) => Math.hypot(px - (v.x + 0.5) * CELL, py - (v.y + 0.5) * CELL) <= R * 0.92 && pointInPoly(px, py, poly));
     };
     ctx.lineJoin = "round";
-    for (const t of Object.values(S.tokens)) {
+    for (const t of Object.values(M2.tokens)) {
       if (!canSee(t)) continue;
       visibleIds.add(t.id);
       const cx = (t.x + 0.5) * CELL, cy = (t.y + 0.5) * CELL, r = CELL * 0.38;
@@ -5230,19 +5445,21 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     renderAll();
   }
   function fixSelections() {
-    if (ui.sel && !S.tokens[ui.sel]) ui.sel = null;
+    if (ui.sel && !M2.tokens[ui.sel]) ui.sel = null;
     if (role !== "player") return;
-    const own = Object.values(S.tokens).filter((t) => t.owner === myName);
+    const own = Object.values(M2.tokens).filter((t) => t.owner === myName);
     for (const t of own) {
       if (!ui.knownOwn.has(t.id)) {
         ui.knownOwn.add(t.id);
         ui.mine = t.id;
       }
     }
-    if (!ui.mine || !S.tokens[ui.mine] || S.tokens[ui.mine].owner !== myName) ui.mine = own[0] ? own[0].id : null;
+    if (!ui.mine || !M2.tokens[ui.mine] || M2.tokens[ui.mine].owner !== myName) ui.mine = own[0] ? own[0].id : null;
   }
   function renderAll() {
+    ensureGMImage();
     drawSoon();
+    renderMapTabs();
     renderCards();
     renderDeckAdmin();
     renderGMPanel();
@@ -5250,6 +5467,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     renderSel();
     setupBoardText();
     updateStatus2();
+    const mt = $("#mapTitle");
+    if (mt) mt.textContent = role === "player" && M2.name ? `\uD604\uC7AC \uB9F5: ${M2.name}` : "";
   }
   function setupBoardText() {
     const hint = $("#hint");
@@ -5258,8 +5477,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     else if (ui.mode === "move") t = "\uB9D0\uC744 \uB20C\uB7EC \uC120\uD0DD\uD55C \uB4A4 \uBE48 \uCE78\uC744 \uB204\uB974\uBA74 \uC774\uB3D9\uD574\uC694. \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. (GM\uC740 \uBCBD\uC744 \uD1B5\uACFC\uD560 \uC218 \uC788\uC5B4\uC694)";
     else if (ui.mode === "wall") t = "\uACA9\uC790 \uAF2D\uC9D3\uC810 \uB450 \uACF3\uC744 \uCC28\uB840\uB85C \uB20C\uB7EC \uBCBD\uC744 \uB9CC\uB4E4\uC5B4\uC694. \uC624\uB978\uCABD \uD074\uB9AD\uC73C\uB85C \uCDE8\uC18C\uD574\uC694. (\uBCBD \uC120\uC740 GM\uC5D0\uAC8C\uB9CC \uBCF4\uC5EC\uC694)";
     else if (ui.mode === "erase") t = "\uC9C0\uC6B0\uACE0 \uC2F6\uC740 \uBCBD \uC704\uB97C \uB20C\uB7EC\uC694.";
-    else t = S.map ? "\uB9F5 \uADF8\uB9BC\uC744 \uB04C\uC5B4\uC11C \uC704\uCE58\uB97C \uB9DE\uCDB0\uC694." : "\uBA3C\uC800 GM \uB3C4\uAD6C \uD0ED\uC5D0\uC11C \uC774\uBBF8\uC9C0\uB97C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694.";
-    if (role === "player" && S.map && mapImgVer !== S.map.ver) t = "\uC9C0\uB3C4 \uADF8\uB9BC\uC744 \uBC1B\uB294 \uC911\uC774\uC5D0\uC694\u2026 " + t;
+    else t = M2.img ? "\uB9F5 \uADF8\uB9BC\uC744 \uB04C\uC5B4\uC11C \uC704\uCE58\uB97C \uB9DE\uCDB0\uC694." : "\uBA3C\uC800 GM \uB3C4\uAD6C \uD0ED\uC5D0\uC11C \uC774\uBBF8\uC9C0\uB97C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694.";
+    if (role === "player" && M2.img && mapImgVer !== M2.img.ver) t = "\uC9C0\uB3C4 \uADF8\uB9BC\uC744 \uBC1B\uB294 \uC911\uC774\uC5D0\uC694\u2026 " + t;
     hint.textContent = t;
   }
   function zoom(url, cap) {
@@ -5360,8 +5579,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       ));
     }
   }
-  function charRow(t) {
-    const who = t.kind === "npc" ? "NPC" + (t.reveal ? "" : " \xB7 \uC228\uAE40") : t.owner;
+  function charRow(t, where) {
+    const who = t.kind === "npc" ? "NPC" + (t.reveal ? "" : " \xB7 \uC228\uAE40") + (where ? ` \xB7 ${where}` : "") : t.owner;
     return h(
       "div",
       { class: "crow" },
@@ -5374,23 +5593,25 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   function renderChars() {
     const box = $("#charLists");
     box.textContent = "";
-    const all2 = Object.values(S.tokens);
-    const group = (title, list, emptyText) => {
+    const group = (title, rows, emptyText) => {
       box.append(h("h3", { text: title }));
-      if (!list.length) box.append(h("span", { class: "empty", text: emptyText }));
-      for (const t of list) box.append(charRow(t));
+      if (!rows.length) box.append(h("span", { class: "empty", text: emptyText }));
+      for (const r of rows) box.append(r);
     };
     if (role === "gm") {
-      group("\uD50C\uB808\uC774\uC5B4 \uCE90\uB9AD\uD130", all2.filter((t) => t.kind === "pc"), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
-      group("NPC", all2.filter((t) => t.kind === "npc"), "NPC\uAC00 \uC5C6\uC5B4\uC694");
+      group("\uD50C\uB808\uC774\uC5B4 \uCE90\uB9AD\uD130", Object.values(G2.pcs).map((p) => charRow({ ...p, kind: "pc" })), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
+      const npcs = [];
+      for (const mid of G2.mapOrder) for (const t of Object.values(G2.maps[mid].tokens)) if (t.kind === "npc") npcs.push(charRow(t, G2.maps[mid].name));
+      group("NPC (\uBAA8\uB4E0 \uB9F5)", npcs, "NPC\uAC00 \uC5C6\uC5B4\uC694");
     } else {
-      group("\uB0B4 \uCE90\uB9AD\uD130", all2.filter((t) => t.owner === myName), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
+      const all2 = Object.values(M2.tokens);
+      group("\uB0B4 \uCE90\uB9AD\uD130", all2.filter((t) => t.owner === myName).map((t) => charRow(t)), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
       const others = all2.filter((t) => t.kind === "pc" && t.owner !== myName);
-      if (others.length) group("\uB2E4\uB978 \uCC38\uAC00\uC790\uC758 \uCE90\uB9AD\uD130", others, "");
+      if (others.length) group("\uB2E4\uB978 \uCC38\uAC00\uC790\uC758 \uCE90\uB9AD\uD130", others.map((t) => charRow(t)), "");
     }
   }
   function renderSel() {
-    const t = ui.sel && S.tokens[ui.sel];
+    const t = ui.sel && M2.tokens[ui.sel];
     $("#selbar").hidden = !t;
     if (!t) return;
     $("#selName").replaceChildren(h("b", { text: t.name }), h("span", { class: "small", text: t.kind === "npc" ? "NPC" : t.owner }));
@@ -5402,20 +5623,22 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   function renderGMPanel() {
     if (role !== "gm") return;
     const foc = (id) => document.activeElement === $(id);
-    $("#visR").value = S.vision;
-    $("#visRv").textContent = S.vision;
-    $("#fogOn").checked = S.fog;
-    $("#shareOn").checked = S.share;
-    $("#gridOn").checked = S.grid;
-    if (!foc("#moveMax")) $("#moveMax").value = S.moveMax;
-    if (!foc("#cols")) $("#cols").value = S.cols;
-    if (!foc("#rows")) $("#rows").value = S.rows;
-    const has = !!S.map;
+    $("#visR").value = M2.vision;
+    $("#visRv").textContent = M2.vision;
+    $("#fogOn").checked = M2.fog;
+    $("#shareOn").checked = M2.share;
+    $("#gridOn").checked = M2.grid;
+    if (!foc("#moveMax")) $("#moveMax").value = M2.moveMax;
+    if (!foc("#cols")) $("#cols").value = M2.cols;
+    if (!foc("#rows")) $("#rows").value = M2.rows;
+    if (!foc("#mapName")) $("#mapName").value = M2.name;
+    $("#mapDel").disabled = G2.mapOrder.length <= 1;
+    const has = !!M2.img;
     for (const id of ["#mapScale", "#mapGridPx", "#mapFitW", "#mapFitCells", "#mapReset"]) $(id).disabled = !has;
     if (has) {
-      $("#mapScale").value = Math.round(S.map.scale * 100);
-      $("#mapScaleV").textContent = Math.round(S.map.scale * 100);
-      if (!foc("#mapGridPx")) $("#mapGridPx").value = Math.round(CELL / (S.map.scale * S.map.srcRatio));
+      $("#mapScale").value = Math.round(M2.img.scale * 100);
+      $("#mapScaleV").textContent = Math.round(M2.img.scale * 100);
+      if (!foc("#mapGridPx")) $("#mapGridPx").value = Math.round(CELL / (M2.img.scale * M2.img.srcRatio));
     } else {
       $("#mapScaleV").textContent = "-";
       $("#mapGridPx").value = "";
@@ -5424,7 +5647,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var sheetEditAt = 0;
   var editingSheet = (id) => !$("#sheetModal").hidden && ui.sheetId === id && Date.now() - sheetEditAt < 1500;
   function openSheet(id) {
-    if (!S.tokens[id]) return;
+    const c = charOf(id);
+    if (!c) return;
     ui.sheetId = id;
     if (role === "gm") {
       const sh = G2.sheets[id];
@@ -5438,7 +5662,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     $("#sheetModal").hidden = true;
   }
   function showSheet(id, sheet, canEdit) {
-    const t = S.tokens[id];
+    const t = charOf(id);
     if (!t) return;
     if (canEdit && editingSheet(id)) return;
     const draft = JSON.parse(JSON.stringify(sheet));
@@ -5593,7 +5817,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     const t = clamp(((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy || 1), 0, 1);
     return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
   }
-  var tokenAt = (cx, cy) => Object.values(S.tokens).find((t) => t.x === cx && t.y === cy && (role === "gm" || visibleIds.has(t.id)));
+  var tokenAt = (cx, cy) => Object.values(M2.tokens).find((t) => t.x === cx && t.y === cy && (role === "gm" || visibleIds.has(t.id)));
   function tapToken(t) {
     const now2 = Date.now();
     const dbl = ui.lastTap && ui.lastTap.id === t.id && now2 - ui.lastTap.at < 450;
@@ -5610,31 +5834,31 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   }
   cv.addEventListener("click", (e) => {
     const p = pointer(e);
-    if (p.cx < 0 || p.cx >= S.cols || p.cy < 0 || p.cy >= S.rows) return;
+    if (p.cx < 0 || p.cx >= M2.cols || p.cy < 0 || p.cy >= M2.rows) return;
     if (role === "player") {
       const hit = tokenAt(p.cx, p.cy);
       if (hit) return tapToken(hit);
-      const me = ui.mine && S.tokens[ui.mine];
+      const me = ui.mine && M2.tokens[ui.mine];
       if (me && (me.x !== p.cx || me.y !== p.cy)) act({ t: "move", id: me.id, x: p.cx, y: p.cy });
       return;
     }
     if (ui.mode === "move") {
       const hit = tokenAt(p.cx, p.cy);
       if (hit) tapToken(hit);
-      else if (ui.sel) movePC("GM", ui.sel, p.cx, p.cy, true);
+      else if (ui.sel) movePC("GM", ui.sel, p.cx, p.cy, true, M2);
     } else if (ui.mode === "wall") {
-      const gx = clamp(Math.round(p.px / CELL), 0, S.cols), gy = clamp(Math.round(p.py / CELL), 0, S.rows);
+      const gx = clamp(Math.round(p.px / CELL), 0, M2.cols), gy = clamp(Math.round(p.py / CELL), 0, M2.rows);
       if (!ui.pending) ui.pending = [gx, gy];
       else if (ui.pending[0] === gx && ui.pending[1] === gy) ui.pending = null;
       else {
-        S.walls.push([ui.pending[0], ui.pending[1], gx, gy]);
+        M2.walls.push([ui.pending[0], ui.pending[1], gx, gy]);
         ui.pending = null;
         sync();
       }
       drawSoon();
     } else if (ui.mode === "erase") {
       let best = -1, bd = 12;
-      S.walls.forEach((w, i) => {
+      M2.walls.forEach((w, i) => {
         const d = distToSeg(p.px, p.py, w);
         if (d < bd) {
           bd = d;
@@ -5642,7 +5866,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         }
       });
       if (best >= 0) {
-        S.walls.splice(best, 1);
+        M2.walls.splice(best, 1);
         sync();
       }
     }
@@ -5655,14 +5879,14 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   cv.addEventListener("mousemove", (e) => {
     if (role !== "gm" || ui.mode !== "wall" || !ui.pending) return;
     const p = pointer(e);
-    ui.hover = [clamp(Math.round(p.px / CELL), 0, S.cols), clamp(Math.round(p.py / CELL), 0, S.rows)];
+    ui.hover = [clamp(Math.round(p.px / CELL), 0, M2.cols), clamp(Math.round(p.py / CELL), 0, M2.rows)];
     drawSoon();
   });
   var dragSent = 0;
   cv.addEventListener("pointerdown", (e) => {
-    if (role !== "gm" || ui.mode !== "img" || !S.map) return;
+    if (role !== "gm" || ui.mode !== "img" || !M2.img) return;
     const p = pointer(e);
-    ui.drag = { sx: p.px, sy: p.py, ox: S.map.x, oy: S.map.y };
+    ui.drag = { sx: p.px, sy: p.py, ox: M2.img.x, oy: M2.img.y };
     if (cv.setPointerCapture) {
       try {
         cv.setPointerCapture(e.pointerId);
@@ -5671,10 +5895,10 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     }
   });
   cv.addEventListener("pointermove", (e) => {
-    if (!ui.drag || !S.map) return;
+    if (!ui.drag || !M2.img) return;
     const p = pointer(e);
-    S.map.x = Math.round(ui.drag.ox + p.px - ui.drag.sx);
-    S.map.y = Math.round(ui.drag.oy + p.py - ui.drag.sy);
+    M2.img.x = Math.round(ui.drag.ox + p.px - ui.drag.sx);
+    M2.img.y = Math.round(ui.drag.oy + p.py - ui.drag.sy);
     drawSoon();
     if (Date.now() - dragSent > 150) {
       dragSent = Date.now();
@@ -5700,9 +5924,9 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     if (!d) return;
     e.preventDefault();
     const key = role === "gm" ? ui.sel : ui.mine;
-    const t = key && S.tokens[key];
+    const t = key && M2.tokens[key];
     if (!t) return;
-    if (role === "gm") movePC("GM", key, t.x + d[0], t.y + d[1], true);
+    if (role === "gm") movePC("GM", key, t.x + d[0], t.y + d[1], true, M2);
     else act({ t: "move", id: key, x: t.x + d[0], y: t.y + d[1] });
   });
   function selectTab(tab) {
@@ -5722,19 +5946,28 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     };
   }
   $("#undoWall").onclick = () => {
-    S.walls.pop();
+    M2.walls.pop();
     sync();
   };
+  $("#showPlayers").onclick = () => setActive(G2.viewId);
+  $("#mapName").onchange = (e) => {
+    M2.name = cleanMapName(e.target.value) || M2.name;
+    sync();
+  };
+  $("#mapLeft").onclick = () => moveMapTab(-1);
+  $("#mapRight").onclick = () => moveMapTab(1);
+  $("#mapDup").onclick = dupMap;
+  $("#mapDel").onclick = delMap;
   $("#selSheet").onclick = () => ui.sel && openSheet(ui.sel);
   $("#selReveal").onclick = () => {
-    const t = S.tokens[ui.sel];
+    const t = M2.tokens[ui.sel];
     if (t && t.kind === "npc") {
       t.reveal = !t.reveal;
       sync();
     }
   };
   $("#selDel").onclick = () => {
-    const t = S.tokens[ui.sel];
+    const t = M2.tokens[ui.sel];
     if (t && confirm(`"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
       act({ t: "delchar", id: t.id });
       ui.sel = null;
@@ -5748,19 +5981,19 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     $("#ncName").value = "";
   };
   $("#visR").oninput = (e) => {
-    S.vision = +e.target.value;
+    M2.vision = +e.target.value;
     sync();
   };
   $("#fogOn").onchange = (e) => {
-    S.fog = e.target.checked;
+    M2.fog = e.target.checked;
     sync();
   };
   $("#shareOn").onchange = (e) => {
-    S.share = e.target.checked;
+    M2.share = e.target.checked;
     sync();
   };
   $("#gridOn").onchange = (e) => {
-    S.grid = e.target.checked;
+    M2.grid = e.target.checked;
     sync();
   };
   $("#prevOn").onchange = (e) => {
@@ -5768,28 +6001,28 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     drawSoon();
   };
   $("#moveMax").onchange = (e) => {
-    S.moveMax = clamp(+e.target.value || 0, 0, 30);
+    M2.moveMax = clamp(+e.target.value || 0, 0, 30);
     sync();
   };
   $("#cols").onchange = (e) => {
-    S.cols = clamp(Math.round(+e.target.value || 24), 4, 60);
+    M2.cols = clamp(Math.round(+e.target.value || 24), 4, 60);
     fitTokens();
     sync();
   };
   $("#rows").onchange = (e) => {
-    S.rows = clamp(Math.round(+e.target.value || 16), 4, 40);
+    M2.rows = clamp(Math.round(+e.target.value || 16), 4, 40);
     fitTokens();
     sync();
   };
   $("#defMap").onclick = () => {
-    if (confirm("\uC9C0\uAE08 \uBCBD\uC744 \uC9C0\uC6B0\uACE0 \uAE30\uBCF8 \uB9F5 \uBCBD\uC73C\uB85C \uBC14\uAFC0\uAE4C\uC694?\n(\uAC00\uB85C 24 \xD7 \uC138\uB85C 16\uC774 \uC544\uB2C8\uBA74 \uBC14\uAE65 \uD14C\uB450\uB9AC\uB9CC \uB9CC\uB4E4\uC5B4\uC694)")) {
-      S.walls = defaultWalls(S.cols, S.rows);
+    if (confirm("\uC9C0\uAE08 \uB9F5\uC758 \uBCBD\uC744 \uC9C0\uC6B0\uACE0 \uAE30\uBCF8 \uB9F5 \uBCBD\uC73C\uB85C \uBC14\uAFC0\uAE4C\uC694?\n(\uAC00\uB85C 24 \xD7 \uC138\uB85C 16\uC774 \uC544\uB2C8\uBA74 \uBC14\uAE65 \uD14C\uB450\uB9AC\uB9CC \uB9CC\uB4E4\uC5B4\uC694)")) {
+      M2.walls = defaultWalls(M2.cols, M2.rows);
       sync();
     }
   };
   $("#clrMap").onclick = () => {
-    if (confirm("\uBCBD\uC744 \uC804\uBD80 \uC9C0\uC6B8\uAE4C\uC694?")) {
-      S.walls = [];
+    if (confirm("\uC9C0\uAE08 \uB9F5\uC758 \uBCBD\uC744 \uC804\uBD80 \uC9C0\uC6B8\uAE4C\uC694?")) {
+      M2.walls = [];
       sync();
     }
   };
@@ -5800,38 +6033,38 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     if (f) await importMap(f);
   };
   $("#mapClear").onclick = () => {
-    if (S.map && confirm("\uB9F5 \uADF8\uB9BC\uC744 \uC9C0\uC6B8\uAE4C\uC694?")) clearMap();
+    if (M2.img && confirm("\uB9F5 \uADF8\uB9BC\uC744 \uC9C0\uC6B8\uAE4C\uC694?")) clearMap();
   };
   $("#mapScale").oninput = (e) => {
-    if (!S.map) return;
-    S.map.scale = clamp(+e.target.value, 5, 400) / 100;
+    if (!M2.img) return;
+    M2.img.scale = clamp(+e.target.value, 5, 400) / 100;
     sync();
   };
   $("#mapGridPx").onchange = (e) => {
     const px = +e.target.value;
-    if (!S.map || !(px >= 8 && px <= 500)) return;
-    S.map.scale = clamp(CELL / (px * S.map.srcRatio), 0.05, 4);
+    if (!M2.img || !(px >= 8 && px <= 500)) return;
+    M2.img.scale = clamp(CELL / (px * M2.img.srcRatio), 0.05, 4);
     sync();
   };
   $("#mapFitW").onclick = () => {
-    if (S.map) {
-      S.map.scale = clamp(S.cols * CELL / S.map.natW, 0.05, 4);
-      S.map.x = 0;
-      S.map.y = 0;
+    if (M2.img) {
+      M2.img.scale = clamp(M2.cols * CELL / M2.img.natW, 0.05, 4);
+      M2.img.x = 0;
+      M2.img.y = 0;
       sync();
     }
   };
   $("#mapFitCells").onclick = () => {
-    if (!S.map) return;
-    S.cols = clamp(Math.round(S.map.natW * S.map.scale / CELL), 4, 60);
-    S.rows = clamp(Math.round(S.map.natH * S.map.scale / CELL), 4, 40);
+    if (!M2.img) return;
+    M2.cols = clamp(Math.round(M2.img.natW * M2.img.scale / CELL), 4, 60);
+    M2.rows = clamp(Math.round(M2.img.natH * M2.img.scale / CELL), 4, 40);
     fitTokens();
     sync();
   };
   $("#mapReset").onclick = () => {
-    if (S.map) {
-      S.map.x = 0;
-      S.map.y = 0;
+    if (M2.img) {
+      M2.img.x = 0;
+      M2.img.y = 0;
       sync();
     }
   };
@@ -5899,7 +6132,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     const f = e.target.files[0];
     e.target.value = "";
     if (!f) return;
-    if (!confirm("\uBC29 \uD30C\uC77C\uC744 \uBD88\uB7EC\uC624\uBA74 \uC9C0\uAE08 \uBC29\uC758 \uB0B4\uC6A9(\uB9F5, \uCE74\uB4DC, \uCE90\uB9AD\uD130)\uC774 \uD30C\uC77C\uC758 \uB0B4\uC6A9\uC73C\uB85C \uBC14\uB00C\uC5B4\uC694. \uACC4\uC18D\uD560\uAE4C\uC694?")) return;
+    if (!confirm("\uBC29 \uD30C\uC77C\uC744 \uBD88\uB7EC\uC624\uBA74 \uC9C0\uAE08 \uBC29\uC758 \uB0B4\uC6A9(\uBAA8\uB4E0 \uB9F5, \uCE74\uB4DC, \uCE90\uB9AD\uD130)\uC774 \uD30C\uC77C\uC758 \uB0B4\uC6A9\uC73C\uB85C \uBC14\uB00C\uC5B4\uC694. \uACC4\uC18D\uD560\uAE4C\uC694?")) return;
     try {
       applySave(JSON.parse(await readFileText(f)));
       resyncAll();
@@ -5930,7 +6163,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     }
   };
   $("#leave").onclick = () => {
-    const msg = role === "gm" ? dirty ? "\uC800\uC7A5\uD558\uC9C0 \uC54A\uC740 \uBCC0\uACBD\uC774 \uC788\uC5B4\uC694. \uADF8\uB300\uB85C \uB098\uAC00\uBA74 \uB9F5 \uADF8\uB9BC\uACFC \uCE74\uB4DC \uADF8\uB9BC\uC744 \uD3EC\uD568\uD574 \uBAA8\uB450 \uC0AC\uB77C\uC838\uC694.\n\uADF8\uB798\uB3C4 \uB098\uAC08\uAE4C\uC694?" : "\uBC29\uC744 \uB098\uAC00\uBA74 \uC774 \uBC29\uC758 \uADF8\uB9BC\uACFC \uC124\uC815\uC740 \uC0AC\uB77C\uC838\uC694. \uB098\uAC08\uAE4C\uC694?" : "\uBC29\uC5D0\uC11C \uB098\uAC08\uAE4C\uC694?";
+    const msg = role === "gm" ? dirty ? "\uC800\uC7A5\uD558\uC9C0 \uC54A\uC740 \uBCC0\uACBD\uC774 \uC788\uC5B4\uC694. \uADF8\uB300\uB85C \uB098\uAC00\uBA74 \uBAA8\uB4E0 \uB9F5\uACFC \uCE74\uB4DC \uADF8\uB9BC\uC744 \uD3EC\uD568\uD574 \uC804\uBD80 \uC0AC\uB77C\uC838\uC694.\n\uADF8\uB798\uB3C4 \uB098\uAC08\uAE4C\uC694?" : "\uBC29\uC744 \uB098\uAC00\uBA74 \uC774 \uBC29\uC758 \uADF8\uB9BC\uACFC \uC124\uC815\uC740 \uC0AC\uB77C\uC838\uC694. \uB098\uAC08\uAE4C\uC694?" : "\uBC29\uC5D0\uC11C \uB098\uAC08\uAE4C\uC694?";
     if (!confirm(msg)) return;
     dirty = false;
     try {
@@ -5979,6 +6212,9 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     window.__rt = {
       get S() {
         return S;
+      },
+      get M() {
+        return M2;
       },
       get G() {
         return G2;
