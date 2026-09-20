@@ -9,83 +9,108 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --felt:#0d2622; --felt2:#123330; --panel:#173d37; --line:#2c5c52;
-  --chalk:#ece7d8; --dim:#9db4ab; --brass:#d2a94f; --brass-d:#8f7130;
-  --blood:#c2493f; --ink:#08171a;
+  --bg:#f3f8fe; --bg2:#eaf3fc; --panel:#ffffff; --line:#c9def2;
+  --text:#1d3652; --dim:#4c6a88; --deep:#2a68a8;
+  --pastel:#a9d3f7; --pastel-d:#8dc2f0; --on-pastel:#12314f;
+  --danger:#c23b4f;
   --serif:"Noto Serif KR","Nanum Myeongjo","Batang",serif;
   --sans:"Noto Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--felt);color:var(--chalk);font:15px/1.55 var(--sans)}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 var(--sans)}
+body{background-image:linear-gradient(rgba(169,211,247,.28) 1px,transparent 1px),linear-gradient(90deg,rgba(169,211,247,.28) 1px,transparent 1px);background-size:32px 32px}
 button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:.4em .8em}
-button:hover{border-color:var(--brass)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
-button.primary{background:var(--brass);color:var(--ink);border-color:var(--brass);font-weight:700}
-button.primary:hover{background:#e0bb66}
-button.on{background:var(--brass);color:var(--ink);border-color:var(--brass)}
-input,select,textarea{background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:.45em .6em;width:100%}
+button{cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.4em .85em;color:var(--text)}
+button:hover{border-color:var(--pastel-d);background:#f1f8ff}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--deep);outline-offset:1px}
+button.primary{background:var(--pastel);color:var(--on-pastel);border-color:var(--pastel);font-weight:700}
+button.primary:hover{background:var(--pastel-d);border-color:var(--pastel-d)}
+button.on{background:var(--pastel);color:var(--on-pastel);border-color:var(--pastel-d);font-weight:700}
+button.danger{color:var(--danger)}
+button.link{border:0;background:none;padding:0;color:var(--deep);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{background:#fff;border:1px solid var(--line);border-radius:8px;padding:.45em .6em;width:100%}
+input[type=color]{padding:.1em;height:2.2em;width:3em;cursor:pointer}
+input[type=range]{padding:0;border:0}
 label{display:block;color:var(--dim);font-size:.86em;margin:.7em 0 .25em}
-h3{font:700 1rem var(--serif);margin:1.1em 0 .4em;color:var(--brass)}
+h2,h3{font-family:var(--serif);color:var(--deep)}
+h3{font-size:1rem;margin:1.1em 0 .4em}
 [hidden]{display:none!important}
 body[data-role=player] [data-gm]{display:none!important}
 body[data-role=gm] [data-player]{display:none!important}
+.small{font-size:.84em;color:var(--dim)}
+.dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;border:1px solid rgba(18,49,79,.45);vertical-align:-.08em;margin-right:.35em;flex:none}
 
 /* 로비 */
-#lobby{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;gap:0}
-.lobby-l{padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;
-  background:radial-gradient(120% 90% at 20% 30%,#17443c 0%,var(--felt) 60%);border-right:1px solid var(--line)}
-.lobby-l h1{font:700 clamp(3rem,9vw,6.5rem)/1 var(--serif);margin:0 0 .3em;letter-spacing:-.02em}
-.lobby-l p{max-width:34em;color:var(--dim);margin:.3em 0}
-.lobby-l ul{color:var(--dim);padding-left:1.1em;max-width:34em}
-.lobby-r{padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;max-width:520px}
+#lobby{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.lobby-l{padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(160deg,#dcecfb 0%,#f3f8fe 70%);border-right:1px solid var(--line)}
+.lobby-l h1{font:700 clamp(3rem,9vw,6.5rem)/1 var(--serif);margin:0 0 .3em;letter-spacing:-.02em;color:var(--deep)}
+.lobby-l p,.lobby-l ul{max-width:34em;color:var(--dim)}
+.lobby-l ul{padding-left:1.1em}
+.lobby-r{padding:8vh 6vw;display:flex;flex-direction:column;justify-content:center;max-width:520px;background:rgba(255,255,255,.86)}
 .lobby-r .row{display:flex;gap:.6em;margin-top:1.1em}
 .lobby-r .row button{flex:1;padding:.7em}
-.small{font-size:.84em;color:var(--dim)}
-#lobbyMsg{color:#ffb4a8;min-height:1.4em;margin-top:.8em}
+#lobbyMsg{color:var(--danger);min-height:1.4em;margin-top:.8em}
 
 /* 앱 */
-.bar{display:flex;align-items:center;gap:.8em;padding:.5em .9em;background:var(--ink);border-bottom:1px solid var(--line);flex-wrap:wrap}
-.brand{font:700 1.15rem var(--serif);color:var(--brass)}
+.bar{display:flex;align-items:center;gap:.8em;padding:.5em .9em;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font:700 1.15rem var(--serif);color:var(--deep)}
 .grow{flex:1}
 #status{font-size:.86em;color:var(--dim)}
-#banner{background:#3b1f1c;border-bottom:1px solid var(--blood);padding:.6em .9em;font-size:.9em}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:.8em;padding:.8em;align-items:start}
+#banner{background:#fdecef;border-bottom:1px solid #f0b8c1;color:#7a1f2e;padding:.6em .9em;font-size:.9em}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:.8em;padding:.8em;align-items:start}
 .board{min-width:0}
 .tools{display:flex;gap:.4em;flex-wrap:wrap;margin-bottom:.5em}
-.cvwrap{position:relative;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#000;line-height:0}
+.cvwrap{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;line-height:0;box-shadow:0 2px 10px rgba(42,104,168,.08)}
 canvas{width:100%;height:auto;display:block;touch-action:manipulation}
-#veil{position:absolute;inset:0;display:grid;place-items:center;background:rgba(6,14,16,.88);line-height:1.5;text-align:center;padding:1em;font:700 1.1rem var(--serif)}
+#veil{position:absolute;inset:0;display:grid;place-items:center;background:rgba(243,248,254,.93);line-height:1.5;text-align:center;padding:1em;font:700 1.1rem var(--serif);color:var(--deep)}
 .hint{color:var(--dim);font-size:.86em;margin:.5em 0 0}
-.side{background:var(--felt2);border:1px solid var(--line);border-radius:6px;min-width:0}
-.tabs{display:flex;border-bottom:1px solid var(--line)}
-.tabs button{flex:1;border:0;border-radius:0;background:transparent;padding:.7em .3em}
-.tabs button.on{background:var(--panel);color:var(--brass);border-bottom:2px solid var(--brass)}
+.selbar{display:flex;gap:.4em;align-items:center;flex-wrap:wrap;margin-top:.5em;padding:.45em .6em;background:#fff;border:1px solid var(--line);border-radius:8px}
+.selbar b{margin-right:.3em}
+.side{background:var(--bg2);border:1px solid var(--line);border-radius:10px;min-width:0;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--line);background:#fff}
+.tabs button{flex:1;border:0;border-radius:0;background:transparent;padding:.7em .2em;color:var(--dim)}
+.tabs button.on{background:var(--bg2);color:var(--deep);border-bottom:3px solid var(--deep)}
 .pane{padding:.7em}
-#log{height:340px;overflow-y:auto;background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:.5em .6em;font-size:.92em;line-height:1.5}
-#log div{margin:.15em 0;overflow-wrap:anywhere}
+#log{height:330px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.5em .6em;font-size:.92em;line-height:1.5}
+#log div{margin:.2em 0;overflow-wrap:anywhere}
 #log .who{font-weight:700;margin-right:.4em}
 #log .sys{color:var(--dim);font-style:italic}
-#log .roll{color:var(--brass)}
-#log .card{color:#8fd3c0}
+#log .roll{color:#1f5f9a}
+#log .card{color:#1b7a68}
 .dice{display:flex;gap:.3em;flex-wrap:wrap;margin:.6em 0}
 .dice button{padding:.3em .6em;font-size:.88em}
+.speaker{display:flex;gap:.4em;align-items:center;margin-bottom:.5em}
+.speaker label{margin:0;white-space:nowrap}
 .say{display:flex;gap:.4em}
-.cards{display:flex;flex-wrap:wrap;gap:.35em;min-height:2.6em;padding:.4em;background:var(--ink);border:1px solid var(--line);border-radius:6px}
+.cards{display:flex;flex-wrap:wrap;gap:.35em;min-height:2.6em;padding:.4em;background:#fff;border:1px solid var(--line);border-radius:8px}
 .card{display:inline-flex;flex-direction:column;align-items:stretch;gap:.2em}
-.face{background:#f3efe2;color:#161616;border-radius:5px;padding:.35em .55em;font-weight:700;min-width:2.6em;text-align:center;border:1px solid #cfc8b0}
-.face.red{color:#b32b25}
+.face{background:#fff;color:#1d3652;border-radius:6px;padding:.35em .55em;font-weight:700;min-width:2.6em;text-align:center;border:1px solid #9bbbdb;box-shadow:0 1px 2px rgba(42,104,168,.15)}
+.face.red{color:#c23b4f}
 .card .mini{display:flex;gap:.2em}
 .card .mini button{flex:1;padding:.1em .3em;font-size:.75em}
 .empty{color:var(--dim);font-size:.85em;padding:.2em .3em}
 .inline{display:flex;gap:.4em;align-items:center;flex-wrap:wrap;margin:.4em 0}
-.inline input[type=number]{width:4.5em}
+.inline input[type=number]{width:4.8em}
 .inline select{width:auto;min-width:6em}
 .hands div{font-size:.86em;margin:.2em 0}
-#toast{position:fixed;left:50%;bottom:1.2em;transform:translateX(-50%);background:var(--ink);border:1px solid var(--brass);border-radius:6px;padding:.6em 1em;z-index:10;max-width:90vw}
-input[type=range]{padding:0}
-.chk{display:flex;gap:.5em;align-items:center;color:var(--chalk);font-size:.92em;margin:.5em 0}
+.chk{display:flex;gap:.5em;align-items:center;color:var(--text);font-size:.92em;margin:.5em 0}
 .chk input{width:auto}
+.crow{display:flex;gap:.4em;align-items:center;padding:.35em .45em;background:#fff;border:1px solid var(--line);border-radius:8px;margin:.3em 0}
+.crow .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow button{padding:.2em .55em;font-size:.85em}
+#toast{position:fixed;left:50%;bottom:1.2em;transform:translateX(-50%);background:#fff;border:1px solid var(--deep);border-radius:8px;padding:.6em 1em;z-index:30;max-width:90vw;box-shadow:0 4px 16px rgba(42,104,168,.2)}
+
+/* 캐릭터 시트 */
+.modal{position:fixed;inset:0;background:rgba(29,54,82,.38);display:grid;place-items:center;z-index:20;padding:1em}
+.modal-card{background:#fff;border:1px solid var(--line);border-radius:12px;width:min(580px,100%);max-height:92vh;overflow:auto;padding:1em 1.1em 1.2em;box-shadow:0 12px 40px rgba(29,54,82,.3)}
+.modal-card header{display:flex;align-items:center;gap:.6em}
+.modal-card header h2{margin:0;font-size:1.15rem;flex:1}
+.srow{display:grid;grid-template-columns:1fr 5.2em auto auto;gap:.35em;align-items:center;margin:.3em 0}
+.rrow{display:grid;grid-template-columns:1fr 4.4em auto 4.4em auto auto auto;gap:.3em;align-items:center;margin:.3em 0}
+.srow button,.rrow button{padding:.25em .55em}
+.namerow{display:flex;gap:.5em;align-items:center;margin:.8em 0 .2em}
+.namerow input:first-child{flex:1}
 @media (max-width:900px){
   #lobby{grid-template-columns:1fr}
   .lobby-l{border-right:0;border-bottom:1px solid var(--line);padding:6vh 6vw}
@@ -103,9 +128,10 @@ input[type=range]{padding:0}
     <h1>원탁</h1>
     <p>서버도 결제도 없이, 브라우저끼리 바로 연결해서 하는 온라인 TRPG 탁자예요.</p>
     <ul>
-      <li>텍스트 채팅과 주사위 굴림</li>
+      <li>텍스트 채팅과 주사위 굴림, 캐릭터로 말하기</li>
+      <li>룰별 캐릭터 시트 (d20형, 퍼센트형, 자유 양식)</li>
       <li>GM이 나눠주는 카드덱과 비공개 손패</li>
-      <li>벽 뒤가 보이지 않는 동적 시야 맵</li>
+      <li>이미지 맵과 벽 뒤가 보이지 않는 동적 시야</li>
     </ul>
     <p class="small">GM이 방을 열어 둬야 플레이어가 들어올 수 있어요. GM이 나가면 방이 닫힙니다.</p>
   </div>
@@ -115,7 +141,7 @@ input[type=range]{padding:0}
     <label for="inRoom">방 코드</label>
     <div class="inline" style="margin:0">
       <input id="inRoom" maxlength="30" placeholder="GM과 플레이어가 같은 코드" autocomplete="off" style="flex:1">
-      <button id="rndRoom" type="button" data-gm-only title="추측하기 어려운 코드를 만들어요">랜덤 코드</button>
+      <button id="rndRoom" type="button" title="추측하기 어려운 코드를 만들어요">랜덤 코드</button>
     </div>
     <label for="inPw">방 비밀번호 (권장, 모두 같아야 접속돼요)</label>
     <input id="inPw" type="password" maxlength="40" autocomplete="off" placeholder="비워도 되지만 정하는 걸 권장해요">
@@ -144,14 +170,23 @@ input[type=range]{padding:0}
         <button data-mode="move" class="on" type="button">말 이동·선택</button>
         <button data-mode="wall" type="button">벽 그리기</button>
         <button data-mode="erase" type="button">벽 지우기</button>
+        <button data-mode="img" type="button">그림 이동</button>
         <button id="undoWall" type="button">벽 되돌리기</button>
       </div>
       <div class="cvwrap"><canvas id="cv"></canvas><div id="veil">GM을 찾는 중이에요…</div></div>
+      <div id="selbar" class="selbar" hidden>
+        <span id="selName"></span>
+        <button id="selSheet" type="button">시트 보기</button>
+        <button id="selSpeak" type="button">이 캐릭터로 말하기</button>
+        <button id="selReveal" data-gm type="button"></button>
+        <button id="selDel" class="danger" type="button">삭제</button>
+      </div>
       <p id="hint" class="hint"></p>
     </section>
     <aside class="side">
       <nav class="tabs">
         <button data-tab="chat" class="on" type="button">대화</button>
+        <button data-tab="chars" type="button">캐릭터</button>
         <button data-tab="cards" type="button">카드</button>
         <button data-tab="gm" data-gm type="button">GM 도구</button>
       </nav>
@@ -159,10 +194,29 @@ input[type=range]{padding:0}
       <section id="tab-chat" class="pane">
         <div id="log" aria-live="polite"></div>
         <div class="dice" id="diceRow"></div>
+        <div class="speaker">
+          <label for="speaker">말하는 이</label>
+          <select id="speaker"></select>
+        </div>
         <div class="say">
           <input id="msg" maxlength="500" placeholder="말하기 · 주사위는 /r 2d6+3" autocomplete="off">
           <button id="send" class="primary" type="button">보내기</button>
         </div>
+      </section>
+
+      <section id="tab-chars" class="pane" hidden>
+        <h3 style="margin-top:.2em">새 캐릭터 만들기</h3>
+        <div class="inline">
+          <input id="ncName" maxlength="12" placeholder="이름" style="flex:1;min-width:6em" aria-label="캐릭터 이름">
+          <input id="ncColor" type="color" value="#7bb6ea" aria-label="캐릭터 색">
+        </div>
+        <div class="inline">
+          <select id="ncTpl" aria-label="시트 양식" style="flex:1"></select>
+          <button id="ncMake" class="primary" type="button">만들기</button>
+        </div>
+        <p class="small" data-gm style="margin:.2em 0">GM이 만든 캐릭터는 NPC예요. 처음엔 플레이어에게 보이지 않고, 말을 선택한 뒤 "플레이어에게 공개"를 눌러야 나타나요.</p>
+        <div id="charLists"></div>
+        <p class="small">캐릭터 이름을 누르면 시트가 열려요. 맵의 말을 두 번 눌러도 열려요.</p>
       </section>
 
       <section id="tab-cards" class="pane" hidden>
@@ -207,7 +261,40 @@ input[type=range]{padding:0}
       </section>
 
       <section id="tab-gm" class="pane" data-gm hidden>
-        <h3 style="margin-top:.2em">시야와 이동</h3>
+        <h3 style="margin-top:.2em">맵 그림</h3>
+        <div class="inline">
+          <button id="mapPick" class="primary" type="button">이미지 불러오기</button>
+          <button id="mapClear" type="button">그림 지우기</button>
+          <input id="mapFile" type="file" accept="image/*" hidden>
+        </div>
+        <label for="mapScale">그림 크기: <span id="mapScaleV">-</span>%</label>
+        <input id="mapScale" type="range" min="5" max="400" value="100" disabled>
+        <div class="inline">
+          <span class="small">원본 그림의 한 칸 =</span>
+          <input id="mapGridPx" type="number" min="8" max="500" placeholder="px" aria-label="원본 그림의 한 칸 크기(픽셀)" disabled>
+          <span class="small">px</span>
+        </div>
+        <div class="inline">
+          <button id="mapFitW" type="button" disabled>가로에 맞추기</button>
+          <button id="mapFitCells" type="button" disabled>그림 크기에 칸 수 맞추기</button>
+          <button id="mapReset" type="button" disabled>위치 처음으로</button>
+        </div>
+        <p class="small">그림 위 격자가 이미 그려져 있다면 "원본 그림의 한 칸"에 칸 크기(예: 70)를 넣으면 이 탁자의 격자와 맞아요. 위치는 "그림 이동" 버튼을 누르고 끌어서 맞춰요.</p>
+
+        <h3>맵 크기와 표시</h3>
+        <div class="inline">
+          <span class="small">가로</span><input id="cols" type="number" min="4" max="60" aria-label="가로 칸 수">
+          <span class="small">세로</span><input id="rows" type="number" min="4" max="40" aria-label="세로 칸 수">
+          <span class="small">칸</span>
+        </div>
+        <label class="chk"><input id="gridOn" type="checkbox" checked> 격자 선 보이기</label>
+        <label class="chk"><input id="wallsOn" type="checkbox" checked> 플레이어에게 벽 선 보이기</label>
+        <div class="inline">
+          <button id="defMap" type="button">기본 맵 불러오기</button>
+          <button id="clrMap" type="button">벽 전부 지우기</button>
+        </div>
+
+        <h3>시야와 이동</h3>
         <label for="visR">시야 반경: <span id="visRv"></span>칸</label>
         <input id="visR" type="range" min="2" max="14" value="6">
         <label class="chk"><input id="fogOn" type="checkbox" checked> 플레이어에게 시야 밖을 가리기 (안개)</label>
@@ -215,23 +302,6 @@ input[type=range]{padding:0}
         <label class="chk"><input id="prevOn" type="checkbox"> 내 화면에서도 플레이어 시점 미리보기</label>
         <label for="moveMax">한 번에 이동 가능한 칸 (0 = 제한 없음)</label>
         <input id="moveMax" type="number" min="0" max="30" value="0">
-
-        <h3>NPC·몬스터 말</h3>
-        <div class="inline">
-          <input id="npcName" maxlength="8" placeholder="이름" style="flex:1;min-width:6em">
-          <input id="npcColor" type="color" value="#c2493f" aria-label="색" style="width:3em;padding:.1em">
-          <button id="addNpc" type="button">추가</button>
-        </div>
-        <div class="inline">
-          <span class="small" id="selInfo">선택된 말 없음</span>
-          <button id="delTok" type="button">선택한 말 삭제</button>
-        </div>
-
-        <h3>맵</h3>
-        <div class="inline">
-          <button id="defMap" type="button">기본 맵 불러오기</button>
-          <button id="clrMap" type="button">벽 전부 지우기</button>
-        </div>
 
         <h3>저장</h3>
         <p class="small">이 브라우저에 자동 저장돼요. 같은 방 코드로 다시 열면 이어서 할 수 있어요. 다른 컴퓨터로 옮기려면 파일로 내보내세요.</p>
@@ -243,6 +313,17 @@ input[type=range]{padding:0}
       </section>
     </aside>
   </main>
+</div>
+
+<div id="sheetModal" class="modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <header>
+      <h2 id="sheetTitle">캐릭터 시트</h2>
+      <span id="sheetState" class="small"></span>
+      <button id="sheetClose" type="button" aria-label="닫기">닫기</button>
+    </header>
+    <div id="sheetBody"></div>
+  </div>
 </div>
 <div id="toast" hidden></div>
 <script>(() => {
@@ -3953,9 +4034,13 @@ input[type=range]{padding:0}
   function rect(x1, y1, x2, y2) {
     return [[x1, y1, x2, y1], [x2, y1, x2, y2], [x2, y2, x1, y2], [x1, y2, x1, y1]];
   }
-  function defaultWalls() {
+  function borderWalls(cols = COLS, rows = ROWS) {
+    return rect(0, 0, cols, rows);
+  }
+  function defaultWalls(cols = COLS, rows = ROWS) {
+    if (cols !== COLS || rows !== ROWS) return borderWalls(cols, rows);
     return [
-      ...rect(0, 0, COLS, ROWS),
+      ...rect(0, 0, cols, rows),
       [8, 0, 8, 6],
       [8, 9, 8, 16],
       [16, 0, 16, 4],
@@ -4036,14 +4121,78 @@ input[type=range]{padding:0}
     return inside;
   }
   var cleanName = (n) => String(n || "").trim().replace(/[<>&"'`]/g, "").slice(0, 12);
+  var validColor = (c) => /^#[0-9a-fA-F]{6}$/.test(String(c || ""));
+  var RULES = {
+    none: "\uC8FC\uC0AC\uC704 \uAD74\uB9BC \uC5C6\uC74C",
+    d20mod: "d20 + \uB2A5\uB825 \uBCF4\uC815 ((\uC218\uCE58 \u2212 10) \xF7 2, \uB0B4\uB9BC)",
+    d20add: "d20 + \uC218\uCE58",
+    d100: "d100 \uC774\uD558\uC774\uBA74 \uC131\uACF5"
+  };
+  var TEMPLATES = {
+    free: {
+      label: "\uC790\uC720 \uC591\uC2DD (\uBE48 \uC2DC\uD2B8)",
+      rule: "none",
+      stats: [],
+      res: [{ k: "HP", v: 10, max: 10 }]
+    },
+    d20: {
+      label: "d20 \uD310\uD0C0\uC9C0\uD615 (\uB2A5\uB825\uCE58 6\uC885)",
+      rule: "d20mod",
+      stats: ["\uD798", "\uBBFC\uCCA9", "\uAC74\uAC15", "\uC9C0\uB2A5", "\uC9C0\uD61C", "\uB9E4\uB825"].map((k) => ({ k, v: 10 })),
+      res: [{ k: "HP", v: 10, max: 10 }]
+    },
+    d100: {
+      label: "d100 \uD37C\uC13C\uD2B8\uD615 (\uD06C\uD234\uB8E8 \uACC4\uC5F4)",
+      rule: "d100",
+      stats: ["\uADFC\uB825", "\uBBFC\uCCA9", "\uAC74\uAC15", "\uC815\uC2E0\uB825", "\uC678\uBAA8", "\uD06C\uAE30", "\uC9C0\uB2A5", "\uAD50\uC721"].map((k) => ({ k, v: 50 })).concat([{ k: "\uD68C\uD53C", v: 25 }, { k: "\uD0D0\uC0C9", v: 25 }, { k: "\uB4E3\uAE30", v: 25 }]),
+      res: [{ k: "HP", v: 10, max: 10 }, { k: "MP", v: 10, max: 10 }, { k: "SAN", v: 50, max: 99 }]
+    }
+  };
+  function newSheet(tpl, isPc) {
+    const t = TEMPLATES[tpl] || TEMPLATES.free;
+    return {
+      tpl: TEMPLATES[tpl] ? tpl : "free",
+      rule: t.rule,
+      public: !!isPc,
+      stats: t.stats.map((x) => ({ ...x })),
+      res: t.res.map((x) => ({ ...x })),
+      notes: ""
+    };
+  }
+  function cleanSheet(sh) {
+    const str = (s, n) => String(s == null ? "" : s).slice(0, n);
+    const num = (v) => {
+      v = Number(v);
+      return Number.isFinite(v) ? Math.max(-99999, Math.min(99999, Math.trunc(v))) : 0;
+    };
+    sh = sh && typeof sh === "object" ? sh : {};
+    const out = {
+      tpl: TEMPLATES[sh.tpl] ? sh.tpl : "free",
+      rule: RULES[sh.rule] ? sh.rule : "none",
+      public: !!sh.public,
+      stats: [],
+      res: [],
+      notes: str(sh.notes, 4e3)
+    };
+    for (const s of (Array.isArray(sh.stats) ? sh.stats : []).slice(0, 40)) out.stats.push({ k: str(s && s.k, 20), v: num(s && s.v) });
+    for (const r of (Array.isArray(sh.res) ? sh.res : []).slice(0, 12)) out.res.push({ k: str(r && r.k, 20), v: num(r && r.v), max: num(r && r.max) });
+    return out;
+  }
+  function rollFor(rule, v) {
+    v = Math.trunc(Number(v)) || 0;
+    const sg = (n) => (n >= 0 ? "+" : "-") + Math.abs(n);
+    if (rule === "d20mod") return { expr: "1d20" + sg(Math.floor((v - 10) / 2)) };
+    if (rule === "d20add") return { expr: "1d20" + sg(v) };
+    if (rule === "d100") return { expr: "1d100", target: v };
+    return null;
+  }
 
   // src/app.js
   var APP_ID = "kr-trpg-roundtable-x7q2m9";
-  var W = COLS * CELL;
-  var H = ROWS * CELL;
-  var Z = 2;
-  var COLORS = ["#e06c75", "#61afef", "#98c379", "#e5c07b", "#c678dd", "#56b6c2", "#d19a66", "#ff9fb2"];
+  var COLORS = ["#f28b9b", "#7bb6ea", "#8fd6a3", "#f5cc7a", "#c3a2ee", "#7fd3d6", "#f4a97c", "#f5a3c7"];
   var $ = (s, r = document) => r.querySelector(s);
+  var clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  var safeColor = (c) => validColor(c) ? c : "#a9d3f7";
   function h(tag2, props, ...kids) {
     const el = document.createElement(tag2);
     for (const [k, v] of Object.entries(props || {})) {
@@ -4071,10 +4220,32 @@ input[type=range]{padding:0}
   var S = newState();
   var G2 = newPrivate();
   var myHand = [];
-  var ui = { tab: "chat", mode: "move", sel: null, pending: null, hover: null, preview: false };
+  var mapImg = null;
+  var mapImgVer = null;
+  var mapAsked = null;
+  var mapAskedAt = 0;
+  var ui = {
+    tab: "chat",
+    mode: "move",
+    sel: null,
+    mine: null,
+    pending: null,
+    hover: null,
+    preview: false,
+    speaker: "",
+    sheetId: null,
+    drag: null,
+    lastTap: null,
+    knownOwn: /* @__PURE__ */ new Set()
+  };
   function newState() {
     return {
-      walls: defaultWalls(),
+      cols: 24,
+      rows: 16,
+      grid: true,
+      wallsVisible: true,
+      map: null,
+      walls: defaultWalls(24, 16),
       tokens: {},
       players: {},
       table: [],
@@ -4090,12 +4261,17 @@ input[type=range]{padding:0}
     };
   }
   function newPrivate() {
-    return { deck: [], discard: [], hands: {}, peerByName: {}, nameByPeer: {} };
+    return { deck: [], discard: [], hands: {}, sheets: {}, watch: {}, mapData: null, peerByName: {}, nameByPeer: {} };
   }
   var pub = () => {
     const { log, ...rest } = S;
     return rest;
   };
+  function pubFor() {
+    const p = pub();
+    p.tokens = Object.fromEntries(Object.entries(S.tokens).filter(([, t]) => t.kind === "pc" || t.reveal));
+    return p;
+  }
   var toastTimer;
   function toast(msg) {
     const t = $("#toast");
@@ -4106,14 +4282,14 @@ input[type=range]{padding:0}
       t.hidden = true;
     }, 3500);
   }
-  function lobbyMsg(msg) {
+  var lobbyMsg = (msg) => {
     $("#lobbyMsg").textContent = msg || "";
-  }
-  function showBanner(msg) {
+  };
+  var showBanner = (msg) => {
     const b = $("#banner");
     b.textContent = msg;
     b.hidden = !msg;
-  }
+  };
   function start(asRole) {
     const name = cleanName($("#inName").value);
     const rid = $("#inRoom").value.trim();
@@ -4146,7 +4322,7 @@ input[type=range]{padding:0}
     room = joinRoom(cfg, roomId, {
       onJoinError: (d) => showBanner("\uC5F0\uACB0\uC5D0 \uC2E4\uD328\uD588\uC5B4\uC694. \uBC29 \uBE44\uBC00\uBC88\uD638\uAC00 \uC11C\uB85C \uB2E4\uB974\uAC70\uB098, \uC0AC\uC6A9 \uC911\uC778 \uB124\uD2B8\uC6CC\uD06C\uAC00 \uC9C1\uC811 \uC5F0\uACB0\uC744 \uB9C9\uACE0 \uC788\uC744 \uC218 \uC788\uC5B4\uC694. (" + (d && d.error ? d.error : "\uC54C \uC218 \uC5C6\uB294 \uC624\uB958") + ")")
     });
-    for (const n of ["jn", "full", "st", "lg", "hd", "cm", "er"]) A[n] = room.makeAction(n);
+    for (const n of ["jn", "full", "st", "lg", "hd", "cm", "er", "sh", "map"]) A[n] = room.makeAction(n);
     A.jn.onMessage = onJoinReq;
     A.cm.onMessage = (c, { peerId }) => {
       if (role !== "gm") return;
@@ -4163,12 +4339,12 @@ input[type=range]{padding:0}
       showBanner("");
       $("#veil").hidden = true;
       renderLogFull();
-      renderAll();
+      afterState();
     };
     A.st.onMessage = (d, { peerId }) => {
       if (role !== "player" || peerId !== gmId) return;
       S = Object.assign(newState(), d, { log: S.log });
-      renderAll();
+      afterState();
     };
     A.lg.onMessage = (e, { peerId }) => {
       if (role !== "player" || peerId !== gmId) return;
@@ -4184,16 +4360,28 @@ input[type=range]{padding:0}
     A.er.onMessage = (m, { peerId }) => {
       if (peerId === gmId) toast(String(m));
     };
+    A.sh.onMessage = (d, { peerId }) => {
+      if (role !== "player" || peerId !== gmId || !d) return;
+      if (d.err) {
+        if (d.id === ui.sheetId) closeSheet();
+        toast(d.err);
+        return;
+      }
+      if (d.id === ui.sheetId) showSheet(d.id, d.sheet, !!d.canEdit);
+    };
+    A.map.onMessage = (d, { peerId }) => {
+      if (role !== "player" || peerId !== gmId || !d || typeof d.data !== "string") return;
+      loadMapImage(d.ver, d.data);
+    };
     room.onPeerJoin = (pid) => {
       if (role === "player") A.jn.send({ name: myName }, { target: pid });
       updateStatus2();
     };
     room.onPeerLeave = onPeerLeave;
-    setupBoardText();
-    renderLogFull();
-    renderAll();
-    updateStatus2();
     if (role === "gm") sync();
+    else afterState();
+    renderLogFull();
+    updateStatus2();
     setInterval(updateStatus2, 1500);
   }
   function onPeerLeave(pid) {
@@ -4202,6 +4390,7 @@ input[type=range]{padding:0}
       if (name) {
         delete G2.nameByPeer[pid];
         if (G2.peerByName[name] === pid) delete G2.peerByName[name];
+        for (const set of Object.values(G2.watch)) set.delete(pid);
         if (S.players[name]) S.players[name].online = false;
         say("sys", "", `${name} \uB2D8\uC774 \uB098\uAC14\uC5B4\uC694`);
         sync();
@@ -4222,6 +4411,7 @@ input[type=range]{padding:0}
       $("#status").textContent = `GM \xB7 \uC811\uC18D\uD55C \uD50C\uB808\uC774\uC5B4 ${on}\uBA85`;
     } else if (connected) {
       $("#status").textContent = `${myName} \xB7 GM\uACFC \uC5F0\uACB0\uB428`;
+      ensureMap();
     } else {
       $("#status").textContent = n ? "GM\uC744 \uD655\uC778\uD558\uB294 \uC911\u2026" : "\uBC29\uC5D0\uC11C \uC0C1\uB300\uB97C \uCC3E\uB294 \uC911\u2026";
       if (Date.now() - joinedAt > 12e3 && !$("#banner").textContent) {
@@ -4235,6 +4425,7 @@ input[type=range]{padding:0}
     buildDeck("std54");
   }
   var saveKey = () => "rt:save:" + roomId;
+  var mapKey = () => "rt:map:" + roomId;
   function loadSaved() {
     try {
       const t = localStorage.getItem(saveKey());
@@ -4249,13 +4440,15 @@ input[type=range]{padding:0}
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       try {
-        localStorage.setItem(saveKey(), JSON.stringify(makeSave()));
+        localStorage.setItem(saveKey(), JSON.stringify(makeSave(false)));
       } catch (e) {
       }
     }, 500);
   }
-  function makeSave() {
-    return { v: 1, S, G: { deck: G2.deck, discard: G2.discard, hands: G2.hands } };
+  function makeSave(withMap) {
+    const g = { deck: G2.deck, discard: G2.discard, hands: G2.hands, sheets: G2.sheets };
+    if (withMap) g.mapData = G2.mapData;
+    return { v: 2, S, G: g };
   }
   function applySave(o) {
     var _a;
@@ -4263,29 +4456,37 @@ input[type=range]{padding:0}
     S = Object.assign(newState(), o.S);
     S.log = Array.isArray(o.S.log) ? o.S.log.slice(-200) : [];
     const keepPeers = { peerByName: G2.peerByName, nameByPeer: G2.nameByPeer };
-    G2 = Object.assign(newPrivate(), { deck: o.G.deck || [], discard: o.G.discard || [], hands: o.G.hands || {} }, keepPeers);
+    G2 = Object.assign(newPrivate(), { deck: o.G.deck || [], discard: o.G.discard || [], hands: o.G.hands || {}, sheets: o.G.sheets || {} }, keepPeers);
+    for (const [k, t] of Object.entries(S.tokens)) {
+      if (!t.id) t.id = k;
+      if (!t.owner) t.owner = t.kind === "npc" ? "GM" : t.name;
+      if (t.kind === "npc" && t.reveal === void 0) t.reveal = false;
+      G2.sheets[t.id] = G2.sheets[t.id] ? cleanSheet(G2.sheets[t.id]) : newSheet("free", t.kind === "pc");
+    }
     S.players = {};
-    for (const name of Object.keys(G2.peerByName)) S.players[name] = { online: true };
     for (const name of Object.keys(G2.peerByName)) {
-      if (!S.tokens[name]) S.tokens[name] = spawnToken(name);
+      S.players[name] = { online: true };
       (_a = G2.hands)[name] || (_a[name] = []);
+    }
+    for (const name of Object.keys(G2.peerByName)) ensureChar(name);
+    G2.mapData = o.G.mapData || null;
+    if (!G2.mapData) {
+      try {
+        G2.mapData = localStorage.getItem(mapKey());
+      } catch (e) {
+      }
+    }
+    if (S.map && G2.mapData) loadMapImage(S.map.ver, G2.mapData);
+    else {
+      S.map = null;
+      mapImg = null;
+      mapImgVer = null;
     }
   }
   function resyncAll() {
     for (const [pid, name] of Object.entries(G2.nameByPeer)) {
-      A.full.send({ you: name, st: pub(), log: S.log, hand: G2.hands[name] || [] }, { target: pid });
+      A.full.send({ you: name, st: pubFor(), log: S.log, hand: G2.hands[name] || [] }, { target: pid });
     }
-  }
-  function spawnToken(name) {
-    const used = new Set(Object.values(S.tokens).map((t) => t.x + "," + t.y));
-    let x = 1, y = 1;
-    for (let i = 0; i < 200; i++) {
-      x = 1 + i % 6;
-      y = 1 + Math.floor(i / 6);
-      if (!used.has(x + "," + y)) break;
-    }
-    const idx = Object.values(S.tokens).filter((t) => t.kind === "pc").length;
-    return { name, x, y, color: COLORS[idx % COLORS.length], kind: "pc" };
   }
   function onJoinReq(d, { peerId }) {
     var _a;
@@ -4308,25 +4509,30 @@ input[type=range]{padding:0}
     G2.peerByName[name] = peerId;
     G2.nameByPeer[peerId] = name;
     S.players[name] = { online: true };
-    if (!S.tokens[name]) S.tokens[name] = spawnToken(name);
     (_a = G2.hands)[name] || (_a[name] = []);
-    S.handCounts = Object.fromEntries(Object.entries(G2.hands).map(([k, v]) => [k, v.length]));
-    S.deckLeft = G2.deck.length;
-    S.discardN = G2.discard.length;
-    A.full.send({ you: name, st: pub(), log: S.log, hand: G2.hands[name] }, { target: peerId });
+    ensureChar(name);
+    refreshDerived();
+    A.full.send({ you: name, st: pubFor(), log: S.log, hand: G2.hands[name] }, { target: peerId });
     if (!already) say("sys", "", `${name} \uB2D8\uC774 \uC785\uC7A5\uD588\uC5B4\uC694`);
     sync();
   }
-  function sync() {
+  function refreshDerived() {
     S.deckLeft = G2.deck.length;
     S.discardN = G2.discard.length;
     S.handCounts = Object.fromEntries(Object.entries(G2.hands).map(([k, v]) => [k, v.length]));
-    A.st.send(pub());
+  }
+  function pushState() {
+    const p = pubFor();
+    for (const pid of Object.keys(G2.nameByPeer)) A.st.send(p, { target: pid });
+  }
+  function sync() {
+    refreshDerived();
+    pushState();
     renderAll();
     saveSoon();
   }
-  function say(k, who, text) {
-    const e = { k, who, text };
+  function say(k, who, text, extra) {
+    const e = Object.assign({ k, who, text }, extra || {});
     S.log.push(e);
     if (S.log.length > 200) S.log.shift();
     A.lg.send(e);
@@ -4343,6 +4549,76 @@ input[type=range]{padding:0}
     const pid = G2.peerByName[name];
     if (pid) A.hd.send(G2.hands[name] || [], { target: pid });
   }
+  function freePos(owner) {
+    const used = new Set(Object.values(S.tokens).map((t) => t.x + "," + t.y));
+    const ox = owner === "GM" ? 10 : 1, oy = owner === "GM" ? 5 : 1;
+    for (let i = 0; i < 400; i++) {
+      const x = ox + i % 6, y = oy + Math.floor(i / 6);
+      if (x < S.cols && y < S.rows && !used.has(x + "," + y)) return { x, y };
+    }
+    return { x: 0, y: 0 };
+  }
+  function makeChar(owner, name, color, tpl) {
+    const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    const kind = owner === "GM" ? "npc" : "pc";
+    const idx = Object.values(S.tokens).length;
+    const t = { id, name, color: validColor(color) ? color : COLORS[idx % COLORS.length], kind, owner, ...freePos(owner) };
+    if (kind === "npc") t.reveal = false;
+    S.tokens[id] = t;
+    G2.sheets[id] = newSheet(tpl, kind === "pc");
+    return id;
+  }
+  function ensureChar(owner) {
+    if (!Object.values(S.tokens).some((t) => t.owner === owner)) makeChar(owner, owner, null, "free");
+  }
+  function newChar(name, c) {
+    const mine = Object.values(S.tokens).filter((t) => t.owner === name);
+    if (name !== "GM" && mine.length >= 6) return tellTo(name, "\uCE90\uB9AD\uD130\uB294 \uCD5C\uB300 6\uBA85\uAE4C\uC9C0 \uB9CC\uB4E4 \uC218 \uC788\uC5B4\uC694");
+    if (Object.keys(S.tokens).length >= 80) return tellTo(name, "\uB9D0\uC774 \uB108\uBB34 \uB9CE\uC544\uC694");
+    const cn = cleanName(c.name) || (name === "GM" ? "NPC" : name);
+    const id = makeChar(name, cn, c.color, String(c.tpl || "free"));
+    if (name === "GM") ui.sel = id;
+    else say("sys", "", `${name} \uB2D8\uC774 \uC0C8 \uCE90\uB9AD\uD130\uB97C \uB9CC\uB4E4\uC5C8\uC5B4\uC694: ${cn}`);
+    sync();
+  }
+  function delChar(name, id) {
+    const t = S.tokens[id];
+    if (!t || !(name === "GM" || t.owner === name)) return;
+    delete S.tokens[id];
+    delete G2.sheets[id];
+    delete G2.watch[id];
+    sync();
+  }
+  function resolveSpeaker(name, as) {
+    const t = as && S.tokens[String(as)];
+    if (!t) return null;
+    return (name === "GM" ? t.kind === "npc" : t.owner === name) ? t : null;
+  }
+  function reqSheet(name, id) {
+    var _a;
+    const pid = G2.peerByName[name];
+    if (!pid) return;
+    const t = S.tokens[id], sh = G2.sheets[id];
+    if (!t || !sh || !(t.owner === name || sh.public)) return A.sh.send({ id, err: "\uBE44\uACF5\uAC1C \uC2DC\uD2B8\uC608\uC694" }, { target: pid });
+    ((_a = G2.watch)[id] || (_a[id] = /* @__PURE__ */ new Set())).add(pid);
+    A.sh.send({ id, sheet: sh, canEdit: t.owner === name }, { target: pid });
+  }
+  function setSheet(name, c) {
+    const id = String(c.id), t = S.tokens[id];
+    if (!t || !(name === "GM" || t.owner === name)) return;
+    const sh = G2.sheets[id] = cleanSheet(c.sheet);
+    const nm = cleanName(c.name);
+    if (nm) t.name = nm;
+    if (validColor(c.color)) t.color = c.color;
+    const sender = G2.peerByName[name];
+    for (const pid of G2.watch[id] || []) {
+      if (pid === sender) continue;
+      const n2 = G2.nameByPeer[pid];
+      if (n2 && (t.owner === n2 || sh.public)) A.sh.send({ id, sheet: sh, canEdit: t.owner === n2 }, { target: pid });
+    }
+    if (role === "gm" && name !== "GM" && ui.sheetId === id && !editingSheet(id)) showSheet(id, sh, true);
+    sync();
+  }
   function act(c) {
     if (role === "gm") cmd("GM", c);
     else if (connected) A.cm.send(c, { target: gmId });
@@ -4354,15 +4630,15 @@ input[type=range]{padding:0}
         const text = String(c.text || "").trim().slice(0, 500);
         if (!text) return;
         const m = text.match(/^\/(?:r|roll|주사위)\s+(.+)$/i);
-        if (m) doRoll(name, m[1]);
-        else say("chat", name, text);
+        if (m) doRoll(name, m[1], c);
+        else speak(name, c.as, text);
         break;
       }
       case "roll":
-        doRoll(name, c.expr);
+        doRoll(name, c.expr, c);
         break;
       case "move":
-        movePC(name, name, c.x, c.y, false);
+        movePC(name, String(c.id), c.x, c.y, name === "GM");
         break;
       case "play":
         playCard(name, c.card);
@@ -4370,19 +4646,43 @@ input[type=range]{padding:0}
       case "disc":
         discardCard(name, c.card);
         break;
+      case "newchar":
+        newChar(name, c);
+        break;
+      case "delchar":
+        delChar(name, String(c.id));
+        break;
+      case "sheet":
+        reqSheet(name, String(c.id));
+        break;
+      case "sheetset":
+        setSheet(name, c);
+        break;
+      case "needmap":
+        sendMap(name);
+        break;
     }
   }
-  function doRoll(who, expr) {
-    const r = parseDice(expr);
-    if (!r) return tellTo(who, "\uC8FC\uC0AC\uC704 \uC2DD\uC744 \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC608: 2d6+3, d20, 1d8+1d4-1");
-    say("roll", who, `\u{1F3B2} ${String(expr).replace(/\s+/g, "")}  \u2192  ${r.text}  =  ${r.total}`);
+  function speak(name, as, text) {
+    const t = resolveSpeaker(name, as);
+    say("chat", t ? t.name : name, text, t ? { color: t.color } : {});
   }
-  function movePC(actor, key, x, y, byGM) {
-    const t = S.tokens[key];
+  function doRoll(name, expr, c) {
+    const r = parseDice(expr);
+    if (!r) return tellTo(name, "\uC8FC\uC0AC\uC704 \uC2DD\uC744 \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC608: 2d6+3, d20, 1d8+1d4-1");
+    const t = resolveSpeaker(name, c && c.as);
+    const label = c && c.label ? String(c.label).slice(0, 30) + " \xB7 " : "";
+    let tail = "";
+    if (c && c.target != null && Number.isFinite(+c.target)) tail = r.total <= +c.target ? `  \u25B6 \uC131\uACF5 (\uBAA9\uD45C ${+c.target})` : `  \u25B6 \uC2E4\uD328 (\uBAA9\uD45C ${+c.target})`;
+    say("roll", t ? t.name : name, `\u{1F3B2} ${label}${String(expr).replace(/\s+/g, "")}  \u2192  ${r.text}  =  ${r.total}${tail}`, t ? { color: t.color } : {});
+  }
+  function movePC(actor, id, x, y, byGM) {
+    const t = S.tokens[id];
     x = Math.floor(x);
     y = Math.floor(y);
-    if (!t || !(x >= 0 && x < COLS && y >= 0 && y < ROWS)) return;
+    if (!t || !(x >= 0 && x < S.cols && y >= 0 && y < S.rows)) return;
     if (!byGM) {
+      if (t.owner !== actor) return;
       if (S.moveMax > 0 && Math.max(Math.abs(x - t.x), Math.abs(y - t.y)) > S.moveMax) return tellTo(actor, `\uD55C \uBC88\uC5D0 ${S.moveMax}\uCE78\uAE4C\uC9C0\uB9CC \uC6C0\uC9C1\uC77C \uC218 \uC788\uC5B4\uC694`);
       if (blocked(S.walls, t, { x, y })) return tellTo(actor, "\uBCBD\uC5D0 \uB9C9\uD600\uC11C \uAC08 \uC218 \uC5C6\uC5B4\uC694");
     }
@@ -4458,14 +4758,120 @@ input[type=range]{padding:0}
     say("card", "GM", c ? `\uB371\uC5D0\uC11C ${c}\uC7A5\uC744 \uACF5\uAC1C\uD588\uC5B4\uC694` : "\uB371\uC5D0 \uCE74\uB4DC\uAC00 \uC5C6\uC5B4\uC694");
     sync();
   }
+  function loadMapImage(ver, data) {
+    const img = new Image();
+    img.onload = () => {
+      if (S.map && S.map.ver === ver) {
+        mapImg = img;
+        mapImgVer = ver;
+        drawSoon();
+      }
+    };
+    img.src = data;
+  }
+  function ensureMap() {
+    if (role !== "player" || !connected) return;
+    if (!S.map) {
+      mapImg = null;
+      mapImgVer = null;
+      return;
+    }
+    if (mapImgVer === S.map.ver) return;
+    if (mapAsked === S.map.ver && Date.now() - mapAskedAt < 1e4) return;
+    mapAsked = S.map.ver;
+    mapAskedAt = Date.now();
+    act({ t: "needmap" });
+  }
+  function sendMap(name) {
+    const pid = G2.peerByName[name];
+    if (pid && G2.mapData && S.map) A.map.send({ ver: S.map.ver, data: G2.mapData }, { target: pid });
+  }
+  async function importMap(file) {
+    if (!file || !/^image\//.test(file.type)) return toast("\uC774\uBBF8\uC9C0 \uD30C\uC77C\uC744 \uACE8\uB77C \uC8FC\uC138\uC694");
+    if (file.size > 30 * 1024 * 1024) return toast("\uD30C\uC77C\uC774 \uB108\uBB34 \uCEE4\uC694 (30MB \uC774\uD558\uB85C \uACE8\uB77C \uC8FC\uC138\uC694)");
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => {
+        const i = new Image();
+        i.onload = () => res(i);
+        i.onerror = () => rej(new Error("\uC774 \uC774\uBBF8\uC9C0\uB97C \uC5F4 \uC218 \uC5C6\uC5B4\uC694"));
+        i.src = url;
+      });
+      importMapFromImage(img);
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+  function importMapFromImage(img) {
+    const nw = img.naturalWidth || img.width, nh = img.naturalHeight || img.height;
+    if (!nw || !nh) return toast("\uC774\uBBF8\uC9C0 \uD06C\uAE30\uB97C \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694");
+    let r = Math.min(1, 2200 / Math.max(nw, nh)), data = "", cw = 0, ch = 0;
+    for (let i = 0; i < 5; i++) {
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(nw * r));
+      c.height = Math.max(1, Math.round(nh * r));
+      const x = c.getContext("2d");
+      x.fillStyle = "#fff";
+      x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(img, 0, 0, c.width, c.height);
+      data = c.toDataURL("image/jpeg", 0.85);
+      cw = c.width;
+      ch = c.height;
+      if (data.length <= 26e5) break;
+      r *= 0.75;
+    }
+    if (data.length > 4e6) return toast("\uADF8\uB9BC\uC774 \uB108\uBB34 \uCEE4\uC11C \uC904\uC77C \uC218 \uC5C6\uC5C8\uC5B4\uC694. \uB354 \uC791\uC740 \uC774\uBBF8\uC9C0\uB97C \uC368 \uC8FC\uC138\uC694");
+    G2.mapData = data;
+    const scale = S.cols * CELL / cw;
+    S.map = { ver: Date.now(), natW: cw, natH: ch, x: 0, y: 0, scale, srcRatio: cw / nw };
+    S.rows = clamp(Math.ceil(ch * scale / CELL), 4, 40);
+    fitTokens();
+    if (confirm("\uBCBD\uC744 \uB9F5 \uBC14\uAE65 \uD14C\uB450\uB9AC\uB9CC \uB0A8\uAE30\uACE0 \uC815\uB9AC\uD560\uAE4C\uC694?\n(\uCDE8\uC18C\uD558\uBA74 \uC9C0\uAE08 \uBCBD\uC744 \uADF8\uB300\uB85C \uB46C\uC694)")) S.walls = borderWalls(S.cols, S.rows);
+    loadMapImage(S.map.ver, data);
+    try {
+      localStorage.setItem(mapKey(), data);
+    } catch (e) {
+      toast('\uADF8\uB9BC\uC774 \uCEE4\uC11C \uC790\uB3D9 \uC800\uC7A5\uC740 \uBABB \uD588\uC5B4\uC694. "\uD30C\uC77C\uB85C \uB0B4\uBCF4\uB0B4\uAE30"\uB97C \uC368 \uC8FC\uC138\uC694');
+    }
+    sync();
+  }
+  function fitTokens() {
+    for (const t of Object.values(S.tokens)) {
+      t.x = clamp(t.x, 0, S.cols - 1);
+      t.y = clamp(t.y, 0, S.rows - 1);
+    }
+  }
+  function clearMap() {
+    S.map = null;
+    G2.mapData = null;
+    mapImg = null;
+    mapImgVer = null;
+    try {
+      localStorage.removeItem(mapKey());
+    } catch (e) {
+    }
+    sync();
+  }
   var cv = $("#cv");
   var ctx = cv.getContext("2d");
-  cv.width = W * Z;
-  cv.height = H * Z;
   var fogCv = document.createElement("canvas");
-  fogCv.width = W * Z;
-  fogCv.height = H * Z;
   var fx = fogCv.getContext("2d");
+  var W = 0;
+  var H = 0;
+  var Z = 2;
+  var dimsKey = "";
+  function applyDims() {
+    const key = S.cols + "x" + S.rows;
+    if (key === dimsKey) return;
+    dimsKey = key;
+    W = S.cols * CELL;
+    H = S.rows * CELL;
+    Z = Math.max(1, Math.min(2, 3200 / W));
+    cv.width = fogCv.width = Math.round(W * Z);
+    cv.height = fogCv.height = Math.round(H * Z);
+  }
   var rafPending = false;
   function drawSoon() {
     if (rafPending) return;
@@ -4476,49 +4882,56 @@ input[type=range]{padding:0}
     });
   }
   var lastPolys = [];
+  var visibleIds = /* @__PURE__ */ new Set();
   function viewers() {
     const pcs = Object.values(S.tokens).filter((t) => t.kind === "pc");
-    if (role === "gm") return pcs;
-    if (S.share) return pcs;
-    const me = S.tokens[myName];
-    return me ? [me] : [];
+    if (role === "gm" || S.share) return pcs;
+    return pcs.filter((t) => t.owner === myName);
   }
   function drawBoard() {
+    applyDims();
     ctx.setTransform(Z, 0, 0, Z, 0, 0);
     ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = "#132a26";
+    ctx.fillStyle = "#fbfdff";
     ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = "rgba(236,231,216,0.07)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let x = 0; x <= COLS; x++) {
-      ctx.moveTo(x * CELL, 0);
-      ctx.lineTo(x * CELL, H);
+    const m = S.map;
+    if (m && mapImg && mapImgVer === m.ver) ctx.drawImage(mapImg, m.x, m.y, m.natW * m.scale, m.natH * m.scale);
+    if (S.grid) {
+      ctx.strokeStyle = "rgba(42,104,168,0.25)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = 0; x <= S.cols; x++) {
+        ctx.moveTo(x * CELL, 0);
+        ctx.lineTo(x * CELL, H);
+      }
+      for (let y = 0; y <= S.rows; y++) {
+        ctx.moveTo(0, y * CELL);
+        ctx.lineTo(W, y * CELL);
+      }
+      ctx.stroke();
     }
-    for (let y = 0; y <= ROWS; y++) {
-      ctx.moveTo(0, y * CELL);
-      ctx.lineTo(W, y * CELL);
+    if (S.wallsVisible || role === "gm") {
+      ctx.strokeStyle = S.wallsVisible ? "#2f5f8f" : "rgba(47,95,143,0.5)";
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      if (!S.wallsVisible) ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      for (const w of S.walls) {
+        ctx.moveTo(w[0] * CELL, w[1] * CELL);
+        ctx.lineTo(w[2] * CELL, w[3] * CELL);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
-    ctx.stroke();
-    ctx.strokeStyle = "#d8c288";
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    for (const w of S.walls) {
-      ctx.moveTo(w[0] * CELL, w[1] * CELL);
-      ctx.lineTo(w[2] * CELL, w[3] * CELL);
-    }
-    ctx.stroke();
     const R = S.vision * CELL;
     const segs = S.walls.map((w) => w.map((v) => v * CELL));
     const fogOn = S.fog && (role === "player" || ui.preview);
-    const vs = viewers();
-    lastPolys = vs.map((t) => ({ t, poly: visibility((t.x + 0.5) * CELL, (t.y + 0.5) * CELL, R, segs) }));
+    lastPolys = viewers().map((t) => ({ t, poly: visibility((t.x + 0.5) * CELL, (t.y + 0.5) * CELL, R, segs) }));
     if (fogOn) {
       fx.setTransform(Z, 0, 0, Z, 0, 0);
       fx.globalCompositeOperation = "source-over";
       fx.clearRect(0, 0, W, H);
-      fx.fillStyle = "rgba(4,9,10,0.97)";
+      fx.fillStyle = "rgba(20,36,58,0.985)";
       fx.fillRect(0, 0, W, H);
       fx.globalCompositeOperation = "destination-out";
       for (const { t, poly } of lastPolys) {
@@ -4539,7 +4952,7 @@ input[type=range]{padding:0}
       ctx.drawImage(fogCv, 0, 0);
       ctx.setTransform(Z, 0, 0, Z, 0, 0);
     } else if (role === "gm") {
-      ctx.fillStyle = "rgba(255,225,150,0.06)";
+      ctx.fillStyle = "rgba(255,214,102,0.13)";
       for (const { t, poly } of lastPolys) {
         if (!poly.length) continue;
         ctx.save();
@@ -4553,37 +4966,47 @@ input[type=range]{padding:0}
         ctx.restore();
       }
     }
+    visibleIds = /* @__PURE__ */ new Set();
     const canSee = (t) => {
+      if (role === "player" && t.owner === myName) return true;
+      if (role === "gm" && ui.preview && t.kind === "npc" && !t.reveal) return false;
       if (!fogOn) return true;
-      if (t.kind === "pc" && t.name === myName && role === "player") return true;
       const px = (t.x + 0.5) * CELL, py = (t.y + 0.5) * CELL;
       return lastPolys.some(({ t: v, poly }) => Math.hypot(px - (v.x + 0.5) * CELL, py - (v.y + 0.5) * CELL) <= R * 0.92 && pointInPoly(px, py, poly));
     };
+    ctx.lineJoin = "round";
     for (const t of Object.values(S.tokens)) {
       if (!canSee(t)) continue;
+      visibleIds.add(t.id);
       const cx = (t.x + 0.5) * CELL, cy = (t.y + 0.5) * CELL, r = CELL * 0.38;
-      const off = t.kind === "pc" && S.players[t.name] && S.players[t.name].online === false;
-      ctx.globalAlpha = off ? 0.4 : 1;
-      ctx.fillStyle = t.color;
-      ctx.strokeStyle = "#08171a";
+      const off = t.kind === "pc" && S.players[t.owner] && S.players[t.owner].online === false;
+      ctx.globalAlpha = off ? 0.45 : role === "gm" && t.kind === "npc" && !t.reveal ? 0.7 : 1;
+      ctx.fillStyle = safeColor(t.color);
+      ctx.strokeStyle = "#12314f";
       ctx.lineWidth = 2;
       ctx.beginPath();
       if (t.kind === "npc") ctx.rect(cx - r, cy - r, r * 2, r * 2);
       else ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fill();
+      if (role === "gm" && t.kind === "npc" && !t.reveal) ctx.setLineDash([4, 3]);
       ctx.stroke();
-      ctx.fillStyle = "#08171a";
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#12314f";
       ctx.font = `700 ${CELL * 0.4}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(Array.from(t.name)[0] || "?", cx, cy + 1);
-      ctx.fillStyle = "#ece7d8";
       ctx.font = `500 ${CELL * 0.3}px sans-serif`;
       ctx.textBaseline = "top";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255,255,255,0.95)";
+      ctx.strokeText(t.name, cx, cy + r + 1);
+      ctx.fillStyle = "#1d3652";
       ctx.fillText(t.name, cx, cy + r + 1);
       ctx.globalAlpha = 1;
-      if (role === "gm" && ui.sel === t.name) {
-        ctx.strokeStyle = "#d2a94f";
+      const isSel = ui.sel === t.id, isMine = role === "player" && ui.mine === t.id;
+      if (isSel || isMine) {
+        ctx.strokeStyle = isSel ? "#2a68a8" : "rgba(42,104,168,0.55)";
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
@@ -4591,7 +5014,7 @@ input[type=range]{padding:0}
       }
     }
     if (role === "gm" && ui.mode === "wall" && ui.pending) {
-      ctx.strokeStyle = "#fff";
+      ctx.strokeStyle = "#2a68a8";
       ctx.setLineDash([5, 4]);
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -4602,25 +5025,50 @@ input[type=range]{padding:0}
       ctx.setLineDash([]);
     }
   }
+  function afterState() {
+    ensureMap();
+    fixSelections();
+    renderAll();
+  }
+  function fixSelections() {
+    if (ui.sel && !S.tokens[ui.sel]) ui.sel = null;
+    if (role !== "player") return;
+    const own = Object.values(S.tokens).filter((t) => t.owner === myName);
+    for (const t of own) {
+      if (!ui.knownOwn.has(t.id)) {
+        ui.knownOwn.add(t.id);
+        ui.mine = t.id;
+      }
+    }
+    if (!ui.mine || !S.tokens[ui.mine] || S.tokens[ui.mine].owner !== myName) ui.mine = own[0] ? own[0].id : null;
+  }
   function renderAll() {
     drawSoon();
     renderCards();
     renderGMPanel();
+    renderChars();
+    renderSel();
+    renderSpeaker();
     setupBoardText();
     updateStatus2();
   }
   function setupBoardText() {
     const hint = $("#hint");
-    if (role === "player") hint.textContent = "\uCE78\uC744 \uB204\uB974\uAC70\uB098 \uBC29\uD5A5\uD0A4/WASD\uB85C \uB0B4 \uB9D0\uC744 \uC6C0\uC9C1\uC5EC\uC694. \uBCBD\uC740 \uD1B5\uACFC\uD560 \uC218 \uC5C6\uC5B4\uC694.";
-    else if (ui.mode === "move") hint.textContent = "\uB9D0\uC744 \uB20C\uB7EC \uC120\uD0DD\uD55C \uB4A4 \uBE48 \uCE78\uC744 \uB204\uB974\uBA74 \uC774\uB3D9\uD574\uC694. \uBC29\uD5A5\uD0A4/WASD\uB85C\uB3C4 \uC6C0\uC9C1\uC5EC\uC694. (GM\uC740 \uBCBD\uC744 \uD1B5\uACFC\uD560 \uC218 \uC788\uC5B4\uC694)";
-    else if (ui.mode === "wall") hint.textContent = "\uACA9\uC790 \uAF2D\uC9D3\uC810 \uB450 \uACF3\uC744 \uCC28\uB840\uB85C \uB20C\uB7EC \uBCBD\uC744 \uB9CC\uB4E4\uC5B4\uC694. \uC624\uB978\uCABD \uD074\uB9AD\uC73C\uB85C \uCDE8\uC18C\uD574\uC694.";
-    else hint.textContent = "\uC9C0\uC6B0\uACE0 \uC2F6\uC740 \uBCBD \uC704\uB97C \uB20C\uB7EC\uC694.";
+    let t;
+    if (role === "player") t = "\uCE78\uC744 \uB204\uB974\uAC70\uB098 \uBC29\uD5A5\uD0A4/WASD\uB85C \uB0B4 \uB9D0\uC744 \uC6C0\uC9C1\uC5EC\uC694. \uBCBD\uC740 \uD1B5\uACFC\uD560 \uC218 \uC5C6\uC5B4\uC694. \uB9D0\uC744 \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694.";
+    else if (ui.mode === "move") t = "\uB9D0\uC744 \uB20C\uB7EC \uC120\uD0DD\uD55C \uB4A4 \uBE48 \uCE78\uC744 \uB204\uB974\uBA74 \uC774\uB3D9\uD574\uC694. \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. (GM\uC740 \uBCBD\uC744 \uD1B5\uACFC\uD560 \uC218 \uC788\uC5B4\uC694)";
+    else if (ui.mode === "wall") t = "\uACA9\uC790 \uAF2D\uC9D3\uC810 \uB450 \uACF3\uC744 \uCC28\uB840\uB85C \uB20C\uB7EC \uBCBD\uC744 \uB9CC\uB4E4\uC5B4\uC694. \uC624\uB978\uCABD \uD074\uB9AD\uC73C\uB85C \uCDE8\uC18C\uD574\uC694.";
+    else if (ui.mode === "erase") t = "\uC9C0\uC6B0\uACE0 \uC2F6\uC740 \uBCBD \uC704\uB97C \uB20C\uB7EC\uC694.";
+    else t = S.map ? "\uB9F5 \uADF8\uB9BC\uC744 \uB04C\uC5B4\uC11C \uC704\uCE58\uB97C \uB9DE\uCDB0\uC694." : "\uBA3C\uC800 GM \uB3C4\uAD6C \uD0ED\uC5D0\uC11C \uC774\uBBF8\uC9C0\uB97C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694.";
+    if (role === "player" && S.map && mapImgVer !== S.map.ver) t = "\uC9C0\uB3C4 \uADF8\uB9BC\uC744 \uBC1B\uB294 \uC911\uC774\uC5D0\uC694\u2026 " + t;
+    hint.textContent = t;
   }
   function appendLogLine(e) {
     const d = h("div", { class: e.k });
-    if (e.k === "chat") d.append(h("span", { class: "who", text: e.who + ":" }), e.text);
-    else if (e.k === "roll") d.append(h("span", { class: "who", text: e.who }), e.text);
-    else d.textContent = e.text;
+    if (e.k === "chat" || e.k === "roll") {
+      if (e.color) d.append(h("span", { class: "dot", style: "background:" + safeColor(e.color) }));
+      d.append(h("span", { class: "who", text: e.who + (e.k === "chat" ? ":" : "") }), e.k === "roll" ? " " + e.text : e.text);
+    } else d.textContent = e.text;
     return d;
   }
   function renderLog(e) {
@@ -4636,11 +5084,10 @@ input[type=range]{padding:0}
     box.scrollTop = box.scrollHeight;
   }
   function cardEl(c, actions) {
-    const red = /^[♥♦]/.test(c);
     return h(
       "div",
       { class: "card" },
-      h("div", { class: "face" + (red ? " red" : ""), text: c }),
+      h("div", { class: "face" + (/^[♥♦]/.test(c) ? " red" : ""), text: c }),
       actions ? h("div", { class: "mini" }, actions) : null
     );
   }
@@ -4673,17 +5120,265 @@ input[type=range]{padding:0}
       for (const k of names) box.append(h("div", { text: `${k} (${G2.hands[k].length}\uC7A5): ${G2.hands[k].join("  ") || "\u2014"}` }));
     }
   }
+  function canSpeakAs(t) {
+    return role === "gm" ? t.kind === "npc" : t.owner === myName;
+  }
+  function renderSpeaker() {
+    const sel = $("#speaker");
+    sel.textContent = "";
+    sel.append(h("option", { value: "", text: role === "gm" ? "GM (\uB098)" : `\uB098 (${myName})` }));
+    for (const t of Object.values(S.tokens)) if (canSpeakAs(t)) sel.append(h("option", { value: t.id, text: t.name + (role === "gm" ? " (NPC)" : "") }));
+    if (![...sel.options].some((o) => o.value === ui.speaker)) ui.speaker = "";
+    sel.value = ui.speaker;
+  }
+  function charRow(t) {
+    const who = t.kind === "npc" ? "NPC" + (t.reveal ? "" : " \xB7 \uC228\uAE40") : t.owner;
+    return h(
+      "div",
+      { class: "crow" },
+      h("span", { class: "dot", style: "background:" + safeColor(t.color) }),
+      h("button", { class: "link name", type: "button", text: t.name, onclick: () => openSheet(t.id) }),
+      h("span", { class: "small", text: who }),
+      canSpeakAs(t) ? h("button", { type: "button", text: "\uB9D0\uD558\uAE30", onclick: () => {
+        ui.speaker = t.id;
+        renderSpeaker();
+        toast(`\uC774\uC81C "${t.name}"(\uC73C)\uB85C \uB9D0\uD574\uC694`);
+      } }) : null,
+      h("button", { type: "button", text: "\uC2DC\uD2B8", onclick: () => openSheet(t.id) })
+    );
+  }
+  function renderChars() {
+    const box = $("#charLists");
+    box.textContent = "";
+    const all2 = Object.values(S.tokens);
+    const group = (title, list, emptyText) => {
+      box.append(h("h3", { text: title }));
+      if (!list.length) box.append(h("span", { class: "empty", text: emptyText }));
+      for (const t of list) box.append(charRow(t));
+    };
+    if (role === "gm") {
+      group("\uD50C\uB808\uC774\uC5B4 \uCE90\uB9AD\uD130", all2.filter((t) => t.kind === "pc"), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
+      group("NPC", all2.filter((t) => t.kind === "npc"), "NPC\uAC00 \uC5C6\uC5B4\uC694");
+    } else {
+      group("\uB0B4 \uCE90\uB9AD\uD130", all2.filter((t) => t.owner === myName), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
+      const others = all2.filter((t) => t.kind === "pc" && t.owner !== myName);
+      if (others.length) group("\uB2E4\uB978 \uCC38\uAC00\uC790\uC758 \uCE90\uB9AD\uD130", others, "");
+    }
+  }
+  function renderSel() {
+    const t = ui.sel && S.tokens[ui.sel];
+    $("#selbar").hidden = !t;
+    if (!t) return;
+    $("#selName").replaceChildren(h("b", { text: t.name }), h("span", { class: "small", text: t.kind === "npc" ? "NPC" : t.owner }));
+    $("#selSpeak").hidden = !canSpeakAs(t);
+    const rv = $("#selReveal");
+    rv.hidden = !(role === "gm" && t.kind === "npc");
+    rv.textContent = t.reveal ? "\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uC228\uAE30\uAE30" : "\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uACF5\uAC1C";
+    $("#selDel").hidden = !(role === "gm" || t.owner === myName);
+  }
   function renderGMPanel() {
     if (role !== "gm") return;
+    const foc = (id) => document.activeElement === $(id);
     $("#visR").value = S.vision;
     $("#visRv").textContent = S.vision;
     $("#fogOn").checked = S.fog;
     $("#shareOn").checked = S.share;
-    if (document.activeElement !== $("#moveMax")) $("#moveMax").value = S.moveMax;
-    const t = ui.sel && S.tokens[ui.sel];
-    if (ui.sel && !t) ui.sel = null;
-    $("#selInfo").textContent = t ? `\uC120\uD0DD: ${t.name}` : "\uC120\uD0DD\uB41C \uB9D0 \uC5C6\uC74C";
+    $("#gridOn").checked = S.grid;
+    $("#wallsOn").checked = S.wallsVisible;
+    if (!foc("#moveMax")) $("#moveMax").value = S.moveMax;
+    if (!foc("#cols")) $("#cols").value = S.cols;
+    if (!foc("#rows")) $("#rows").value = S.rows;
+    const has = !!S.map;
+    for (const id of ["#mapScale", "#mapGridPx", "#mapFitW", "#mapFitCells", "#mapReset"]) $(id).disabled = !has;
+    if (has) {
+      $("#mapScale").value = Math.round(S.map.scale * 100);
+      $("#mapScaleV").textContent = Math.round(S.map.scale * 100);
+      if (!foc("#mapGridPx")) $("#mapGridPx").value = Math.round(CELL / (S.map.scale * S.map.srcRatio));
+    } else {
+      $("#mapScaleV").textContent = "-";
+      $("#mapGridPx").value = "";
+    }
   }
+  var sheetEditAt = 0;
+  var editingSheet = (id) => !$("#sheetModal").hidden && ui.sheetId === id && Date.now() - sheetEditAt < 1500;
+  function openSheet(id) {
+    if (!S.tokens[id]) return;
+    ui.sheetId = id;
+    if (role === "gm") {
+      const sh = G2.sheets[id];
+      if (sh) showSheet(id, sh, true);
+    } else act({ t: "sheet", id });
+  }
+  function closeSheet() {
+    ui.sheetId = null;
+    const a = document.activeElement;
+    if (a && a.blur && $("#sheetModal").contains(a)) a.blur();
+    $("#sheetModal").hidden = true;
+  }
+  function showSheet(id, sheet, canEdit) {
+    const t = S.tokens[id];
+    if (!t) return;
+    if (canEdit && editingSheet(id)) return;
+    const canRoll = role === "gm" ? t.kind === "npc" : t.owner === myName;
+    const draft = JSON.parse(JSON.stringify(sheet));
+    let name = t.name, color = t.color, timer;
+    const state = $("#sheetState"), body = $("#sheetBody");
+    state.textContent = canEdit ? "" : "\uC77D\uAE30 \uC804\uC6A9";
+    const commit = () => {
+      const payload = { t: "sheetset", id, sheet: draft, name, color };
+      act(payload);
+      state.textContent = "\uC800\uC7A5\uB428";
+    };
+    const save = () => {
+      sheetEditAt = Date.now();
+      state.textContent = "\uC800\uC7A5 \uC911\u2026";
+      clearTimeout(timer);
+      timer = setTimeout(commit, 500);
+    };
+    const dis = !canEdit;
+    const draw = () => {
+      body.textContent = "";
+      const nameIn = h("input", { value: name, maxlength: 12, disabled: dis, "aria-label": "\uCE90\uB9AD\uD130 \uC774\uB984", oninput: (e) => {
+        name = e.target.value;
+        save();
+      } });
+      nameIn.value = name;
+      const colIn = h("input", { type: "color", disabled: dis, "aria-label": "\uCE90\uB9AD\uD130 \uC0C9", oninput: (e) => {
+        color = e.target.value;
+        save();
+      } });
+      colIn.value = safeColor(color);
+      body.append(h("div", { class: "namerow" }, nameIn, colIn));
+      body.append(h("div", { class: "small", text: `${t.kind === "npc" ? "NPC" : "\uC18C\uC720: " + t.owner} \xB7 \uC591\uC2DD: ${(TEMPLATES[draft.tpl] || TEMPLATES.free).label}` }));
+      if (canEdit) {
+        const pubChk = h("input", { type: "checkbox", onchange: (e) => {
+          draft.public = e.target.checked;
+          save();
+        } });
+        pubChk.checked = !!draft.public;
+        body.append(h("label", { class: "chk" }, pubChk, "\uB2E4\uB978 \uCC38\uAC00\uC790\uB3C4 \uC774 \uC2DC\uD2B8\uB97C \uBCFC \uC218 \uC788\uAC8C \uD558\uAE30"));
+      }
+      body.append(h("h3", { text: "\uB2A5\uB825\uCE58" }));
+      if (canEdit) {
+        const ruleSel = h(
+          "select",
+          { "aria-label": "\uAD74\uB9BC \uADDC\uCE59", onchange: (e) => {
+            draft.rule = e.target.value;
+            draw();
+            save();
+          } },
+          Object.entries(RULES).map(([k, v]) => h("option", { value: k, text: v }))
+        );
+        ruleSel.value = draft.rule;
+        body.append(h("div", { class: "inline" }, h("span", { class: "small", text: "\uAD74\uB9BC \uADDC\uCE59" }), ruleSel));
+      } else body.append(h("div", { class: "small", text: "\uAD74\uB9BC \uADDC\uCE59: " + RULES[draft.rule] }));
+      if (!draft.stats.length) body.append(h("span", { class: "empty", text: "\uB2A5\uB825\uCE58\uAC00 \uC5C6\uC5B4\uC694" }));
+      draft.stats.forEach((s, i) => {
+        const k = h("input", { value: s.k, maxlength: 20, disabled: dis, "aria-label": "\uB2A5\uB825\uCE58 \uC774\uB984", oninput: (e) => {
+          s.k = e.target.value;
+          save();
+        } });
+        const v = h("input", { type: "number", disabled: dis, "aria-label": "\uC218\uCE58", oninput: (e) => {
+          s.v = Math.trunc(+e.target.value) || 0;
+          save();
+        } });
+        v.value = s.v;
+        const rollable = canRoll && draft.rule !== "none";
+        body.append(h(
+          "div",
+          { class: "srow" },
+          k,
+          v,
+          rollable ? h("button", { type: "button", text: "\u{1F3B2}", title: "\uAD74\uB9AC\uAE30", "aria-label": `${s.k} \uAD74\uB9AC\uAE30`, onclick: () => {
+            const r = rollFor(draft.rule, s.v);
+            if (!r) return;
+            act({ t: "roll", expr: r.expr, as: id, label: s.k || "\uD310\uC815", target: r.target });
+            toast("\uAD74\uB9BC \uACB0\uACFC\uAC00 \uB300\uD654\uCC3D\uC5D0 \uC62C\uB77C\uAC14\uC5B4\uC694");
+          } }) : h("span"),
+          canEdit ? h("button", { type: "button", text: "\uC0AD\uC81C", class: "danger", onclick: () => {
+            draft.stats.splice(i, 1);
+            draw();
+            save();
+          } }) : h("span")
+        ));
+      });
+      if (canEdit && draft.stats.length < 40) body.append(h("button", { type: "button", text: "+ \uB2A5\uB825\uCE58 \uCD94\uAC00", onclick: () => {
+        draft.stats.push({ k: "\uC0C8 \uB2A5\uB825\uCE58", v: 10 });
+        draw();
+        save();
+      } }));
+      body.append(h("h3", { text: "\uC790\uC6D0 (HP\xB7MP \uB4F1)" }));
+      if (!draft.res.length) body.append(h("span", { class: "empty", text: "\uC790\uC6D0\uC774 \uC5C6\uC5B4\uC694" }));
+      draft.res.forEach((r, i) => {
+        const k = h("input", { value: r.k, maxlength: 20, disabled: dis, "aria-label": "\uC790\uC6D0 \uC774\uB984", oninput: (e) => {
+          r.k = e.target.value;
+          save();
+        } });
+        const cur = h("input", { type: "number", disabled: dis, "aria-label": "\uD604\uC7AC\uAC12", oninput: (e) => {
+          r.v = Math.trunc(+e.target.value) || 0;
+          save();
+        } });
+        cur.value = r.v;
+        const max = h("input", { type: "number", disabled: dis, "aria-label": "\uCD5C\uB313\uAC12", oninput: (e) => {
+          r.max = Math.trunc(+e.target.value) || 0;
+          save();
+        } });
+        max.value = r.max;
+        const step = (d) => () => {
+          r.v = clamp(r.v + d, -99999, 99999);
+          cur.value = r.v;
+          save();
+        };
+        body.append(h(
+          "div",
+          { class: "rrow" },
+          k,
+          cur,
+          h("span", { class: "small", text: "/" }),
+          max,
+          canEdit ? h("button", { type: "button", text: "\u2212", "aria-label": "1 \uC904\uC774\uAE30", onclick: step(-1) }) : h("span"),
+          canEdit ? h("button", { type: "button", text: "+", "aria-label": "1 \uB298\uB9AC\uAE30", onclick: step(1) }) : h("span"),
+          canEdit ? h("button", { type: "button", text: "\uC0AD\uC81C", class: "danger", onclick: () => {
+            draft.res.splice(i, 1);
+            draw();
+            save();
+          } }) : h("span")
+        ));
+      });
+      if (canEdit && draft.res.length < 12) body.append(h("button", { type: "button", text: "+ \uC790\uC6D0 \uCD94\uAC00", onclick: () => {
+        draft.res.push({ k: "\uC0C8 \uC790\uC6D0", v: 10, max: 10 });
+        draw();
+        save();
+      } }));
+      body.append(h("h3", { text: "\uBA54\uBAA8" }));
+      const notes = h("textarea", { rows: 6, maxlength: 4e3, disabled: dis, "aria-label": "\uBA54\uBAA8", oninput: (e) => {
+        draft.notes = e.target.value;
+        save();
+      } });
+      notes.value = draft.notes;
+      body.append(notes);
+      if (role === "gm" || t.owner === myName) {
+        body.append(h(
+          "div",
+          { class: "inline", style: "margin-top:1em" },
+          h("button", { type: "button", class: "danger", text: "\uC774 \uCE90\uB9AD\uD130 \uC0AD\uC81C", onclick: () => {
+            if (confirm(`"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
+              closeSheet();
+              act({ t: "delchar", id });
+            }
+          } })
+        ));
+      }
+    };
+    draw();
+    $("#sheetModal").hidden = false;
+    const first = body.querySelector("input:not([disabled])");
+    if (first && document.activeElement && !$("#sheetModal").contains(document.activeElement)) first.focus();
+  }
+  $("#sheetClose").onclick = closeSheet;
+  $("#sheetModal").addEventListener("mousedown", (e) => {
+    if (e.target === $("#sheetModal")) closeSheet();
+  });
   function pointer(e) {
     const r = cv.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width * W, py = (e.clientY - r.top) / r.height * H;
@@ -4692,26 +5387,40 @@ input[type=range]{padding:0}
   function distToSeg(px, py, w) {
     const x1 = w[0] * CELL, y1 = w[1] * CELL, x2 = w[2] * CELL, y2 = w[3] * CELL;
     const dx = x2 - x1, dy = y2 - y1;
-    const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy || 1)));
+    const t = clamp(((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy || 1), 0, 1);
     return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+  }
+  var tokenAt = (cx, cy) => Object.values(S.tokens).find((t) => t.x === cx && t.y === cy && (role === "gm" || visibleIds.has(t.id)));
+  function tapToken(t) {
+    const now2 = Date.now();
+    const dbl = ui.lastTap && ui.lastTap.id === t.id && now2 - ui.lastTap.at < 450;
+    ui.lastTap = { id: t.id, at: now2 };
+    ui.sel = t.id;
+    if (role === "player" && t.owner === myName) ui.mine = t.id;
+    renderSel();
+    drawSoon();
+    renderGMPanel();
+    if (dbl) {
+      ui.lastTap = null;
+      openSheet(t.id);
+    }
   }
   cv.addEventListener("click", (e) => {
     const p = pointer(e);
-    if (p.cx < 0 || p.cx >= COLS || p.cy < 0 || p.cy >= ROWS) return;
+    if (p.cx < 0 || p.cx >= S.cols || p.cy < 0 || p.cy >= S.rows) return;
     if (role === "player") {
-      const me = S.tokens[myName];
-      if (me && (me.x !== p.cx || me.y !== p.cy)) act({ t: "move", x: p.cx, y: p.cy });
+      const hit = tokenAt(p.cx, p.cy);
+      if (hit) return tapToken(hit);
+      const me = ui.mine && S.tokens[ui.mine];
+      if (me && (me.x !== p.cx || me.y !== p.cy)) act({ t: "move", id: me.id, x: p.cx, y: p.cy });
       return;
     }
     if (ui.mode === "move") {
-      const hit = Object.values(S.tokens).find((t) => t.x === p.cx && t.y === p.cy);
-      if (hit) {
-        ui.sel = hit.name;
-        renderGMPanel();
-        drawSoon();
-      } else if (ui.sel) movePC("GM", ui.sel, p.cx, p.cy, true);
+      const hit = tokenAt(p.cx, p.cy);
+      if (hit) tapToken(hit);
+      else if (ui.sel) movePC("GM", ui.sel, p.cx, p.cy, true);
     } else if (ui.mode === "wall") {
-      const gx = Math.max(0, Math.min(COLS, Math.round(p.px / CELL))), gy = Math.max(0, Math.min(ROWS, Math.round(p.py / CELL)));
+      const gx = clamp(Math.round(p.px / CELL), 0, S.cols), gy = clamp(Math.round(p.py / CELL), 0, S.rows);
       if (!ui.pending) ui.pending = [gx, gy];
       else if (ui.pending[0] === gx && ui.pending[1] === gy) ui.pending = null;
       else {
@@ -4743,39 +5452,75 @@ input[type=range]{padding:0}
   cv.addEventListener("mousemove", (e) => {
     if (role !== "gm" || ui.mode !== "wall" || !ui.pending) return;
     const p = pointer(e);
-    ui.hover = [Math.max(0, Math.min(COLS, Math.round(p.px / CELL))), Math.max(0, Math.min(ROWS, Math.round(p.py / CELL)))];
+    ui.hover = [clamp(Math.round(p.px / CELL), 0, S.cols), clamp(Math.round(p.py / CELL), 0, S.rows)];
     drawSoon();
   });
+  var dragSent = 0;
+  cv.addEventListener("pointerdown", (e) => {
+    if (role !== "gm" || ui.mode !== "img" || !S.map) return;
+    const p = pointer(e);
+    ui.drag = { sx: p.px, sy: p.py, ox: S.map.x, oy: S.map.y };
+    if (cv.setPointerCapture) {
+      try {
+        cv.setPointerCapture(e.pointerId);
+      } catch (err) {
+      }
+    }
+  });
+  cv.addEventListener("pointermove", (e) => {
+    if (!ui.drag || !S.map) return;
+    const p = pointer(e);
+    S.map.x = Math.round(ui.drag.ox + p.px - ui.drag.sx);
+    S.map.y = Math.round(ui.drag.oy + p.py - ui.drag.sy);
+    drawSoon();
+    if (Date.now() - dragSent > 150) {
+      dragSent = Date.now();
+      pushState();
+    }
+  });
+  var endDrag = () => {
+    if (ui.drag) {
+      ui.drag = null;
+      sync();
+    }
+  };
+  cv.addEventListener("pointerup", endDrag);
+  cv.addEventListener("pointercancel", endDrag);
   document.addEventListener("keydown", (e) => {
-    if (!room || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+    if (!room) return;
+    if (e.key === "Escape" && !$("#sheetModal").hidden) return closeSheet();
+    if (!$("#sheetModal").hidden || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
     const d = { ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0] }[e.key];
     if (!d) return;
     e.preventDefault();
-    const key = role === "gm" ? ui.sel : myName;
+    const key = role === "gm" ? ui.sel : ui.mine;
     const t = key && S.tokens[key];
     if (!t) return;
     if (role === "gm") movePC("GM", key, t.x + d[0], t.y + d[1], true);
-    else act({ t: "move", x: t.x + d[0], y: t.y + d[1] });
+    else act({ t: "move", id: key, x: t.x + d[0], y: t.y + d[1] });
   });
   function sendChat() {
     const inp = $("#msg");
     const text = inp.value.trim();
     if (!text) return;
-    act({ t: "chat", text });
+    act({ t: "chat", text, as: ui.speaker || void 0 });
     inp.value = "";
   }
   $("#send").onclick = sendChat;
   $("#msg").addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.isComposing) sendChat();
   });
+  $("#speaker").onchange = (e) => {
+    ui.speaker = e.target.value;
+  };
   for (const s of [4, 6, 8, 10, 12, 20, 100]) {
-    $("#diceRow").append(h("button", { type: "button", text: "d" + s, onclick: () => act({ t: "roll", expr: "1d" + s }) }));
+    $("#diceRow").append(h("button", { type: "button", text: "d" + s, onclick: () => act({ t: "roll", expr: "1d" + s, as: ui.speaker || void 0 }) }));
   }
   for (const b of document.querySelectorAll(".tabs button")) {
     b.onclick = () => {
       ui.tab = b.dataset.tab;
       for (const x of document.querySelectorAll(".tabs button")) x.classList.toggle("on", x === b);
-      for (const id of ["chat", "cards", "gm"]) $("#tab-" + id).hidden = id !== ui.tab;
+      for (const id of ["chat", "chars", "cards", "gm"]) $("#tab-" + id).hidden = id !== ui.tab;
       if (ui.tab === "chat") {
         const box = $("#log");
         box.scrollTop = box.scrollHeight;
@@ -4786,6 +5531,7 @@ input[type=range]{padding:0}
     b.onclick = () => {
       ui.mode = b.dataset.mode;
       ui.pending = null;
+      cv.style.touchAction = ui.mode === "img" ? "none" : "manipulation";
       for (const x of document.querySelectorAll("[data-mode]")) x.classList.toggle("on", x === b);
       setupBoardText();
       drawSoon();
@@ -4794,6 +5540,36 @@ input[type=range]{padding:0}
   $("#undoWall").onclick = () => {
     S.walls.pop();
     sync();
+  };
+  $("#selSheet").onclick = () => ui.sel && openSheet(ui.sel);
+  $("#selSpeak").onclick = () => {
+    const t = S.tokens[ui.sel];
+    if (t && canSpeakAs(t)) {
+      ui.speaker = t.id;
+      renderSpeaker();
+      toast(`\uC774\uC81C "${t.name}"(\uC73C)\uB85C \uB9D0\uD574\uC694`);
+    }
+  };
+  $("#selReveal").onclick = () => {
+    const t = S.tokens[ui.sel];
+    if (t && t.kind === "npc") {
+      t.reveal = !t.reveal;
+      sync();
+    }
+  };
+  $("#selDel").onclick = () => {
+    const t = S.tokens[ui.sel];
+    if (t && confirm(`"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
+      act({ t: "delchar", id: t.id });
+      ui.sel = null;
+    }
+  };
+  for (const tpl of Object.entries(TEMPLATES)) $("#ncTpl").append(h("option", { value: tpl[0], text: tpl[1].label }));
+  $("#ncMake").onclick = () => {
+    const nm = cleanName($("#ncName").value);
+    if (!nm) return toast("\uCE90\uB9AD\uD130 \uC774\uB984\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694");
+    act({ t: "newchar", name: nm, color: $("#ncColor").value, tpl: $("#ncTpl").value });
+    $("#ncName").value = "";
   };
   $("#visR").oninput = (e) => {
     S.vision = +e.target.value;
@@ -4807,46 +5583,83 @@ input[type=range]{padding:0}
     S.share = e.target.checked;
     sync();
   };
+  $("#gridOn").onchange = (e) => {
+    S.grid = e.target.checked;
+    sync();
+  };
+  $("#wallsOn").onchange = (e) => {
+    S.wallsVisible = e.target.checked;
+    sync();
+  };
   $("#prevOn").onchange = (e) => {
     ui.preview = e.target.checked;
     drawSoon();
   };
   $("#moveMax").onchange = (e) => {
-    S.moveMax = Math.max(0, Math.min(30, +e.target.value || 0));
+    S.moveMax = clamp(+e.target.value || 0, 0, 30);
     sync();
   };
-  $("#addNpc").onclick = () => {
-    const name = cleanName($("#npcName").value);
-    if (!name) return toast("NPC \uC774\uB984\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694");
-    if (S.tokens[name]) return toast("\uAC19\uC740 \uC774\uB984\uC758 \uB9D0\uC774 \uC774\uBBF8 \uC788\uC5B4\uC694");
-    const used = new Set(Object.values(S.tokens).map((t) => t.x + "," + t.y));
-    let x = 12, y = 8;
-    for (let i = 0; i < 100; i++) {
-      x = 10 + i % 5;
-      y = 5 + Math.floor(i / 5);
-      if (!used.has(x + "," + y)) break;
-    }
-    S.tokens[name] = { name, x, y, color: $("#npcColor").value, kind: "npc" };
-    ui.sel = name;
-    $("#npcName").value = "";
+  $("#cols").onchange = (e) => {
+    S.cols = clamp(Math.round(+e.target.value || 24), 4, 60);
+    fitTokens();
     sync();
   };
-  $("#delTok").onclick = () => {
-    if (ui.sel && S.tokens[ui.sel]) {
-      delete S.tokens[ui.sel];
-      ui.sel = null;
-      sync();
-    }
+  $("#rows").onchange = (e) => {
+    S.rows = clamp(Math.round(+e.target.value || 16), 4, 40);
+    fitTokens();
+    sync();
   };
   $("#defMap").onclick = () => {
-    if (confirm("\uC9C0\uAE08 \uBCBD\uC744 \uC9C0\uC6B0\uACE0 \uAE30\uBCF8 \uB9F5\uC73C\uB85C \uBC14\uAFC0\uAE4C\uC694?")) {
-      S.walls = defaultWalls();
+    if (confirm("\uC9C0\uAE08 \uBCBD\uC744 \uC9C0\uC6B0\uACE0 \uAE30\uBCF8 \uB9F5 \uBCBD\uC73C\uB85C \uBC14\uAFC0\uAE4C\uC694?\n(\uAC00\uB85C 24 \xD7 \uC138\uB85C 16\uC774 \uC544\uB2C8\uBA74 \uBC14\uAE65 \uD14C\uB450\uB9AC\uB9CC \uB9CC\uB4E4\uC5B4\uC694)")) {
+      S.walls = defaultWalls(S.cols, S.rows);
       sync();
     }
   };
   $("#clrMap").onclick = () => {
     if (confirm("\uBCBD\uC744 \uC804\uBD80 \uC9C0\uC6B8\uAE4C\uC694?")) {
       S.walls = [];
+      sync();
+    }
+  };
+  $("#mapPick").onclick = () => $("#mapFile").click();
+  $("#mapFile").onchange = async (e) => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (f) await importMap(f);
+  };
+  $("#mapClear").onclick = () => {
+    if (S.map && confirm("\uB9F5 \uADF8\uB9BC\uC744 \uC9C0\uC6B8\uAE4C\uC694?")) clearMap();
+  };
+  $("#mapScale").oninput = (e) => {
+    if (!S.map) return;
+    S.map.scale = clamp(+e.target.value, 5, 400) / 100;
+    sync();
+  };
+  $("#mapGridPx").onchange = (e) => {
+    const px = +e.target.value;
+    if (!S.map || !(px >= 8 && px <= 500)) return;
+    S.map.scale = clamp(CELL / (px * S.map.srcRatio), 0.05, 4);
+    sync();
+  };
+  $("#mapFitW").onclick = () => {
+    if (S.map) {
+      S.map.scale = clamp(S.cols * CELL / S.map.natW, 0.05, 4);
+      S.map.x = 0;
+      S.map.y = 0;
+      sync();
+    }
+  };
+  $("#mapFitCells").onclick = () => {
+    if (!S.map) return;
+    S.cols = clamp(Math.round(S.map.natW * S.map.scale / CELL), 4, 60);
+    S.rows = clamp(Math.round(S.map.natH * S.map.scale / CELL), 4, 40);
+    fitTokens();
+    sync();
+  };
+  $("#mapReset").onclick = () => {
+    if (S.map) {
+      S.map.x = 0;
+      S.map.y = 0;
       sync();
     }
   };
@@ -4870,15 +5683,15 @@ input[type=range]{padding:0}
     say("sys", "", "\uBC84\uB9B0 \uCE74\uB4DC\uC640 \uD14C\uC774\uBE14\uC758 \uCE74\uB4DC\uB97C \uD68C\uC218\uD574\uC11C \uC11E\uC5C8\uC5B4\uC694");
     sync();
   };
-  $("#deal").onclick = () => dealCards($("#dealTo").value, Math.max(1, Math.min(20, +$("#dealN").value || 1)));
-  $("#flip").onclick = () => flipCards(Math.max(1, Math.min(10, +$("#flipN").value || 1)));
+  $("#deal").onclick = () => dealCards($("#dealTo").value, clamp(+$("#dealN").value || 1, 1, 20));
+  $("#flip").onclick = () => flipCards(clamp(+$("#flipN").value || 1, 1, 10));
   $("#clearTable").onclick = () => {
     G2.discard.push(...S.table.map((x) => x.c));
     S.table = [];
     sync();
   };
   $("#exportBtn").onclick = () => {
-    const blob = new Blob([JSON.stringify(makeSave())], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(makeSave(true))], { type: "application/json" });
     const a = h("a", { href: URL.createObjectURL(blob), download: `\uC6D0\uD0C1-${roomId}.json` });
     document.body.append(a);
     a.click();
@@ -4938,13 +5751,18 @@ input[type=range]{padding:0}
   }
   var qr = new URLSearchParams(location.search).get("room");
   if (qr) $("#inRoom").value = qr;
+  applyDims();
   if (typeof __TEST__ !== "undefined") window.__rt = { get S() {
     return S;
   }, get G() {
     return G2;
   }, get myHand() {
     return myHand;
-  }, movePC };
+  }, get ui() {
+    return ui;
+  }, get mapImgVer() {
+    return mapImgVer;
+  }, movePC, importMapFromImage, openSheet, cmd };
 })();
 </script>
 </body>
