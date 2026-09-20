@@ -72,17 +72,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 .tabs button{flex:1;border:0;border-radius:0;background:transparent;padding:.7em .2em;color:var(--dim)}
 .tabs button.on{background:var(--bg2);color:var(--deep);border-bottom:3px solid var(--deep)}
 .pane{padding:.7em}
-#log{height:330px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.5em .6em;font-size:.92em;line-height:1.5}
-#log div{margin:.2em 0;overflow-wrap:anywhere}
-#log .who{font-weight:700;margin-right:.4em}
-#log .sys{color:var(--dim);font-style:italic}
-#log .roll{color:#1f5f9a}
-#log .card{color:#1b7a68}
-.dice{display:flex;gap:.3em;flex-wrap:wrap;margin:.6em 0}
-.dice button{padding:.3em .6em;font-size:.88em}
-.speaker{display:flex;gap:.4em;align-items:center;margin-bottom:.5em}
-.speaker label{margin:0;white-space:nowrap}
-.say{display:flex;gap:.4em}
 .cards{display:flex;flex-wrap:wrap;gap:.35em;min-height:2.6em;padding:.4em;background:#fff;border:1px solid var(--line);border-radius:8px}
 .card{display:inline-flex;flex-direction:column;align-items:stretch;gap:.2em}
 .face{background:#fff;color:#1d3652;border-radius:6px;padding:.35em .55em;font-weight:700;min-width:2.6em;text-align:center;border:1px solid #9bbbdb;box-shadow:0 1px 2px rgba(42,104,168,.15)}
@@ -101,6 +90,31 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 .crow button{padding:.2em .55em;font-size:.85em}
 #toast{position:fixed;left:50%;bottom:1.2em;transform:translateX(-50%);background:#fff;border:1px solid var(--deep);border-radius:8px;padding:.6em 1em;z-index:30;max-width:90vw;box-shadow:0 4px 16px rgba(42,104,168,.2)}
 
+/* 카드 */
+.pilerow{display:flex;gap:.8em;align-items:flex-start}
+.pilerow #others{flex:1;padding-top:.3em}
+.ocount{margin:.15em 0}
+.cards{align-items:flex-start}
+.face,.cimg{width:64px;height:90px;border-radius:6px;flex:none}
+.face{display:grid;place-items:center;padding:.15em;font-size:.95em;overflow:hidden;overflow-wrap:anywhere;text-align:center;line-height:1.15}
+.face.back{background:repeating-linear-gradient(45deg,#cfe6fb,#cfe6fb 6px,#e6f2fd 6px,#e6f2fd 12px);color:var(--deep);font-size:.8em}
+.face.ph{color:var(--dim);background:#f1f6fb}
+.face.empty-pile{border-style:dashed;color:var(--dim);font-size:.8em}
+.cimg{object-fit:cover;border:1px solid #9bbbdb;background:#fff;cursor:zoom-in;display:block}
+.card{align-items:center}
+.card .mini{flex-direction:column;width:100%}
+.card .small{max-width:72px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card button.tiny{padding:.1em .4em;font-size:.75em}
+.thumbs{display:flex;flex-wrap:wrap;gap:.3em;margin:.3em 0}
+.thumb{position:relative}
+.thumb img{width:44px;height:62px;object-fit:cover;border-radius:4px;border:1px solid #9bbbdb;display:block}
+.thumb button{position:absolute;top:-6px;right:-6px;width:18px;height:18px;padding:0;border-radius:50%;font-size:.7em;line-height:1;background:#fff;color:var(--danger)}
+#backThumb img{width:36px;height:50px;object-fit:cover;border-radius:4px;border:1px solid #9bbbdb;display:block}
+.hands .cards{min-height:0;padding:.25em;margin:.15em 0 .4em}
+.hands .face,.hands .cimg{width:36px;height:50px;font-size:.7em}
+.zoombox{background:#fff;border-radius:12px;padding:.8em;max-width:94vw;text-align:center;cursor:zoom-out}
+.zoombox img{max-width:min(90vw,520px);max-height:78vh;border-radius:8px}
+
 /* 캐릭터 시트 */
 .modal{position:fixed;inset:0;background:rgba(29,54,82,.38);display:grid;place-items:center;z-index:20;padding:1em}
 .modal-card{background:#fff;border:1px solid var(--line);border-radius:12px;width:min(580px,100%);max-height:92vh;overflow:auto;padding:1em 1.1em 1.2em;box-shadow:0 12px 40px rgba(29,54,82,.3)}
@@ -116,7 +130,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   .lobby-l{border-right:0;border-bottom:1px solid var(--line);padding:6vh 6vw}
   .lobby-r{max-width:none}
   .layout{grid-template-columns:1fr}
-  #log{height:240px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -128,12 +141,12 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     <h1>원탁</h1>
     <p>서버도 결제도 없이, 브라우저끼리 바로 연결해서 하는 온라인 TRPG 탁자예요.</p>
     <ul>
-      <li>텍스트 채팅과 주사위 굴림, 캐릭터로 말하기</li>
+      <li>이미지 맵과, 벽 뒤가 보이지 않는 동적 시야</li>
+      <li>카드 앞면·뒷면 이미지를 올려 쓰는 카드덱, 비공개 손패</li>
       <li>룰별 캐릭터 시트 (d20형, 퍼센트형, 자유 양식)</li>
-      <li>GM이 나눠주는 카드덱과 비공개 손패</li>
-      <li>이미지 맵과 벽 뒤가 보이지 않는 동적 시야</li>
     </ul>
-    <p class="small">GM이 방을 열어 둬야 플레이어가 들어올 수 있어요. GM이 나가면 방이 닫힙니다.</p>
+    <p class="small">채팅과 주사위는 디스코드 같은 다른 곳에서 해요. 이 탁자는 맵과 카드에 집중해요.</p>
+    <p class="small">서버가 없어요. 올린 그림은 GM 브라우저와 접속한 플레이어 브라우저의 메모리에만 있고, GM이 나가면 사라져요. 이어서 하려면 "방 파일"로 저장하세요.</p>
   </div>
   <div class="lobby-r">
     <label for="inName">내 이름 (플레이어일 때 사용)</label>
@@ -145,6 +158,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     </div>
     <label for="inPw">방 비밀번호 (권장, 모두 같아야 접속돼요)</label>
     <input id="inPw" type="password" maxlength="40" autocomplete="off" placeholder="비워도 되지만 정하는 걸 권장해요">
+    <label for="lobbyFile">저장해 둔 방 파일 (GM이 이어서 할 때만, 선택)</label>
+    <input id="lobbyFile" type="file" accept="application/json,.json">
     <div class="row">
       <button id="goGM" class="primary" type="button">GM으로 방 열기</button>
       <button id="goPlayer" type="button">플레이어로 입장</button>
@@ -159,7 +174,9 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     <span class="brand">원탁</span>
     <span id="roomLabel" class="small"></span>
     <span id="status"></span>
+    <span id="dirtyFlag" class="small" data-gm hidden>· 저장 안 한 변경이 있어요</span>
     <span class="grow"></span>
+    <button id="saveRoom" class="primary" data-gm type="button">방 파일 저장</button>
     <button id="copyLink" data-gm type="button">초대 링크 복사</button>
     <button id="leave" type="button">나가기</button>
   </header>
@@ -177,7 +194,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       <div id="selbar" class="selbar" hidden>
         <span id="selName"></span>
         <button id="selSheet" type="button">시트 보기</button>
-        <button id="selSpeak" type="button">이 캐릭터로 말하기</button>
         <button id="selReveal" data-gm type="button"></button>
         <button id="selDel" class="danger" type="button">삭제</button>
       </div>
@@ -185,24 +201,10 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     </section>
     <aside class="side">
       <nav class="tabs">
-        <button data-tab="chat" class="on" type="button">대화</button>
         <button data-tab="chars" type="button">캐릭터</button>
-        <button data-tab="cards" type="button">카드</button>
+        <button data-tab="cards" class="on" type="button">카드</button>
         <button data-tab="gm" data-gm type="button">GM 도구</button>
       </nav>
-
-      <section id="tab-chat" class="pane">
-        <div id="log" aria-live="polite"></div>
-        <div class="dice" id="diceRow"></div>
-        <div class="speaker">
-          <label for="speaker">말하는 이</label>
-          <select id="speaker"></select>
-        </div>
-        <div class="say">
-          <input id="msg" maxlength="500" placeholder="말하기 · 주사위는 /r 2d6+3" autocomplete="off">
-          <button id="send" class="primary" type="button">보내기</button>
-        </div>
-      </section>
 
       <section id="tab-chars" class="pane" hidden>
         <h3 style="margin-top:.2em">새 캐릭터 만들기</h3>
@@ -219,29 +221,53 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         <p class="small">캐릭터 이름을 누르면 시트가 열려요. 맵의 말을 두 번 눌러도 열려요.</p>
       </section>
 
-      <section id="tab-cards" class="pane" hidden>
+      <section id="tab-cards" class="pane">
+        <div class="pilerow">
+          <div id="pile"></div>
+          <div id="others" class="small"></div>
+        </div>
         <div data-player>
-          <h3 style="margin-top:.2em">내 손패</h3>
+          <h3>내 손패</h3>
           <div id="hand" class="cards"></div>
         </div>
-        <h3>테이블 <span id="deckInfo" class="small"></span></h3>
+        <h3>테이블</h3>
         <div id="table" class="cards"></div>
+        <p class="small" id="deckInfo"></p>
+
         <div data-gm>
-          <h3>덱 관리</h3>
+          <h3>덱 만들기</h3>
           <div class="inline">
             <select id="deckKind" aria-label="덱 종류">
               <option value="std54">트럼프 54장 (조커 포함)</option>
               <option value="std52">트럼프 52장</option>
-              <option value="custom">직접 입력</option>
+              <option value="image">이미지 덱 (올린 앞면 이미지)</option>
+              <option value="custom">글자 카드 (직접 입력)</option>
             </select>
-            <button id="newDeck" type="button">새 덱 만들기</button>
+            <button id="newDeck" class="primary" type="button">새 덱 만들기</button>
           </div>
-          <textarea id="deckCustom" rows="3" placeholder="직접 입력 덱: 카드 이름을 한 줄에 하나씩 (타로, 자작 카드 등)"></textarea>
+          <textarea id="deckCustom" rows="3" hidden placeholder="카드 이름을 한 줄에 하나씩 (예: 타로 카드 이름)"></textarea>
+
+          <h3>카드 이미지</h3>
+          <p class="small">뒷면은 모든 카드가 함께 쓰고, 앞면은 이미지 한 장이 카드 한 장이에요. 이미지는 서버에 올라가지 않고 이 방에서만 쓰여요. 앞면은 새 덱을 만들 때(이미지 덱을 쓰는 중이면 바로) 덱에 섞여 들어가요.</p>
+          <div class="inline">
+            <span class="small">뒷면</span><span id="backThumb"></span>
+            <button id="backPick" type="button">뒷면 올리기</button>
+            <button id="backClear" type="button">뒷면 제거</button>
+            <input id="backFile" type="file" accept="image/*" hidden>
+          </div>
+          <div class="inline">
+            <button id="facePick" type="button">앞면 추가 (여러 장 선택 가능)</button>
+            <button id="faceClear" class="danger" type="button">앞면 모두 지우기</button>
+            <span id="faceCount" class="small"></span>
+            <input id="faceFile" type="file" accept="image/*" multiple hidden>
+          </div>
+          <div id="faceList" class="thumbs"></div>
+
+          <h3>덱 다루기</h3>
           <div class="inline">
             <button id="shuffle" type="button">남은 덱 섞기</button>
             <button id="gather" type="button">전부 회수해서 섞기</button>
           </div>
-          <h3>나눠주기</h3>
           <div class="inline">
             <select id="dealTo" aria-label="받는 사람"></select>
             <input id="dealN" type="number" min="1" max="20" value="1" aria-label="장수">
@@ -282,13 +308,13 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         <p class="small">그림 위 격자가 이미 그려져 있다면 "원본 그림의 한 칸"에 칸 크기(예: 70)를 넣으면 이 탁자의 격자와 맞아요. 위치는 "그림 이동" 버튼을 누르고 끌어서 맞춰요.</p>
 
         <h3>맵 크기와 표시</h3>
+        <p class="small">벽 선은 GM에게만 보여요. 플레이어 화면에는 벽이 그려지지 않고, 시야와 이동을 막는 데만 쓰여요.</p>
         <div class="inline">
           <span class="small">가로</span><input id="cols" type="number" min="4" max="60" aria-label="가로 칸 수">
           <span class="small">세로</span><input id="rows" type="number" min="4" max="40" aria-label="세로 칸 수">
           <span class="small">칸</span>
         </div>
         <label class="chk"><input id="gridOn" type="checkbox" checked> 격자 선 보이기</label>
-        <label class="chk"><input id="wallsOn" type="checkbox" checked> 플레이어에게 벽 선 보이기</label>
         <div class="inline">
           <button id="defMap" type="button">기본 맵 불러오기</button>
           <button id="clrMap" type="button">벽 전부 지우기</button>
@@ -303,12 +329,16 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         <label for="moveMax">한 번에 이동 가능한 칸 (0 = 제한 없음)</label>
         <input id="moveMax" type="number" min="0" max="30" value="0">
 
-        <h3>저장</h3>
-        <p class="small">이 브라우저에 자동 저장돼요. 같은 방 코드로 다시 열면 이어서 할 수 있어요. 다른 컴퓨터로 옮기려면 파일로 내보내세요.</p>
+        <h3>방 파일 (저장·불러오기)</h3>
+        <p class="small">이 탁자는 서버가 없고 자동 저장도 하지 않아요. 맵 그림, 벽, 카드덱(이미지 포함), 캐릭터와 시트, 손패까지 모두 "방 파일" 하나로 저장돼요. 방을 닫으면 그림은 사라지니, 이어서 하려면 저장해 두세요.</p>
         <div class="inline">
-          <button id="exportBtn" type="button">파일로 내보내기</button>
-          <button id="importBtn" type="button">파일 불러오기</button>
-          <input id="importFile" type="file" accept="application/json" hidden>
+          <button id="exportBtn" class="primary" type="button">방 파일 저장</button>
+          <button id="importBtn" type="button">방 파일 불러오기</button>
+          <input id="importFile" type="file" accept="application/json,.json" hidden>
+        </div>
+        <div id="legacyBox" class="small" hidden>
+          <p>이전 버전이 이 브라우저에 자동 저장한 기록이 <b id="legacyN">0</b>개 남아 있어요. 맵 그림도 들어 있을 수 있어요.</p>
+          <button id="legacyClear" class="danger" type="button">이 기록 모두 삭제</button>
         </div>
       </section>
     </aside>
@@ -324,6 +354,9 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     </header>
     <div id="sheetBody"></div>
   </div>
+</div>
+<div id="zoomModal" class="modal" hidden>
+  <div class="zoombox"><img id="zoomImg" alt=""><p id="zoomCap" class="small"></p></div>
 </div>
 <div id="toast" hidden></div>
 <script>(() => {
@@ -3988,34 +4021,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     }
     return 1 + Math.floor(Math.random() * n);
   }
-  function parseDice(expr) {
-    expr = String(expr || "").replace(/\s+/g, "").toLowerCase();
-    if (!/^[+-]?(\d*d\d+|\d+)([+-](\d*d\d+|\d+))*$/.test(expr)) return null;
-    const terms = expr.match(/[+-]?(\d*d\d+|\d+)/g);
-    let total = 0, dice = 0;
-    const parts = [];
-    for (const t of terms) {
-      const sign = t[0] === "-" ? -1 : 1;
-      const body = t.replace(/^[+-]/, "");
-      const lead = sign < 0 ? "-" : parts.length ? "+" : "";
-      if (body.includes("d")) {
-        let [n, s] = body.split("d");
-        n = n === "" ? 1 : parseInt(n, 10);
-        s = parseInt(s, 10);
-        if (n < 1 || n > 50 || s < 2 || s > 1e3) return null;
-        dice += n;
-        if (dice > 100) return null;
-        const rolls = Array.from({ length: n }, () => rand(s));
-        total += sign * rolls.reduce((a, b) => a + b, 0);
-        parts.push(`${lead}${n}d${s}[${rolls.join(",")}]`);
-      } else {
-        const v = parseInt(body, 10);
-        total += sign * v;
-        parts.push(`${lead}${v}`);
-      }
-    }
-    return { total, text: parts.join(" ") };
-  }
   function makeStandardDeck(jokers = true) {
     const suits = ["\u2660", "\u2665", "\u2666", "\u2663"];
     const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -4178,14 +4183,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     for (const r of (Array.isArray(sh.res) ? sh.res : []).slice(0, 12)) out.res.push({ k: str(r && r.k, 20), v: num(r && r.v), max: num(r && r.max) });
     return out;
   }
-  function rollFor(rule, v) {
-    v = Math.trunc(Number(v)) || 0;
-    const sg = (n) => (n >= 0 ? "+" : "-") + Math.abs(n);
-    if (rule === "d20mod") return { expr: "1d20" + sg(Math.floor((v - 10) / 2)) };
-    if (rule === "d20add") return { expr: "1d20" + sg(v) };
-    if (rule === "d100") return { expr: "1d100", target: v };
-    return null;
-  }
 
   // src/app.js
   var APP_ID = "kr-trpg-roundtable-x7q2m9";
@@ -4193,6 +4190,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var $ = (s, r = document) => r.querySelector(s);
   var clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   var safeColor = (c) => validColor(c) ? c : "#a9d3f7";
+  var IMG_RE = /^data:image\/(jpeg|png|webp);base64,/;
   function h(tag2, props, ...kids) {
     const el = document.createElement(tag2);
     for (const [k, v] of Object.entries(props || {})) {
@@ -4220,56 +4218,73 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var S = newState();
   var G2 = newPrivate();
   var myHand = [];
-  var mapImg = null;
-  var mapImgVer = null;
-  var mapAsked = null;
-  var mapAskedAt = 0;
+  var dirty = false;
   var ui = {
-    tab: "chat",
+    tab: "cards",
     mode: "move",
     sel: null,
     mine: null,
     pending: null,
     hover: null,
     preview: false,
-    speaker: "",
     sheetId: null,
     drag: null,
     lastTap: null,
     knownOwn: /* @__PURE__ */ new Set()
   };
+  var mapImg = null;
+  var mapImgVer = null;
+  var mapAsked = null;
+  var mapAskedAt = 0;
+  var backC = null;
+  var backAsked = { ver: null, at: 0 };
+  var faceC = {};
+  var faceAsked = {};
+  var urlCache = /* @__PURE__ */ new Map();
+  var pendingFaces = false;
   function newState() {
     return {
       cols: 24,
       rows: 16,
       grid: true,
-      wallsVisible: true,
       map: null,
       walls: defaultWalls(24, 16),
       tokens: {},
       players: {},
       table: [],
       handCounts: {},
+      deckKind: "std54",
       deckName: "\uD2B8\uB7FC\uD504 54\uC7A5",
       deckLeft: 0,
       discardN: 0,
+      backVer: null,
       vision: 6,
       fog: true,
       share: false,
-      moveMax: 0,
-      log: []
+      moveMax: 0
     };
   }
   function newPrivate() {
-    return { deck: [], discard: [], hands: {}, sheets: {}, watch: {}, mapData: null, peerByName: {}, nameByPeer: {} };
+    return {
+      deck: [],
+      discard: [],
+      hands: {},
+      sheets: {},
+      watch: {},
+      mapData: null,
+      faces: [],
+      faceSeq: 0,
+      back: null,
+      tableSeq: 0,
+      peerByName: {},
+      nameByPeer: {}
+    };
   }
-  var pub = () => {
-    const { log, ...rest } = S;
-    return rest;
-  };
-  function pubFor() {
+  var pub = () => ({ ...S });
+  function pubFor(name) {
     const p = pub();
     p.tokens = Object.fromEntries(Object.entries(S.tokens).filter(([, t]) => t.kind === "pc" || t.reveal));
+    p.table = S.table.map((x) => x.down && x.by !== name ? { k: x.k, by: x.by, down: true } : x);
     return p;
   }
   var toastTimer;
@@ -4290,7 +4305,83 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     b.textContent = msg;
     b.hidden = !msg;
   };
-  function start(asRole) {
+  var readFileText = (f) => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result));
+    r.onerror = () => rej(new Error("\uD30C\uC77C\uC744 \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694"));
+    r.readAsText(f);
+  });
+  function setDirty(v) {
+    dirty = v;
+    const f = $("#dirtyFlag");
+    if (f) f.hidden = !(role === "gm" && dirty);
+  }
+  function assetUrl(data) {
+    if (typeof data !== "string" || !IMG_RE.test(data)) return "";
+    if (urlCache.has(data)) return urlCache.get(data);
+    let u = data;
+    try {
+      const bin = atob(data.slice(data.indexOf(",") + 1)), a = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+      u = URL.createObjectURL(new Blob([a], { type: data.slice(5, data.indexOf(";")) }));
+    } catch (e) {
+      u = data;
+    }
+    urlCache.set(data, u);
+    return u;
+  }
+  function clearAssets() {
+    for (const u of urlCache.values()) if (u.startsWith("blob:")) {
+      try {
+        URL.revokeObjectURL(u);
+      } catch (e) {
+      }
+    }
+    urlCache.clear();
+    backC = null;
+    for (const k of Object.keys(faceC)) delete faceC[k];
+    for (const k of Object.keys(faceAsked)) delete faceAsked[k];
+    mapImg = null;
+    mapImgVer = null;
+    mapAsked = null;
+    backAsked = { ver: null, at: 0 };
+  }
+  function fileToImage(file) {
+    const url = URL.createObjectURL(file);
+    return new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => {
+        URL.revokeObjectURL(url);
+        res(i);
+      };
+      i.onerror = () => {
+        URL.revokeObjectURL(url);
+        rej(new Error("\uC774 \uC774\uBBF8\uC9C0\uB97C \uC5F4 \uC218 \uC5C6\uC5B4\uC694"));
+      };
+      i.src = url;
+    });
+  }
+  function shrinkImage(img, maxSide, quality, maxChars) {
+    const nw = img.naturalWidth || img.width, nh = img.naturalHeight || img.height;
+    if (!nw || !nh) throw new Error("\uC774\uBBF8\uC9C0 \uD06C\uAE30\uB97C \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694");
+    let r = Math.min(1, maxSide / Math.max(nw, nh)), data = "", cw = 0, ch = 0;
+    for (let i = 0; i < 5; i++) {
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(nw * r));
+      c.height = Math.max(1, Math.round(nh * r));
+      const x = c.getContext("2d");
+      x.fillStyle = "#fff";
+      x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(img, 0, 0, c.width, c.height);
+      data = c.toDataURL("image/jpeg", quality);
+      cw = c.width;
+      ch = c.height;
+      if (data.length <= maxChars) break;
+      r *= 0.75;
+    }
+    return { data, cw, ch, nw, nh, ok: data.length <= maxChars * 1.5 };
+  }
+  function start(asRole, saveObj) {
     const name = cleanName($("#inName").value);
     const rid = $("#inRoom").value.trim();
     const pw = $("#inPw").value;
@@ -4312,17 +4403,30 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     $("#roomLabel").textContent = `\uBC29 ${roomId}`;
     $("#veil").hidden = role === "gm";
     joinedAt = Date.now();
+    selectTab(role === "gm" ? "gm" : "cards");
     if (role === "gm") {
-      const saved = loadSaved();
-      if (saved && confirm("\uC774 \uBC29 \uCF54\uB4DC\uB85C \uC800\uC7A5\uB41C \uC9C4\uD589 \uC0C1\uD669\uC774 \uC788\uC5B4\uC694. \uC774\uC5B4\uC11C \uD560\uAE4C\uC694?\n(\uCDE8\uC18C\uD558\uBA74 \uC0C8\uB85C \uC2DC\uC791\uD574\uC694)")) applySave(saved);
-      else freshGM();
+      if (saveObj) {
+        applySave(saveObj);
+        setDirty(false);
+      } else {
+        const old = loadLegacy();
+        if (old && confirm("\uC774\uC804 \uBC84\uC804\uC774 \uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0 \uC790\uB3D9 \uC800\uC7A5\uD55C \uC774 \uBC29\uC758 \uAE30\uB85D\uC774 \uC788\uC5B4\uC694.\n\uC774\uC5B4\uC11C \uD558\uACE0, \uBE0C\uB77C\uC6B0\uC800\uC5D0 \uB0A8\uC740 \uAE30\uB85D\uC740 \uC0AD\uC81C\uD560\uAE4C\uC694?\n(\uCDE8\uC18C\uD558\uBA74 \uAE30\uB85D\uC740 \uADF8\uB300\uB85C \uB450\uACE0 \uC0C8 \uBC29\uC73C\uB85C \uC2DC\uC791\uD574\uC694)")) {
+          applySave(old);
+          removeLegacy(roomId);
+          setDirty(true);
+        } else {
+          freshGM();
+          setDirty(false);
+        }
+      }
+      showLegacyBox();
     }
     const cfg = { appId: APP_ID };
     if (pw) cfg.password = pw;
     room = joinRoom(cfg, roomId, {
       onJoinError: (d) => showBanner("\uC5F0\uACB0\uC5D0 \uC2E4\uD328\uD588\uC5B4\uC694. \uBC29 \uBE44\uBC00\uBC88\uD638\uAC00 \uC11C\uB85C \uB2E4\uB974\uAC70\uB098, \uC0AC\uC6A9 \uC911\uC778 \uB124\uD2B8\uC6CC\uD06C\uAC00 \uC9C1\uC811 \uC5F0\uACB0\uC744 \uB9C9\uACE0 \uC788\uC744 \uC218 \uC788\uC5B4\uC694. (" + (d && d.error ? d.error : "\uC54C \uC218 \uC5C6\uB294 \uC624\uB958") + ")")
     });
-    for (const n of ["jn", "full", "st", "lg", "hd", "cm", "er", "sh", "map"]) A[n] = room.makeAction(n);
+    for (const n of ["jn", "full", "st", "hd", "cm", "er", "sh", "img"]) A[n] = room.makeAction(n);
     A.jn.onMessage = onJoinReq;
     A.cm.onMessage = (c, { peerId }) => {
       if (role !== "gm") return;
@@ -4334,27 +4438,24 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       gmId = peerId;
       connected = true;
       myName = d.you;
-      S = Object.assign(newState(), d.st, { log: d.log || [] });
+      S = Object.assign(newState(), d.st);
       myHand = d.hand || [];
+      for (const k of Object.keys(faceC)) delete faceC[k];
+      for (const k of Object.keys(faceAsked)) delete faceAsked[k];
       showBanner("");
       $("#veil").hidden = true;
-      renderLogFull();
       afterState();
     };
     A.st.onMessage = (d, { peerId }) => {
       if (role !== "player" || peerId !== gmId) return;
-      S = Object.assign(newState(), d, { log: S.log });
+      S = Object.assign(newState(), d);
       afterState();
-    };
-    A.lg.onMessage = (e, { peerId }) => {
-      if (role !== "player" || peerId !== gmId) return;
-      S.log.push(e);
-      if (S.log.length > 200) S.log.shift();
-      renderLog(e);
     };
     A.hd.onMessage = (hand, { peerId }) => {
       if (role !== "player" || peerId !== gmId) return;
+      const before = myHand.length;
       myHand = Array.isArray(hand) ? hand : [];
+      if (myHand.length > before) toast(`\uCE74\uB4DC\uB97C ${myHand.length - before}\uC7A5 \uBC1B\uC558\uC5B4\uC694`);
       renderCards();
     };
     A.er.onMessage = (m, { peerId }) => {
@@ -4369,20 +4470,31 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       }
       if (d.id === ui.sheetId) showSheet(d.id, d.sheet, !!d.canEdit);
     };
-    A.map.onMessage = (d, { peerId }) => {
-      if (role !== "player" || peerId !== gmId || !d || typeof d.data !== "string") return;
-      loadMapImage(d.ver, d.data);
+    A.img.onMessage = (d, { peerId }) => {
+      if (role !== "player" || peerId !== gmId || !d || typeof d.data !== "string" || !IMG_RE.test(d.data)) return;
+      if (d.k === "map") loadMapImage(d.ver, d.data);
+      else if (d.k === "back") {
+        if (d.ver === S.backVer) {
+          backC = { ver: d.ver, data: d.data };
+          renderCards();
+        }
+      } else if (d.k === "face") {
+        faceC[String(d.id)] = { name: String(d.name || "").slice(0, 40), data: d.data };
+        renderCards();
+      }
     };
     room.onPeerJoin = (pid) => {
       if (role === "player") A.jn.send({ name: myName }, { target: pid });
       updateStatus2();
     };
     room.onPeerLeave = onPeerLeave;
-    if (role === "gm") sync();
+    if (role === "gm") sync(true);
     else afterState();
-    renderLogFull();
     updateStatus2();
-    setInterval(updateStatus2, 1500);
+    setInterval(() => {
+      updateStatus2();
+      if (pendingFaces) renderCards();
+    }, 1500);
   }
   function onPeerLeave(pid) {
     if (role === "gm") {
@@ -4392,14 +4504,21 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         if (G2.peerByName[name] === pid) delete G2.peerByName[name];
         for (const set of Object.values(G2.watch)) set.delete(pid);
         if (S.players[name]) S.players[name].online = false;
-        say("sys", "", `${name} \uB2D8\uC774 \uB098\uAC14\uC5B4\uC694`);
-        sync();
+        sync(true);
       }
     } else if (pid === gmId) {
       connected = false;
       gmId = null;
+      clearAssets();
+      S = newState();
+      myHand = [];
+      ui.sel = null;
+      ui.mine = null;
+      ui.knownOwn = /* @__PURE__ */ new Set();
+      closeSheet();
       $("#veil").hidden = false;
-      $("#veil").textContent = "GM\uACFC\uC758 \uC5F0\uACB0\uC774 \uB04A\uACBC\uC5B4\uC694. GM\uC774 \uB2E4\uC2DC \uBC29\uC744 \uC5F4\uBA74 \uC790\uB3D9\uC73C\uB85C \uC774\uC5B4\uC838\uC694.";
+      $("#veil").textContent = "GM\uC774 \uBC29\uC744 \uB098\uAC14\uC5B4\uC694. GM\uC774 \uB2E4\uC2DC \uBC29\uC744 \uC5F4\uBA74 \uC790\uB3D9\uC73C\uB85C \uC774\uC5B4\uC838\uC694. (\uBC1B\uC544 \uB454 \uADF8\uB9BC\uC740 \uBAA8\uB450 \uC9C0\uC6E0\uC5B4\uC694)";
+      renderAll();
     }
     updateStatus2();
   }
@@ -4407,11 +4526,11 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     if (!room) return;
     const n = Object.keys(room.getPeers()).length;
     if (role === "gm") {
-      const on = Object.values(S.players).filter((p) => p.online).length;
-      $("#status").textContent = `GM \xB7 \uC811\uC18D\uD55C \uD50C\uB808\uC774\uC5B4 ${on}\uBA85`;
+      const on = Object.entries(S.players).filter(([, p]) => p.online).map(([k]) => k);
+      $("#status").textContent = on.length ? `GM \xB7 \uC811\uC18D ${on.length}\uBA85: ${on.join(", ")}` : "GM \xB7 \uC544\uC9C1 \uC811\uC18D\uD55C \uD50C\uB808\uC774\uC5B4\uAC00 \uC5C6\uC5B4\uC694";
     } else if (connected) {
       $("#status").textContent = `${myName} \xB7 GM\uACFC \uC5F0\uACB0\uB428`;
-      ensureMap();
+      ensureAssets();
     } else {
       $("#status").textContent = n ? "GM\uC744 \uD655\uC778\uD558\uB294 \uC911\u2026" : "\uBC29\uC5D0\uC11C \uC0C1\uB300\uB97C \uCC3E\uB294 \uC911\u2026";
       if (Date.now() - joinedAt > 12e3 && !$("#banner").textContent) {
@@ -4424,69 +4543,123 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     G2 = newPrivate();
     buildDeck("std54");
   }
-  var saveKey = () => "rt:save:" + roomId;
-  var mapKey = () => "rt:map:" + roomId;
-  function loadSaved() {
-    try {
-      const t = localStorage.getItem(saveKey());
-      return t ? JSON.parse(t) : null;
-    } catch (e) {
-      return null;
-    }
-  }
-  var saveTimer;
-  function saveSoon() {
-    if (role !== "gm") return;
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      try {
-        localStorage.setItem(saveKey(), JSON.stringify(makeSave(false)));
-      } catch (e) {
+  function makeSave() {
+    return {
+      app: "roundtable",
+      v: 3,
+      savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      S: { ...S },
+      G: {
+        deck: G2.deck,
+        discard: G2.discard,
+        hands: G2.hands,
+        sheets: G2.sheets,
+        tableSeq: G2.tableSeq,
+        mapData: G2.mapData,
+        faces: G2.faces,
+        faceSeq: G2.faceSeq,
+        back: G2.back,
+        customText: $("#deckCustom").value
       }
-    }, 500);
-  }
-  function makeSave(withMap) {
-    const g = { deck: G2.deck, discard: G2.discard, hands: G2.hands, sheets: G2.sheets };
-    if (withMap) g.mapData = G2.mapData;
-    return { v: 2, S, G: g };
+    };
   }
   function applySave(o) {
     var _a;
-    if (!o || !o.S || !o.G) throw new Error("\uC62C\uBC14\uB978 \uC800\uC7A5 \uD30C\uC77C\uC774 \uC544\uB2C8\uC5D0\uC694");
+    if (!o || typeof o !== "object" || !o.S || !o.G) throw new Error("\uC6D0\uD0C1 \uBC29 \uD30C\uC77C\uC774 \uC544\uB2C8\uC5D0\uC694");
     S = Object.assign(newState(), o.S);
-    S.log = Array.isArray(o.S.log) ? o.S.log.slice(-200) : [];
+    delete S.log;
+    delete S.wallsVisible;
+    S.cols = clamp(Math.round(+S.cols || 24), 4, 60);
+    S.rows = clamp(Math.round(+S.rows || 16), 4, 40);
+    if (!Array.isArray(S.walls)) S.walls = [];
+    if (!o.S.deckKind) S.deckKind = /직접/.test(o.S.deckName || "") ? "custom" : /52/.test(o.S.deckName || "") ? "std52" : "std54";
     const keepPeers = { peerByName: G2.peerByName, nameByPeer: G2.nameByPeer };
-    G2 = Object.assign(newPrivate(), { deck: o.G.deck || [], discard: o.G.discard || [], hands: o.G.hands || {}, sheets: o.G.sheets || {} }, keepPeers);
+    const g = o.G;
+    G2 = Object.assign(newPrivate(), {
+      deck: g.deck || [],
+      discard: g.discard || [],
+      hands: g.hands || {},
+      sheets: g.sheets || {},
+      mapData: g.mapData || null,
+      faces: Array.isArray(g.faces) ? g.faces : [],
+      faceSeq: +g.faceSeq || 0,
+      back: g.back || null,
+      tableSeq: +g.tableSeq || 0
+    }, keepPeers);
+    $("#deckCustom").value = g.customText || "";
     for (const [k, t] of Object.entries(S.tokens)) {
       if (!t.id) t.id = k;
       if (!t.owner) t.owner = t.kind === "npc" ? "GM" : t.name;
       if (t.kind === "npc" && t.reveal === void 0) t.reveal = false;
       G2.sheets[t.id] = G2.sheets[t.id] ? cleanSheet(G2.sheets[t.id]) : newSheet("free", t.kind === "pc");
     }
+    S.table = Array.isArray(S.table) ? S.table : [];
+    for (const x of S.table) {
+      if (!x.k) x.k = ++G2.tableSeq;
+      G2.tableSeq = Math.max(G2.tableSeq, x.k);
+    }
+    S.backVer = G2.back ? S.backVer || Date.now() : null;
     S.players = {};
     for (const name of Object.keys(G2.peerByName)) {
       S.players[name] = { online: true };
       (_a = G2.hands)[name] || (_a[name] = []);
     }
     for (const name of Object.keys(G2.peerByName)) ensureChar(name);
-    G2.mapData = o.G.mapData || null;
-    if (!G2.mapData) {
-      try {
-        G2.mapData = localStorage.getItem(mapKey());
-      } catch (e) {
-      }
-    }
     if (S.map && G2.mapData) loadMapImage(S.map.ver, G2.mapData);
     else {
       S.map = null;
       mapImg = null;
       mapImgVer = null;
     }
+    refreshDerived();
   }
   function resyncAll() {
     for (const [pid, name] of Object.entries(G2.nameByPeer)) {
-      A.full.send({ you: name, st: pubFor(), log: S.log, hand: G2.hands[name] || [] }, { target: pid });
+      A.full.send({ you: name, st: pubFor(name), hand: G2.hands[name] || [] }, { target: pid });
     }
+  }
+  function exportRoom() {
+    const d = /* @__PURE__ */ new Date(), pad = (n) => String(n).padStart(2, "0");
+    const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
+    const blob = new Blob([JSON.stringify(makeSave())], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = h("a", { href: url, download: `\uC6D0\uD0C1-${roomId}-${stamp}.json` });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5e3);
+    setDirty(false);
+    toast("\uBC29 \uD30C\uC77C\uC744 \uC800\uC7A5\uD588\uC5B4\uC694. \uB9F5 \uADF8\uB9BC\uACFC \uCE74\uB4DC \uADF8\uB9BC\uB3C4 \uBAA8\uB450 \uB4E4\uC5B4 \uC788\uC5B4\uC694");
+  }
+  var legacyKeys = () => {
+    try {
+      return Object.keys(localStorage).filter((k) => k.startsWith("rt:save:") || k.startsWith("rt:map:"));
+    } catch (e) {
+      return [];
+    }
+  };
+  function loadLegacy() {
+    try {
+      const t = localStorage.getItem("rt:save:" + roomId);
+      if (!t) return null;
+      const o = JSON.parse(t);
+      if (o && o.G && !o.G.mapData) o.G.mapData = localStorage.getItem("rt:map:" + roomId);
+      return o;
+    } catch (e) {
+      return null;
+    }
+  }
+  function removeLegacy(rid) {
+    try {
+      localStorage.removeItem("rt:save:" + rid);
+      localStorage.removeItem("rt:map:" + rid);
+    } catch (e) {
+    }
+  }
+  function showLegacyBox() {
+    const n = legacyKeys().length;
+    $("#legacyBox").hidden = !n;
+    $("#legacyN").textContent = n;
   }
   function onJoinReq(d, { peerId }) {
     var _a;
@@ -4500,7 +4673,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       while (G2.peerByName[name + i] && peers[G2.peerByName[name + i]]) i++;
       name = name + i;
     }
-    const already = G2.nameByPeer[peerId] === name;
     const old = G2.nameByPeer[peerId];
     if (old && old !== name) {
       delete G2.peerByName[old];
@@ -4510,11 +4682,10 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     G2.nameByPeer[peerId] = name;
     S.players[name] = { online: true };
     (_a = G2.hands)[name] || (_a[name] = []);
-    ensureChar(name);
+    const created = ensureChar(name);
     refreshDerived();
-    A.full.send({ you: name, st: pubFor(), log: S.log, hand: G2.hands[name] }, { target: peerId });
-    if (!already) say("sys", "", `${name} \uB2D8\uC774 \uC785\uC7A5\uD588\uC5B4\uC694`);
-    sync();
+    A.full.send({ you: name, st: pubFor(name), hand: G2.hands[name] }, { target: peerId });
+    sync(!created);
   }
   function refreshDerived() {
     S.deckLeft = G2.deck.length;
@@ -4522,22 +4693,13 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     S.handCounts = Object.fromEntries(Object.entries(G2.hands).map(([k, v]) => [k, v.length]));
   }
   function pushState() {
-    const p = pubFor();
-    for (const pid of Object.keys(G2.nameByPeer)) A.st.send(p, { target: pid });
+    for (const [pid, name] of Object.entries(G2.nameByPeer)) A.st.send(pubFor(name), { target: pid });
   }
-  function sync() {
+  function sync(presenceOnly) {
     refreshDerived();
     pushState();
+    if (!presenceOnly) setDirty(true);
     renderAll();
-    saveSoon();
-  }
-  function say(k, who, text, extra) {
-    const e = Object.assign({ k, who, text }, extra || {});
-    S.log.push(e);
-    if (S.log.length > 200) S.log.shift();
-    A.lg.send(e);
-    renderLog(e);
-    saveSoon();
   }
   function tellTo(name, msg) {
     if (name === "GM") return toast(msg);
@@ -4569,7 +4731,9 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     return id;
   }
   function ensureChar(owner) {
-    if (!Object.values(S.tokens).some((t) => t.owner === owner)) makeChar(owner, owner, null, "free");
+    if (Object.values(S.tokens).some((t) => t.owner === owner)) return false;
+    makeChar(owner, owner, null, "free");
+    return true;
   }
   function newChar(name, c) {
     const mine = Object.values(S.tokens).filter((t) => t.owner === name);
@@ -4578,7 +4742,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     const cn = cleanName(c.name) || (name === "GM" ? "NPC" : name);
     const id = makeChar(name, cn, c.color, String(c.tpl || "free"));
     if (name === "GM") ui.sel = id;
-    else say("sys", "", `${name} \uB2D8\uC774 \uC0C8 \uCE90\uB9AD\uD130\uB97C \uB9CC\uB4E4\uC5C8\uC5B4\uC694: ${cn}`);
     sync();
   }
   function delChar(name, id) {
@@ -4588,11 +4751,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     delete G2.sheets[id];
     delete G2.watch[id];
     sync();
-  }
-  function resolveSpeaker(name, as) {
-    const t = as && S.tokens[String(as)];
-    if (!t) return null;
-    return (name === "GM" ? t.kind === "npc" : t.owner === name) ? t : null;
   }
   function reqSheet(name, id) {
     var _a;
@@ -4626,22 +4784,14 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   }
   function cmd(name, c) {
     switch (c.t) {
-      case "chat": {
-        const text = String(c.text || "").trim().slice(0, 500);
-        if (!text) return;
-        const m = text.match(/^\/(?:r|roll|주사위)\s+(.+)$/i);
-        if (m) doRoll(name, m[1], c);
-        else speak(name, c.as, text);
-        break;
-      }
-      case "roll":
-        doRoll(name, c.expr, c);
-        break;
       case "move":
         movePC(name, String(c.id), c.x, c.y, name === "GM");
         break;
       case "play":
-        playCard(name, c.card);
+        playCard(name, c.card, !!c.down);
+        break;
+      case "flip":
+        flipTable(name, +c.k);
         break;
       case "disc":
         discardCard(name, c.card);
@@ -4658,23 +4808,10 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       case "sheetset":
         setSheet(name, c);
         break;
-      case "needmap":
-        sendMap(name);
+      case "need":
+        sendAsset(name, c);
         break;
     }
-  }
-  function speak(name, as, text) {
-    const t = resolveSpeaker(name, as);
-    say("chat", t ? t.name : name, text, t ? { color: t.color } : {});
-  }
-  function doRoll(name, expr, c) {
-    const r = parseDice(expr);
-    if (!r) return tellTo(name, "\uC8FC\uC0AC\uC704 \uC2DD\uC744 \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC608: 2d6+3, d20, 1d8+1d4-1");
-    const t = resolveSpeaker(name, c && c.as);
-    const label = c && c.label ? String(c.label).slice(0, 30) + " \xB7 " : "";
-    let tail = "";
-    if (c && c.target != null && Number.isFinite(+c.target)) tail = r.total <= +c.target ? `  \u25B6 \uC131\uACF5 (\uBAA9\uD45C ${+c.target})` : `  \u25B6 \uC2E4\uD328 (\uBAA9\uD45C ${+c.target})`;
-    say("roll", t ? t.name : name, `\u{1F3B2} ${label}${String(expr).replace(/\s+/g, "")}  \u2192  ${r.text}  =  ${r.total}${tail}`, t ? { color: t.color } : {});
   }
   function movePC(actor, id, x, y, byGM) {
     const t = S.tokens[id];
@@ -4690,33 +4827,52 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     t.y = y;
     sync();
   }
+  var faceById = (id) => G2.faces.find((f) => f.id === id);
+  function faceInfo(id) {
+    return role === "gm" ? faceById(id) : faceC[id];
+  }
+  var backData = () => role === "gm" ? G2.back : backC && backC.data;
+  function canSeeCard(name, id) {
+    return (G2.hands[name] || []).includes(id) || S.table.some((x) => x.c === id && (!x.down || x.by === name));
+  }
   function buildDeck(kind, custom) {
     let cards, name;
     if (kind === "custom") {
       cards = String(custom || "").split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 300);
-      name = `\uC9C1\uC811 \uC785\uB825 ${cards.length}\uC7A5`;
+      name = `\uAE00\uC790 \uCE74\uB4DC ${cards.length}\uC7A5`;
+    } else if (kind === "image") {
+      cards = G2.faces.map((f) => f.id);
+      name = `\uC774\uBBF8\uC9C0 \uB371 ${cards.length}\uC7A5`;
     } else {
       cards = makeStandardDeck(kind === "std54");
       name = kind === "std54" ? "\uD2B8\uB7FC\uD504 54\uC7A5" : "\uD2B8\uB7FC\uD504 52\uC7A5";
     }
-    G2.deck = shuffle2(cards);
+    if (!cards.length) return false;
+    G2.deck = shuffle2(cards.slice());
     G2.discard = [];
     S.table = [];
     S.deckName = name;
+    S.deckKind = kind;
     for (const k of Object.keys(G2.hands)) {
       G2.hands[k] = [];
       pushHand(k);
     }
+    return true;
   }
-  function playCard(name, card) {
+  function playCard(name, card, down) {
     const hand = G2.hands[name];
     if (!hand) return;
     const i = hand.indexOf(card);
     if (i < 0) return;
     hand.splice(i, 1);
-    S.table.push({ c: card, by: name });
-    say("card", name, `${name} \uB2D8\uC774 \uCE74\uB4DC\uB97C \uACF5\uAC1C\uD588\uC5B4\uC694: ${card}`);
+    S.table.push({ k: ++G2.tableSeq, c: card, by: name, down });
     pushHand(name);
+    sync();
+  }
+  function flipTable(name, k) {
+    const x = S.table.find((e) => e.k === k);
+    if (!x || !x.down || !(name === "GM" || x.by === name)) return;
+    x.down = false;
     sync();
   }
   function discardCard(name, card) {
@@ -4726,7 +4882,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     if (i < 0) return;
     hand.splice(i, 1);
     G2.discard.push(card);
-    say("card", name, `${name} \uB2D8\uC774 \uCE74\uB4DC 1\uC7A5\uC744 \uBC84\uB838\uC5B4\uC694`);
     pushHand(name);
     sync();
   }
@@ -4746,17 +4901,91 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       }
       pushHand(nm);
     }
-    say("sys", "", `\uCE74\uB4DC ${n}\uC7A5\uC529 \uB098\uB220\uC92C\uC5B4\uC694 (${names.join(", ")})${short ? " \u2014 \uB371\uC774 \uBD80\uC871\uD588\uC5B4\uC694" : ""}`);
+    toast(`\uCE74\uB4DC\uB97C \uB098\uB220\uC92C\uC5B4\uC694 (${names.join(", ")})${short ? " \u2014 \uB371\uC774 \uBD80\uC871\uD588\uC5B4\uC694" : ""}`);
     sync();
   }
   function flipCards(n) {
     let c = 0;
     for (let i = 0; i < n && G2.deck.length; i++) {
-      S.table.push({ c: G2.deck.pop(), by: "\uB371" });
+      S.table.push({ k: ++G2.tableSeq, c: G2.deck.pop(), by: "\uB371", down: false });
       c++;
     }
-    say("card", "GM", c ? `\uB371\uC5D0\uC11C ${c}\uC7A5\uC744 \uACF5\uAC1C\uD588\uC5B4\uC694` : "\uB371\uC5D0 \uCE74\uB4DC\uAC00 \uC5C6\uC5B4\uC694");
+    if (!c) toast("\uB371\uC5D0 \uCE74\uB4DC\uAC00 \uC5C6\uC5B4\uC694");
     sync();
+  }
+  function purgeCard(id) {
+    G2.deck = G2.deck.filter((c) => c !== id);
+    G2.discard = G2.discard.filter((c) => c !== id);
+    S.table = S.table.filter((x) => x.c !== id);
+    for (const k of Object.keys(G2.hands)) {
+      const b = G2.hands[k].length;
+      G2.hands[k] = G2.hands[k].filter((c) => c !== id);
+      if (G2.hands[k].length !== b) pushHand(k);
+    }
+  }
+  function sendAsset(name, c) {
+    const pid = G2.peerByName[name];
+    if (!pid) return;
+    if (c.k === "map") {
+      if (G2.mapData && S.map) A.img.send({ k: "map", ver: S.map.ver, data: G2.mapData }, { target: pid });
+    } else if (c.k === "back") {
+      if (G2.back && S.backVer) A.img.send({ k: "back", ver: S.backVer, data: G2.back }, { target: pid });
+    } else if (c.k === "face") {
+      const id = String(c.id), f = faceById(id);
+      if (f && canSeeCard(name, id)) A.img.send({ k: "face", id, name: f.name, data: f.data }, { target: pid });
+    }
+  }
+  function needFace(id) {
+    if (faceC[id] || faceAsked[id] && Date.now() - faceAsked[id] < 8e3) return;
+    faceAsked[id] = Date.now();
+    act({ t: "need", k: "face", id });
+  }
+  var faceChars = () => G2.faces.reduce((n, f) => n + f.data.length, 0);
+  async function addFaces(files) {
+    let added = 0;
+    const ids = [];
+    for (const f of files) {
+      if (!/^image\//.test(f.type)) continue;
+      if (G2.faces.length >= 120) {
+        toast("\uC55E\uBA74\uC740 \uCD5C\uB300 120\uC7A5\uAE4C\uC9C0\uC608\uC694");
+        break;
+      }
+      try {
+        const r = shrinkImage(await fileToImage(f), 480, 0.82, 26e4);
+        if (!r.ok) {
+          toast(`"${f.name}"\uC740(\uB294) \uB108\uBB34 \uCEE4\uC11C \uAC74\uB108\uB6F0\uC5C8\uC5B4\uC694`);
+          continue;
+        }
+        if (faceChars() + r.data.length > 9e6) {
+          toast("\uCE74\uB4DC \uADF8\uB9BC \uC804\uCCB4 \uC6A9\uB7C9\uC774 \uB108\uBB34 \uCEE4\uC694. \uC77C\uBD80\uB9CC \uCD94\uAC00\uD588\uC5B4\uC694");
+          break;
+        }
+        const id = "f" + ++G2.faceSeq;
+        G2.faces.push({ id, name: f.name.replace(/\.[^.]+$/, "").slice(0, 30), data: r.data });
+        ids.push(id);
+        added++;
+      } catch (e) {
+        toast(e.message);
+      }
+    }
+    if (!added) return;
+    if (S.deckKind === "image") {
+      G2.deck.push(...ids);
+      shuffle2(G2.deck);
+    }
+    toast(`\uC55E\uBA74 ${added}\uC7A5\uC744 \uC62C\uB838\uC5B4\uC694` + (S.deckKind === "image" ? " (\uB371\uC5D0 \uC11E\uC5B4 \uB123\uC5C8\uC5B4\uC694)" : ""));
+    sync();
+  }
+  async function setBack(file) {
+    if (!file || !/^image\//.test(file.type)) return toast("\uC774\uBBF8\uC9C0 \uD30C\uC77C\uC744 \uACE8\uB77C \uC8FC\uC138\uC694");
+    try {
+      const r = shrinkImage(await fileToImage(file), 480, 0.85, 26e4);
+      G2.back = r.data;
+      S.backVer = Date.now();
+      sync();
+    } catch (e) {
+      toast(e.message);
+    }
   }
   function loadMapImage(ver, data) {
     const img = new Image();
@@ -4769,60 +4998,41 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     };
     img.src = data;
   }
-  function ensureMap() {
+  function ensureAssets() {
     if (role !== "player" || !connected) return;
+    const now2 = Date.now();
     if (!S.map) {
       mapImg = null;
       mapImgVer = null;
-      return;
+    } else if (mapImgVer !== S.map.ver && !(mapAsked === S.map.ver && now2 - mapAskedAt < 1e4)) {
+      mapAsked = S.map.ver;
+      mapAskedAt = now2;
+      act({ t: "need", k: "map" });
     }
-    if (mapImgVer === S.map.ver) return;
-    if (mapAsked === S.map.ver && Date.now() - mapAskedAt < 1e4) return;
-    mapAsked = S.map.ver;
-    mapAskedAt = Date.now();
-    act({ t: "needmap" });
-  }
-  function sendMap(name) {
-    const pid = G2.peerByName[name];
-    if (pid && G2.mapData && S.map) A.map.send({ ver: S.map.ver, data: G2.mapData }, { target: pid });
+    if (!S.backVer) backC = null;
+    else if ((!backC || backC.ver !== S.backVer) && !(backAsked.ver === S.backVer && now2 - backAsked.at < 1e4)) {
+      backAsked = { ver: S.backVer, at: now2 };
+      act({ t: "need", k: "back" });
+    }
   }
   async function importMap(file) {
     if (!file || !/^image\//.test(file.type)) return toast("\uC774\uBBF8\uC9C0 \uD30C\uC77C\uC744 \uACE8\uB77C \uC8FC\uC138\uC694");
     if (file.size > 30 * 1024 * 1024) return toast("\uD30C\uC77C\uC774 \uB108\uBB34 \uCEE4\uC694 (30MB \uC774\uD558\uB85C \uACE8\uB77C \uC8FC\uC138\uC694)");
-    const url = URL.createObjectURL(file);
     try {
-      const img = await new Promise((res, rej) => {
-        const i = new Image();
-        i.onload = () => res(i);
-        i.onerror = () => rej(new Error("\uC774 \uC774\uBBF8\uC9C0\uB97C \uC5F4 \uC218 \uC5C6\uC5B4\uC694"));
-        i.src = url;
-      });
-      importMapFromImage(img);
+      importMapFromImage(await fileToImage(file));
     } catch (e) {
       toast(e.message);
-    } finally {
-      URL.revokeObjectURL(url);
     }
   }
   function importMapFromImage(img) {
-    const nw = img.naturalWidth || img.width, nh = img.naturalHeight || img.height;
-    if (!nw || !nh) return toast("\uC774\uBBF8\uC9C0 \uD06C\uAE30\uB97C \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694");
-    let r = Math.min(1, 2200 / Math.max(nw, nh)), data = "", cw = 0, ch = 0;
-    for (let i = 0; i < 5; i++) {
-      const c = document.createElement("canvas");
-      c.width = Math.max(1, Math.round(nw * r));
-      c.height = Math.max(1, Math.round(nh * r));
-      const x = c.getContext("2d");
-      x.fillStyle = "#fff";
-      x.fillRect(0, 0, c.width, c.height);
-      x.drawImage(img, 0, 0, c.width, c.height);
-      data = c.toDataURL("image/jpeg", 0.85);
-      cw = c.width;
-      ch = c.height;
-      if (data.length <= 26e5) break;
-      r *= 0.75;
+    let r;
+    try {
+      r = shrinkImage(img, 2200, 0.85, 26e5);
+    } catch (e) {
+      return toast(e.message);
     }
-    if (data.length > 4e6) return toast("\uADF8\uB9BC\uC774 \uB108\uBB34 \uCEE4\uC11C \uC904\uC77C \uC218 \uC5C6\uC5C8\uC5B4\uC694. \uB354 \uC791\uC740 \uC774\uBBF8\uC9C0\uB97C \uC368 \uC8FC\uC138\uC694");
+    if (!r.ok) return toast("\uADF8\uB9BC\uC774 \uB108\uBB34 \uCEE4\uC11C \uC904\uC77C \uC218 \uC5C6\uC5C8\uC5B4\uC694. \uB354 \uC791\uC740 \uC774\uBBF8\uC9C0\uB97C \uC368 \uC8FC\uC138\uC694");
+    const { data, cw, ch, nw } = r;
     G2.mapData = data;
     const scale = S.cols * CELL / cw;
     S.map = { ver: Date.now(), natW: cw, natH: ch, x: 0, y: 0, scale, srcRatio: cw / nw };
@@ -4830,11 +5040,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     fitTokens();
     if (confirm("\uBCBD\uC744 \uB9F5 \uBC14\uAE65 \uD14C\uB450\uB9AC\uB9CC \uB0A8\uAE30\uACE0 \uC815\uB9AC\uD560\uAE4C\uC694?\n(\uCDE8\uC18C\uD558\uBA74 \uC9C0\uAE08 \uBCBD\uC744 \uADF8\uB300\uB85C \uB46C\uC694)")) S.walls = borderWalls(S.cols, S.rows);
     loadMapImage(S.map.ver, data);
-    try {
-      localStorage.setItem(mapKey(), data);
-    } catch (e) {
-      toast('\uADF8\uB9BC\uC774 \uCEE4\uC11C \uC790\uB3D9 \uC800\uC7A5\uC740 \uBABB \uD588\uC5B4\uC694. "\uD30C\uC77C\uB85C \uB0B4\uBCF4\uB0B4\uAE30"\uB97C \uC368 \uC8FC\uC138\uC694');
-    }
     sync();
   }
   function fitTokens() {
@@ -4848,10 +5053,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     G2.mapData = null;
     mapImg = null;
     mapImgVer = null;
-    try {
-      localStorage.removeItem(mapKey());
-    } catch (e) {
-    }
     sync();
   }
   var cv = $("#cv");
@@ -4910,18 +5111,16 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       }
       ctx.stroke();
     }
-    if (S.wallsVisible || role === "gm") {
-      ctx.strokeStyle = S.wallsVisible ? "#2f5f8f" : "rgba(47,95,143,0.5)";
+    if (role === "gm" && !ui.preview) {
+      ctx.strokeStyle = "#2f5f8f";
       ctx.lineWidth = 4;
       ctx.lineCap = "round";
-      if (!S.wallsVisible) ctx.setLineDash([6, 5]);
       ctx.beginPath();
       for (const w of S.walls) {
         ctx.moveTo(w[0] * CELL, w[1] * CELL);
         ctx.lineTo(w[2] * CELL, w[3] * CELL);
       }
       ctx.stroke();
-      ctx.setLineDash([]);
     }
     const R = S.vision * CELL;
     const segs = S.walls.map((w) => w.map((v) => v * CELL));
@@ -5026,7 +5225,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     }
   }
   function afterState() {
-    ensureMap();
+    ensureAssets();
     fixSelections();
     renderAll();
   }
@@ -5045,10 +5244,10 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   function renderAll() {
     drawSoon();
     renderCards();
+    renderDeckAdmin();
     renderGMPanel();
     renderChars();
     renderSel();
-    renderSpeaker();
     setupBoardText();
     updateStatus2();
   }
@@ -5057,55 +5256,67 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     let t;
     if (role === "player") t = "\uCE78\uC744 \uB204\uB974\uAC70\uB098 \uBC29\uD5A5\uD0A4/WASD\uB85C \uB0B4 \uB9D0\uC744 \uC6C0\uC9C1\uC5EC\uC694. \uBCBD\uC740 \uD1B5\uACFC\uD560 \uC218 \uC5C6\uC5B4\uC694. \uB9D0\uC744 \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694.";
     else if (ui.mode === "move") t = "\uB9D0\uC744 \uB20C\uB7EC \uC120\uD0DD\uD55C \uB4A4 \uBE48 \uCE78\uC744 \uB204\uB974\uBA74 \uC774\uB3D9\uD574\uC694. \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. (GM\uC740 \uBCBD\uC744 \uD1B5\uACFC\uD560 \uC218 \uC788\uC5B4\uC694)";
-    else if (ui.mode === "wall") t = "\uACA9\uC790 \uAF2D\uC9D3\uC810 \uB450 \uACF3\uC744 \uCC28\uB840\uB85C \uB20C\uB7EC \uBCBD\uC744 \uB9CC\uB4E4\uC5B4\uC694. \uC624\uB978\uCABD \uD074\uB9AD\uC73C\uB85C \uCDE8\uC18C\uD574\uC694.";
+    else if (ui.mode === "wall") t = "\uACA9\uC790 \uAF2D\uC9D3\uC810 \uB450 \uACF3\uC744 \uCC28\uB840\uB85C \uB20C\uB7EC \uBCBD\uC744 \uB9CC\uB4E4\uC5B4\uC694. \uC624\uB978\uCABD \uD074\uB9AD\uC73C\uB85C \uCDE8\uC18C\uD574\uC694. (\uBCBD \uC120\uC740 GM\uC5D0\uAC8C\uB9CC \uBCF4\uC5EC\uC694)";
     else if (ui.mode === "erase") t = "\uC9C0\uC6B0\uACE0 \uC2F6\uC740 \uBCBD \uC704\uB97C \uB20C\uB7EC\uC694.";
     else t = S.map ? "\uB9F5 \uADF8\uB9BC\uC744 \uB04C\uC5B4\uC11C \uC704\uCE58\uB97C \uB9DE\uCDB0\uC694." : "\uBA3C\uC800 GM \uB3C4\uAD6C \uD0ED\uC5D0\uC11C \uC774\uBBF8\uC9C0\uB97C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694.";
     if (role === "player" && S.map && mapImgVer !== S.map.ver) t = "\uC9C0\uB3C4 \uADF8\uB9BC\uC744 \uBC1B\uB294 \uC911\uC774\uC5D0\uC694\u2026 " + t;
     hint.textContent = t;
   }
-  function appendLogLine(e) {
-    const d = h("div", { class: e.k });
-    if (e.k === "chat" || e.k === "roll") {
-      if (e.color) d.append(h("span", { class: "dot", style: "background:" + safeColor(e.color) }));
-      d.append(h("span", { class: "who", text: e.who + (e.k === "chat" ? ":" : "") }), e.k === "roll" ? " " + e.text : e.text);
-    } else d.textContent = e.text;
-    return d;
+  function zoom(url, cap) {
+    $("#zoomImg").src = url;
+    $("#zoomImg").alt = cap || "";
+    $("#zoomCap").textContent = cap || "";
+    $("#zoomModal").hidden = false;
   }
-  function renderLog(e) {
-    const box = $("#log");
-    const stick = box.scrollTop + box.clientHeight >= box.scrollHeight - 40;
-    box.append(appendLogLine(e));
-    if (stick) box.scrollTop = box.scrollHeight;
+  function faceEl(c) {
+    if (S.deckKind === "image") {
+      const f = faceInfo(c), u = f && assetUrl(f.data);
+      if (u) return h("img", { class: "cimg", src: u, alt: f.name || "\uCE74\uB4DC", title: f.name || "", onclick: () => zoom(u, f.name) });
+      if (role !== "gm") {
+        needFace(c);
+        pendingFaces = true;
+      }
+      return h("div", { class: "face ph", text: "\u2026" });
+    }
+    return h("div", { class: "face" + (/^[♥♦]/.test(c) ? " red" : ""), text: c });
   }
-  function renderLogFull() {
-    const box = $("#log");
-    box.textContent = "";
-    for (const e of S.log) box.append(appendLogLine(e));
-    box.scrollTop = box.scrollHeight;
+  function backEl() {
+    const u = assetUrl(backData());
+    return u ? h("img", { class: "cimg back", src: u, alt: "\uCE74\uB4DC \uB4B7\uBA74", onclick: () => zoom(u, "\uCE74\uB4DC \uB4B7\uBA74") }) : h("div", { class: "face back", text: "\uB4B7\uBA74" });
   }
-  function cardEl(c, actions) {
-    return h(
-      "div",
-      { class: "card" },
-      h("div", { class: "face" + (/^[♥♦]/.test(c) ? " red" : ""), text: c }),
-      actions ? h("div", { class: "mini" }, actions) : null
-    );
-  }
+  var cardBox = (...kids) => h("div", { class: "card" }, ...kids);
   function renderCards() {
-    $("#deckInfo").textContent = `\xB7 ${S.deckName} \xB7 \uB371 ${S.deckLeft}\uC7A5 \xB7 \uBC84\uB9BC ${S.discardN}\uC7A5`;
+    pendingFaces = false;
+    $("#deckInfo").textContent = `${S.deckName} \xB7 \uB371 ${S.deckLeft}\uC7A5 \xB7 \uBC84\uB9B0 \uCE74\uB4DC ${S.discardN}\uC7A5`;
+    $("#pile").replaceChildren(cardBox(
+      S.deckLeft ? backEl() : h("div", { class: "face empty-pile", text: "\uBE54" }),
+      h("span", { class: "small", text: `\uB371 ${S.deckLeft}\uC7A5` })
+    ));
+    const others = $("#others");
+    others.textContent = "";
+    for (const [nm, n] of Object.entries(S.handCounts)) {
+      if (role === "player" && nm === myName) continue;
+      others.append(h("div", { class: "ocount" }, h("b", { text: nm }), ` \uC190\uD328 ${n}\uC7A5`));
+    }
     const table = $("#table");
     table.textContent = "";
-    if (!S.table.length) table.append(h("span", { class: "empty", text: "\uD14C\uC774\uBE14\uC5D0 \uACF5\uAC1C\uB41C \uCE74\uB4DC\uAC00 \uC5C6\uC5B4\uC694" }));
-    for (const x of S.table) table.append(h("div", { class: "card", title: x.by }, h("div", { class: "face" + (/^[♥♦]/.test(x.c) ? " red" : ""), text: x.c }), h("span", { class: "small", text: x.by })));
+    if (!S.table.length) table.append(h("span", { class: "empty", text: "\uD14C\uC774\uBE14\uC5D0 \uB193\uC778 \uCE74\uB4DC\uAC00 \uC5C6\uC5B4\uC694" }));
+    for (const x of S.table) {
+      const mine = role === "gm" || x.by === myName;
+      const kids = [x.down && !mine ? backEl() : faceEl(x.c), h("span", { class: "small", text: x.by + (x.down ? " \xB7 \uC5CE\uC5B4\uB460" : "") })];
+      if (x.down && mine) kids.push(h("button", { class: "tiny", type: "button", text: "\uB4A4\uC9D1\uAE30", onclick: () => act({ t: "flip", k: x.k }) }));
+      table.append(cardBox(...kids));
+    }
     if (role === "player") {
       const hand = $("#hand");
       hand.textContent = "";
       if (!myHand.length) hand.append(h("span", { class: "empty", text: "\uC190\uD328\uAC00 \uBE44\uC5B4 \uC788\uC5B4\uC694" }));
       for (const c of myHand) {
-        hand.append(cardEl(c, [
-          h("button", { type: "button", text: "\uB0B4\uAE30", onclick: () => act({ t: "play", card: c }) }),
+        hand.append(cardBox(faceEl(c), h("div", { class: "mini" }, [
+          h("button", { type: "button", text: "\uB0B4\uAE30", onclick: () => act({ t: "play", card: c, down: false }) }),
+          h("button", { type: "button", text: "\uC5CE\uC5B4\uB0B4\uAE30", onclick: () => act({ t: "play", card: c, down: true }) }),
           h("button", { type: "button", text: "\uBC84\uB9AC\uAE30", onclick: () => act({ t: "disc", card: c }) })
-        ]));
+        ])));
       }
     } else {
       const sel = $("#dealTo"), prev = sel.value;
@@ -5117,19 +5328,37 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       box.textContent = "";
       const names = Object.keys(G2.hands);
       if (!names.length) box.append(h("span", { class: "empty", text: "\uC544\uC9C1 \uD50C\uB808\uC774\uC5B4\uAC00 \uC5C6\uC5B4\uC694" }));
-      for (const k of names) box.append(h("div", { text: `${k} (${G2.hands[k].length}\uC7A5): ${G2.hands[k].join("  ") || "\u2014"}` }));
+      for (const k of names) {
+        box.append(
+          h("div", {}, h("b", { text: k }), ` (${G2.hands[k].length}\uC7A5)`),
+          h("div", { class: "cards" }, G2.hands[k].length ? G2.hands[k].map((c) => cardBox(faceEl(c))) : h("span", { class: "empty", text: "\u2014" }))
+        );
+      }
     }
   }
-  function canSpeakAs(t) {
-    return role === "gm" ? t.kind === "npc" : t.owner === myName;
-  }
-  function renderSpeaker() {
-    const sel = $("#speaker");
-    sel.textContent = "";
-    sel.append(h("option", { value: "", text: role === "gm" ? "GM (\uB098)" : `\uB098 (${myName})` }));
-    for (const t of Object.values(S.tokens)) if (canSpeakAs(t)) sel.append(h("option", { value: t.id, text: t.name + (role === "gm" ? " (NPC)" : "") }));
-    if (![...sel.options].some((o) => o.value === ui.speaker)) ui.speaker = "";
-    sel.value = ui.speaker;
+  function renderDeckAdmin() {
+    if (role !== "gm") return;
+    const bt = $("#backThumb");
+    bt.textContent = "";
+    const bu = assetUrl(G2.back);
+    bt.append(bu ? h("img", { src: bu, alt: "\uB4B7\uBA74 \uBBF8\uB9AC\uBCF4\uAE30" }) : h("span", { class: "small", text: "\uC5C6\uC74C" }));
+    $("#backClear").disabled = !G2.back;
+    $("#faceCount").textContent = `${G2.faces.length}\uC7A5 \xB7 \uCD5C\uB300 120\uC7A5`;
+    $("#faceClear").disabled = !G2.faces.length;
+    const list = $("#faceList");
+    list.textContent = "";
+    for (const f of G2.faces) {
+      list.append(h(
+        "div",
+        { class: "thumb", title: f.name },
+        h("img", { src: assetUrl(f.data), alt: f.name }),
+        h("button", { type: "button", text: "\u2715", "aria-label": `${f.name} \uC9C0\uC6B0\uAE30`, onclick: () => {
+          G2.faces = G2.faces.filter((x) => x.id !== f.id);
+          purgeCard(f.id);
+          sync();
+        } })
+      ));
+    }
   }
   function charRow(t) {
     const who = t.kind === "npc" ? "NPC" + (t.reveal ? "" : " \xB7 \uC228\uAE40") : t.owner;
@@ -5139,11 +5368,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       h("span", { class: "dot", style: "background:" + safeColor(t.color) }),
       h("button", { class: "link name", type: "button", text: t.name, onclick: () => openSheet(t.id) }),
       h("span", { class: "small", text: who }),
-      canSpeakAs(t) ? h("button", { type: "button", text: "\uB9D0\uD558\uAE30", onclick: () => {
-        ui.speaker = t.id;
-        renderSpeaker();
-        toast(`\uC774\uC81C "${t.name}"(\uC73C)\uB85C \uB9D0\uD574\uC694`);
-      } }) : null,
       h("button", { type: "button", text: "\uC2DC\uD2B8", onclick: () => openSheet(t.id) })
     );
   }
@@ -5170,7 +5394,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     $("#selbar").hidden = !t;
     if (!t) return;
     $("#selName").replaceChildren(h("b", { text: t.name }), h("span", { class: "small", text: t.kind === "npc" ? "NPC" : t.owner }));
-    $("#selSpeak").hidden = !canSpeakAs(t);
     const rv = $("#selReveal");
     rv.hidden = !(role === "gm" && t.kind === "npc");
     rv.textContent = t.reveal ? "\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uC228\uAE30\uAE30" : "\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uACF5\uAC1C";
@@ -5184,7 +5407,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     $("#fogOn").checked = S.fog;
     $("#shareOn").checked = S.share;
     $("#gridOn").checked = S.grid;
-    $("#wallsOn").checked = S.wallsVisible;
     if (!foc("#moveMax")) $("#moveMax").value = S.moveMax;
     if (!foc("#cols")) $("#cols").value = S.cols;
     if (!foc("#rows")) $("#rows").value = S.rows;
@@ -5219,14 +5441,12 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     const t = S.tokens[id];
     if (!t) return;
     if (canEdit && editingSheet(id)) return;
-    const canRoll = role === "gm" ? t.kind === "npc" : t.owner === myName;
     const draft = JSON.parse(JSON.stringify(sheet));
     let name = t.name, color = t.color, timer;
     const state = $("#sheetState"), body = $("#sheetBody");
     state.textContent = canEdit ? "" : "\uC77D\uAE30 \uC804\uC6A9";
     const commit = () => {
-      const payload = { t: "sheetset", id, sheet: draft, name, color };
-      act(payload);
+      act({ t: "sheetset", id, sheet: draft, name, color });
       state.textContent = "\uC800\uC7A5\uB428";
     };
     const save = () => {
@@ -5259,19 +5479,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
         body.append(h("label", { class: "chk" }, pubChk, "\uB2E4\uB978 \uCC38\uAC00\uC790\uB3C4 \uC774 \uC2DC\uD2B8\uB97C \uBCFC \uC218 \uC788\uAC8C \uD558\uAE30"));
       }
       body.append(h("h3", { text: "\uB2A5\uB825\uCE58" }));
-      if (canEdit) {
-        const ruleSel = h(
-          "select",
-          { "aria-label": "\uAD74\uB9BC \uADDC\uCE59", onchange: (e) => {
-            draft.rule = e.target.value;
-            draw();
-            save();
-          } },
-          Object.entries(RULES).map(([k, v]) => h("option", { value: k, text: v }))
-        );
-        ruleSel.value = draft.rule;
-        body.append(h("div", { class: "inline" }, h("span", { class: "small", text: "\uAD74\uB9BC \uADDC\uCE59" }), ruleSel));
-      } else body.append(h("div", { class: "small", text: "\uAD74\uB9BC \uADDC\uCE59: " + RULES[draft.rule] }));
       if (!draft.stats.length) body.append(h("span", { class: "empty", text: "\uB2A5\uB825\uCE58\uAC00 \uC5C6\uC5B4\uC694" }));
       draft.stats.forEach((s, i) => {
         const k = h("input", { value: s.k, maxlength: 20, disabled: dis, "aria-label": "\uB2A5\uB825\uCE58 \uC774\uB984", oninput: (e) => {
@@ -5283,18 +5490,11 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
           save();
         } });
         v.value = s.v;
-        const rollable = canRoll && draft.rule !== "none";
         body.append(h(
           "div",
           { class: "srow" },
           k,
           v,
-          rollable ? h("button", { type: "button", text: "\u{1F3B2}", title: "\uAD74\uB9AC\uAE30", "aria-label": `${s.k} \uAD74\uB9AC\uAE30`, onclick: () => {
-            const r = rollFor(draft.rule, s.v);
-            if (!r) return;
-            act({ t: "roll", expr: r.expr, as: id, label: s.k || "\uD310\uC815", target: r.target });
-            toast("\uAD74\uB9BC \uACB0\uACFC\uAC00 \uB300\uD654\uCC3D\uC5D0 \uC62C\uB77C\uAC14\uC5B4\uC694");
-          } }) : h("span"),
           canEdit ? h("button", { type: "button", text: "\uC0AD\uC81C", class: "danger", onclick: () => {
             draft.stats.splice(i, 1);
             draw();
@@ -5378,6 +5578,9 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   $("#sheetClose").onclick = closeSheet;
   $("#sheetModal").addEventListener("mousedown", (e) => {
     if (e.target === $("#sheetModal")) closeSheet();
+  });
+  $("#zoomModal").addEventListener("click", () => {
+    $("#zoomModal").hidden = true;
   });
   function pointer(e) {
     const r = cv.getBoundingClientRect();
@@ -5488,8 +5691,11 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   cv.addEventListener("pointercancel", endDrag);
   document.addEventListener("keydown", (e) => {
     if (!room) return;
-    if (e.key === "Escape" && !$("#sheetModal").hidden) return closeSheet();
-    if (!$("#sheetModal").hidden || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+    if (e.key === "Escape") {
+      if (!$("#zoomModal").hidden) return $("#zoomModal").hidden = true;
+      if (!$("#sheetModal").hidden) return closeSheet();
+    }
+    if (!$("#sheetModal").hidden || !$("#zoomModal").hidden || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
     const d = { ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0] }[e.key];
     if (!d) return;
     e.preventDefault();
@@ -5499,34 +5705,12 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     if (role === "gm") movePC("GM", key, t.x + d[0], t.y + d[1], true);
     else act({ t: "move", id: key, x: t.x + d[0], y: t.y + d[1] });
   });
-  function sendChat() {
-    const inp = $("#msg");
-    const text = inp.value.trim();
-    if (!text) return;
-    act({ t: "chat", text, as: ui.speaker || void 0 });
-    inp.value = "";
+  function selectTab(tab) {
+    ui.tab = tab;
+    for (const x of document.querySelectorAll(".tabs button")) x.classList.toggle("on", x.dataset.tab === tab);
+    for (const id of ["chars", "cards", "gm"]) $("#tab-" + id).hidden = id !== tab;
   }
-  $("#send").onclick = sendChat;
-  $("#msg").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.isComposing) sendChat();
-  });
-  $("#speaker").onchange = (e) => {
-    ui.speaker = e.target.value;
-  };
-  for (const s of [4, 6, 8, 10, 12, 20, 100]) {
-    $("#diceRow").append(h("button", { type: "button", text: "d" + s, onclick: () => act({ t: "roll", expr: "1d" + s, as: ui.speaker || void 0 }) }));
-  }
-  for (const b of document.querySelectorAll(".tabs button")) {
-    b.onclick = () => {
-      ui.tab = b.dataset.tab;
-      for (const x of document.querySelectorAll(".tabs button")) x.classList.toggle("on", x === b);
-      for (const id of ["chat", "chars", "cards", "gm"]) $("#tab-" + id).hidden = id !== ui.tab;
-      if (ui.tab === "chat") {
-        const box = $("#log");
-        box.scrollTop = box.scrollHeight;
-      }
-    };
-  }
+  for (const b of document.querySelectorAll(".tabs button")) b.onclick = () => selectTab(b.dataset.tab);
   for (const b of document.querySelectorAll("[data-mode]")) {
     b.onclick = () => {
       ui.mode = b.dataset.mode;
@@ -5542,14 +5726,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     sync();
   };
   $("#selSheet").onclick = () => ui.sel && openSheet(ui.sel);
-  $("#selSpeak").onclick = () => {
-    const t = S.tokens[ui.sel];
-    if (t && canSpeakAs(t)) {
-      ui.speaker = t.id;
-      renderSpeaker();
-      toast(`\uC774\uC81C "${t.name}"(\uC73C)\uB85C \uB9D0\uD574\uC694`);
-    }
-  };
   $("#selReveal").onclick = () => {
     const t = S.tokens[ui.sel];
     if (t && t.kind === "npc") {
@@ -5585,10 +5761,6 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   };
   $("#gridOn").onchange = (e) => {
     S.grid = e.target.checked;
-    sync();
-  };
-  $("#wallsOn").onchange = (e) => {
-    S.wallsVisible = e.target.checked;
     sync();
   };
   $("#prevOn").onchange = (e) => {
@@ -5663,16 +5835,22 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
       sync();
     }
   };
+  $("#deckKind").onchange = (e) => {
+    $("#deckCustom").hidden = e.target.value !== "custom";
+  };
   $("#newDeck").onclick = () => {
+    const kind = $("#deckKind").value;
+    if (kind === "image" && !G2.faces.length) return toast("\uC55E\uBA74 \uC774\uBBF8\uC9C0\uB97C \uBA3C\uC800 \uC62C\uB824 \uC8FC\uC138\uC694");
+    if (kind === "custom" && !$("#deckCustom").value.trim()) return toast("\uCE74\uB4DC \uC774\uB984\uC744 \uD55C \uC904\uC5D0 \uD558\uB098\uC529 \uC801\uC5B4 \uC8FC\uC138\uC694");
     if (!confirm("\uC0C8 \uB371\uC744 \uB9CC\uB4E4\uBA74 \uBAA8\uB450\uC758 \uC190\uD328\uC640 \uD14C\uC774\uBE14\uC774 \uBE44\uC6CC\uC838\uC694. \uACC4\uC18D\uD560\uAE4C\uC694?")) return;
-    buildDeck($("#deckKind").value, $("#deckCustom").value);
-    if ($("#deckKind").value === "custom" && !G2.deck.length) toast("\uC9C1\uC811 \uC785\uB825 \uB371\uC5D0 \uCE74\uB4DC\uAC00 \uC5C6\uC5B4\uC694");
-    say("sys", "", `\uC0C8 \uB371\uC744 \uC11E\uC5C8\uC5B4\uC694: ${S.deckName}`);
-    sync();
+    if (buildDeck(kind, $("#deckCustom").value)) {
+      toast(`\uC0C8 \uB371\uC744 \uC11E\uC5C8\uC5B4\uC694: ${S.deckName}`);
+      sync();
+    }
   };
   $("#shuffle").onclick = () => {
     shuffle2(G2.deck);
-    say("sys", "", "\uB0A8\uC740 \uB371\uC744 \uC11E\uC5C8\uC5B4\uC694");
+    toast("\uB0A8\uC740 \uB371\uC744 \uC11E\uC5C8\uC5B4\uC694");
     sync();
   };
   $("#gather").onclick = () => {
@@ -5680,7 +5858,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     G2.discard = [];
     S.table = [];
     shuffle2(G2.deck);
-    say("sys", "", "\uBC84\uB9B0 \uCE74\uB4DC\uC640 \uD14C\uC774\uBE14\uC758 \uCE74\uB4DC\uB97C \uD68C\uC218\uD574\uC11C \uC11E\uC5C8\uC5B4\uC694");
+    toast("\uBC84\uB9B0 \uCE74\uB4DC\uC640 \uD14C\uC774\uBE14\uC758 \uCE74\uB4DC\uB97C \uD68C\uC218\uD574\uC11C \uC11E\uC5C8\uC5B4\uC694");
     sync();
   };
   $("#deal").onclick = () => dealCards($("#dealTo").value, clamp(+$("#dealN").value || 1, 1, 20));
@@ -5690,27 +5868,57 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     S.table = [];
     sync();
   };
-  $("#exportBtn").onclick = () => {
-    const blob = new Blob([JSON.stringify(makeSave(true))], { type: "application/json" });
-    const a = h("a", { href: URL.createObjectURL(blob), download: `\uC6D0\uD0C1-${roomId}.json` });
-    document.body.append(a);
-    a.click();
-    a.remove();
+  $("#backPick").onclick = () => $("#backFile").click();
+  $("#backFile").onchange = async (e) => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (f) await setBack(f);
   };
+  $("#backClear").onclick = () => {
+    G2.back = null;
+    S.backVer = null;
+    sync();
+  };
+  $("#facePick").onclick = () => $("#faceFile").click();
+  $("#faceFile").onchange = async (e) => {
+    const fs = [...e.target.files];
+    e.target.value = "";
+    if (fs.length) await addFaces(fs);
+  };
+  $("#faceClear").onclick = () => {
+    if (!G2.faces.length || !confirm("\uC62C\uB9B0 \uC55E\uBA74 \uC774\uBBF8\uC9C0\uB97C \uBAA8\uB450 \uC9C0\uC6B8\uAE4C\uC694? \uC774\uBBF8\uC9C0 \uB371\uC744 \uC4F0\uB294 \uC911\uC774\uBA74 \uC9C4\uD589 \uC911\uC778 \uCE74\uB4DC\uB3C4 \uC0AC\uB77C\uC838\uC694.")) return;
+    const ids = G2.faces.map((f) => f.id);
+    G2.faces = [];
+    for (const id of ids) purgeCard(id);
+    sync();
+  };
+  $("#exportBtn").onclick = exportRoom;
+  $("#saveRoom").onclick = exportRoom;
   $("#importBtn").onclick = () => $("#importFile").click();
   $("#importFile").onchange = async (e) => {
     const f = e.target.files[0];
+    e.target.value = "";
     if (!f) return;
+    if (!confirm("\uBC29 \uD30C\uC77C\uC744 \uBD88\uB7EC\uC624\uBA74 \uC9C0\uAE08 \uBC29\uC758 \uB0B4\uC6A9(\uB9F5, \uCE74\uB4DC, \uCE90\uB9AD\uD130)\uC774 \uD30C\uC77C\uC758 \uB0B4\uC6A9\uC73C\uB85C \uBC14\uB00C\uC5B4\uC694. \uACC4\uC18D\uD560\uAE4C\uC694?")) return;
     try {
-      applySave(JSON.parse(await f.text()));
+      applySave(JSON.parse(await readFileText(f)));
       resyncAll();
-      renderLogFull();
       sync();
-      toast("\uBD88\uB7EC\uC654\uC5B4\uC694");
+      toast("\uBC29 \uD30C\uC77C\uC744 \uBD88\uB7EC\uC654\uC5B4\uC694");
     } catch (err) {
       toast("\uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694: " + err.message);
     }
-    e.target.value = "";
+  };
+  $("#legacyClear").onclick = () => {
+    if (!confirm("\uC774\uC804 \uBC84\uC804\uC774 \uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0 \uB0A8\uAE34 \uC790\uB3D9 \uC800\uC7A5 \uAE30\uB85D(\uB9F5 \uADF8\uB9BC \uD3EC\uD568)\uC744 \uBAA8\uB450 \uC0AD\uC81C\uD560\uAE4C\uC694?")) return;
+    for (const k of legacyKeys()) {
+      try {
+        localStorage.removeItem(k);
+      } catch (e) {
+      }
+    }
+    showLegacyBox();
+    toast("\uC0AD\uC81C\uD588\uC5B4\uC694");
   };
   $("#copyLink").onclick = async () => {
     const url = location.origin + location.pathname + "?room=" + encodeURIComponent(roomId);
@@ -5722,15 +5930,22 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     }
   };
   $("#leave").onclick = () => {
-    if (confirm("\uBC29\uC5D0\uC11C \uB098\uAC08\uAE4C\uC694?")) {
-      try {
-        room.leave();
-      } catch (e) {
-      }
-      location.reload();
+    const msg = role === "gm" ? dirty ? "\uC800\uC7A5\uD558\uC9C0 \uC54A\uC740 \uBCC0\uACBD\uC774 \uC788\uC5B4\uC694. \uADF8\uB300\uB85C \uB098\uAC00\uBA74 \uB9F5 \uADF8\uB9BC\uACFC \uCE74\uB4DC \uADF8\uB9BC\uC744 \uD3EC\uD568\uD574 \uBAA8\uB450 \uC0AC\uB77C\uC838\uC694.\n\uADF8\uB798\uB3C4 \uB098\uAC08\uAE4C\uC694?" : "\uBC29\uC744 \uB098\uAC00\uBA74 \uC774 \uBC29\uC758 \uADF8\uB9BC\uACFC \uC124\uC815\uC740 \uC0AC\uB77C\uC838\uC694. \uB098\uAC08\uAE4C\uC694?" : "\uBC29\uC5D0\uC11C \uB098\uAC08\uAE4C\uC694?";
+    if (!confirm(msg)) return;
+    dirty = false;
+    try {
+      room.leave();
+    } catch (e) {
     }
+    location.reload();
   };
-  window.addEventListener("beforeunload", () => {
+  window.addEventListener("beforeunload", (e) => {
+    if (role === "gm" && dirty) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+  window.addEventListener("pagehide", () => {
     try {
       room && room.leave();
     } catch (e) {
@@ -5742,7 +5957,15 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
     crypto.getRandomValues(a);
     $("#inRoom").value = Array.from(a, (v) => cs[v % cs.length]).join("");
   };
-  $("#goGM").onclick = () => start("gm");
+  $("#goGM").onclick = async () => {
+    const f = $("#lobbyFile").files[0];
+    if (!f) return start("gm");
+    try {
+      start("gm", JSON.parse(await readFileText(f)));
+    } catch (e) {
+      lobbyMsg("\uBC29 \uD30C\uC77C\uC744 \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694: " + e.message);
+    }
+  };
   $("#goPlayer").onclick = () => start("player");
   try {
     $("#inName").value = localStorage.getItem("rt:name") || "";
@@ -5752,17 +5975,42 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
   var qr = new URLSearchParams(location.search).get("room");
   if (qr) $("#inRoom").value = qr;
   applyDims();
-  if (typeof __TEST__ !== "undefined") window.__rt = { get S() {
-    return S;
-  }, get G() {
-    return G2;
-  }, get myHand() {
-    return myHand;
-  }, get ui() {
-    return ui;
-  }, get mapImgVer() {
-    return mapImgVer;
-  }, movePC, importMapFromImage, openSheet, cmd };
+  if (typeof __TEST__ !== "undefined") {
+    window.__rt = {
+      get S() {
+        return S;
+      },
+      get G() {
+        return G2;
+      },
+      get myHand() {
+        return myHand;
+      },
+      get ui() {
+        return ui;
+      },
+      get mapImgVer() {
+        return mapImgVer;
+      },
+      get backC() {
+        return backC;
+      },
+      get faceC() {
+        return faceC;
+      },
+      get dirty() {
+        return dirty;
+      },
+      movePC,
+      importMapFromImage,
+      openSheet,
+      cmd,
+      makeSave,
+      applySave,
+      addFaces,
+      setBack
+    };
+  }
 })();
 </script>
 </body>
