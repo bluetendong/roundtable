@@ -96,6 +96,8 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 .mtabs .live{color:var(--deep);font-weight:700}
 .mtabs button{padding:.35em .7em}
 .maplegend{margin:.2em 0 .5em}
+.ruler-tools{display:flex;gap:.4em;align-items:center;flex-wrap:wrap;margin:.4em 0}
+.ruler-tools select{width:auto}
 
 /* 카드 */
 .pilerow{display:flex;gap:.8em;align-items:flex-start}
@@ -207,7 +209,22 @@ img.pimg{cursor:zoom-in}
         <button data-mode="wall" type="button">벽 그리기</button>
         <button data-mode="erase" type="button">벽 지우기</button>
         <button data-mode="img" type="button">그림 이동</button>
+        <button data-mode="ruler" type="button">자로 재기</button>
         <button id="undoWall" type="button">벽 되돌리기</button>
+      </div>
+      <div class="ruler-tools">
+        <button id="playerRuler" data-player type="button">📏 자로 재기</button>
+        <select id="rulerShape" aria-label="자 모양">
+          <option value="line">직선</option>
+          <option value="cone">원뿔형</option>
+          <option value="circle">원형</option>
+          <option value="square">사각형</option>
+        </select>
+        <select id="rulerMode" aria-label="표시 방식">
+          <option value="instant">즉시 (잠깐 보이고 사라짐)</option>
+          <option value="persist">유지 (지울 때까지 남음)</option>
+        </select>
+        <button id="clrTpl" data-gm type="button">이 맵 자국 모두 지우기</button>
       </div>
       <div class="cvwrap"><canvas id="cv"></canvas><div id="veil">GM을 찾는 중이에요…</div></div>
       <div id="selbar" class="selbar" hidden>
@@ -234,7 +251,7 @@ img.pimg{cursor:zoom-in}
           <select id="ncTpl" aria-label="시트 양식" style="flex:1"></select>
           <button id="ncMake" class="primary" type="button">만들기</button>
         </div>
-        <p class="small" data-gm style="margin:.2em 0">GM이 만든 캐릭터는 NPC예요. 지금 편집 중인 맵에 생기고, 그 맵을 플레이어에게 보여주면 함께 보여요.</p>
+        <p class="small" data-gm style="margin:.2em 0">GM이 만든 캐릭터는 NPC예요. 만든 맵에 바로 등장하고, 아래 NPC 목록에서 이름을 오른쪽 클릭(또는 "이 맵에 놓기")하면 다른 맵에도 등장시킬 수 있어요. 같은 NPC가 여러 맵에 동시에 있을 수 있어요.</p>
         <div id="charLists"></div>
         <p class="small">캐릭터 이름을 누르면 시트가 열려요. 맵의 말을 두 번 눌러도 열려요.</p>
       </section>
@@ -4265,7 +4282,9 @@ img.pimg{cursor:zoom-in}
     resize: null,
     suppressClick: false,
     lastTap: null,
-    knownOwn: /* @__PURE__ */ new Set()
+    knownOwn: /* @__PURE__ */ new Set(),
+    rulerDrag: null,
+    rulerGhost: null
   };
   var mapImg = null;
   var mapImgVer = null;
@@ -4294,7 +4313,7 @@ img.pimg{cursor:zoom-in}
     };
   }
   function newMap(id, name) {
-    return { id, name, cols: 24, rows: 16, grid: true, img: null, walls: borderWalls(24, 16), tokens: {}, vision: 6, fog: true, share: false, moveMax: 0 };
+    return { id, name, cols: 24, rows: 16, grid: true, img: null, walls: borderWalls(24, 16), tokens: {}, templates: [], vision: 6, fog: true, share: false, moveMax: 0 };
   }
   function newPrivate() {
     return {
@@ -4310,6 +4329,7 @@ img.pimg{cursor:zoom-in}
       activeId: null,
       viewId: null,
       pcs: {},
+      npcs: {},
       portraits: {},
       faces: [],
       faceSeq: 0,
@@ -4648,13 +4668,8 @@ img.pimg{cursor:zoom-in}
   function delMap() {
     if (G2.mapOrder.length <= 1) return toast("\uB9C8\uC9C0\uB9C9 \uB0A8\uC740 \uB9F5\uC740 \uC9C0\uC6B8 \uC218 \uC5C6\uC5B4\uC694");
     if (!confirm(`"${M2.name}" \uB9F5\uC744 \uC0AD\uC81C\uD560\uAE4C\uC694?
-\uC774 \uB9F5\uC758 \uADF8\uB9BC, \uBCBD, NPC\uAC00 \uD568\uAED8 \uC0AC\uB77C\uC838\uC694. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) return;
+\uC774 \uB9F5\uC758 \uADF8\uB9BC\uACFC \uBCBD\uC774 \uC0AC\uB77C\uC838\uC694. NPC\uB294 \uBA85\uBD80\uC5D0 \uB0A8\uC544\uC11C \uB2E4\uB978 \uB9F5\uC5D0\uC11C \uACC4\uC18D \uC4F8 \uC218 \uC788\uC5B4\uC694. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) return;
     const id = M2.id, idx = G2.mapOrder.indexOf(id);
-    for (const t of Object.values(M2.tokens)) if (t.kind === "npc") {
-      delete G2.sheets[t.id];
-      delete G2.watch[t.id];
-      delete G2.portraits[t.id];
-    }
     delete G2.maps[id];
     delete G2.mapImgs[id];
     G2.mapOrder.splice(idx, 1);
@@ -4721,6 +4736,7 @@ img.pimg{cursor:zoom-in}
         sheets: G2.sheets,
         tableSeq: G2.tableSeq,
         pcs: G2.pcs,
+        npcs: G2.npcs,
         maps: G2.maps,
         mapOrder: G2.mapOrder,
         mapImgs: G2.mapImgs,
@@ -4740,12 +4756,13 @@ img.pimg{cursor:zoom-in}
     m.cols = clamp(Math.round(+m.cols || 24), 4, 60);
     m.rows = clamp(Math.round(+m.rows || 16), 4, 40);
     if (!Array.isArray(m.walls)) m.walls = [];
+    if (!Array.isArray(m.templates)) m.templates = [];
     if (!m.tokens || typeof m.tokens !== "object") m.tokens = {};
     if (!(m.img && imgs[id])) m.img = null;
     return m;
   }
   function applySave(o) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e;
     if (!o || typeof o !== "object" || !o.S || !o.G) throw new Error("\uC6D0\uD0C1 \uBC29 \uD30C\uC77C\uC774 \uC544\uB2C8\uC5D0\uC694");
     const g = o.G;
     const keepPeers = { peerByName: G2.peerByName, nameByPeer: G2.nameByPeer };
@@ -4758,6 +4775,7 @@ img.pimg{cursor:zoom-in}
       hands: g.hands || {},
       sheets: g.sheets || {},
       pcs: g.pcs || {},
+      npcs: g.npcs && typeof g.npcs === "object" ? g.npcs : {},
       faces: Array.isArray(g.faces) ? g.faces : [],
       faceSeq: +g.faceSeq || 0,
       back: g.back || null,
@@ -4792,12 +4810,13 @@ img.pimg{cursor:zoom-in}
         if (t.kind !== "npc") {
           t.kind = "pc";
           (_a = G2.pcs)[_b = t.id] || (_a[_b] = { id: t.id, name: t.name, color: t.color, owner: t.owner });
-        }
+        } else (_c = G2.npcs)[_d = t.id] || (_c[_d] = { id: t.id, name: t.name, color: t.color, owner: "GM", size: t.size || 1, ...t.pv ? { pv: t.pv } : {} });
         G2.sheets[t.id] = G2.sheets[t.id] ? cleanSheet(G2.sheets[t.id]) : newSheet("free", t.kind === "pc");
       }
     }
     for (const id of Object.keys(G2.pcs)) G2.sheets[id] = G2.sheets[id] ? cleanSheet(G2.sheets[id]) : newSheet("free", true);
-    const known = new Set(Object.keys(G2.pcs));
+    for (const id of Object.keys(G2.npcs)) G2.sheets[id] = G2.sheets[id] ? cleanSheet(G2.sheets[id]) : newSheet("free", false);
+    const known = /* @__PURE__ */ new Set([...Object.keys(G2.pcs), ...Object.keys(G2.npcs)]);
     for (const mid of G2.mapOrder) for (const t of Object.values(G2.maps[mid].tokens)) known.add(t.id);
     for (const id of Object.keys(G2.portraits)) if (!known.has(id) || !IMG_RE.test(String(G2.portraits[id]))) delete G2.portraits[id];
     const pvOf = (id) => {
@@ -4818,7 +4837,7 @@ img.pimg{cursor:zoom-in}
     S.players = {};
     for (const name of Object.keys(G2.peerByName)) {
       S.players[name] = { online: true };
-      (_c = G2.hands)[name] || (_c[name] = []);
+      (_e = G2.hands)[name] || (_e[name] = []);
     }
     for (const name of Object.keys(G2.peerByName)) ensureChar(name);
     ensurePCsOn(activeMap());
@@ -4945,11 +4964,11 @@ img.pimg{cursor:zoom-in}
   }
   function makeChar(owner, name, color, tpl) {
     const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
-    const idx = Object.keys(G2.pcs).length + Object.values(M2.tokens).length;
+    const idx = Object.keys(G2.pcs).length + Object.keys(G2.npcs).length;
     const col = validColor(color) ? color : COLORS[idx % COLORS.length];
     if (owner === "GM") {
-      const t = { id, name, color: col, kind: "npc", owner, size: 1, ...freePos("GM", M2) };
-      M2.tokens[id] = t;
+      G2.npcs[id] = { id, name, color: col, owner: "GM", size: 1 };
+      placeNpcOnMap(id, M2);
     } else {
       G2.pcs[id] = { id, name, color: col, owner, size: 1 };
       ensurePCsOn(activeMap());
@@ -4962,16 +4981,17 @@ img.pimg{cursor:zoom-in}
     makeChar(owner, owner, null, "free");
     return true;
   }
-  function findNpc(id) {
-    for (const mid of G2.mapOrder) {
-      const t = G2.maps[mid].tokens[id];
-      if (t && t.kind === "npc") return t;
-    }
-    return null;
+  function placeNpcOnMap(id, m) {
+    const npc = G2.npcs[id];
+    if (!npc || !m || m.tokens[id]) return false;
+    m.tokens[id] = { id, name: npc.name, color: npc.color, kind: "npc", owner: "GM", size: npc.size || 1, ...npc.pv ? { pv: npc.pv } : {}, ...freePos("GM", m) };
+    return true;
   }
   function charOf(id) {
     if (role !== "gm") return M2.tokens[id] || null;
-    return G2.pcs[id] ? { ...G2.pcs[id], kind: "pc" } : findNpc(id);
+    if (G2.pcs[id]) return { ...G2.pcs[id], kind: "pc" };
+    if (G2.npcs[id]) return { ...G2.npcs[id], kind: "npc" };
+    return null;
   }
   function newChar(name, c) {
     const mine = Object.values(G2.pcs).filter((p) => p.owner === name);
@@ -4986,6 +5006,7 @@ img.pimg{cursor:zoom-in}
     const c = role === "gm" ? charOf(id) : null;
     if (!c || !(name === "GM" || c.owner === name)) return;
     delete G2.pcs[id];
+    delete G2.npcs[id];
     delete G2.sheets[id];
     delete G2.watch[id];
     delete G2.portraits[id];
@@ -5010,6 +5031,10 @@ img.pimg{cursor:zoom-in}
       if (nm) G2.pcs[id].name = nm;
       if (col) G2.pcs[id].color = col;
     }
+    if (G2.npcs[id]) {
+      if (nm) G2.npcs[id].name = nm;
+      if (col) G2.npcs[id].color = col;
+    }
     for (const mid of G2.mapOrder) {
       const t = G2.maps[mid].tokens[id];
       if (t) {
@@ -5030,6 +5055,10 @@ img.pimg{cursor:zoom-in}
     if (G2.pcs[id]) {
       if (pv) G2.pcs[id].pv = pv;
       else delete G2.pcs[id].pv;
+    }
+    if (G2.npcs[id]) {
+      if (pv) G2.npcs[id].pv = pv;
+      else delete G2.npcs[id].pv;
     }
     for (const mid of G2.mapOrder) {
       const t = G2.maps[mid].tokens[id];
@@ -5130,6 +5159,12 @@ img.pimg{cursor:zoom-in}
       case "resize":
         resizeTok(name, String(c.id), c.size, name === "GM");
         break;
+      case "tpl_add":
+        addTemplate(name, c, name === "GM");
+        break;
+      case "tpl_del":
+        delTemplate(name, String(c.id), name === "GM");
+        break;
     }
   }
   function resizeTok(actor, id, size, byGM, m) {
@@ -5139,6 +5174,38 @@ img.pimg{cursor:zoom-in}
     if (!byGM && t.owner !== actor) return;
     t.size = clamp(Math.round((+size || 1) * 20) / 20, MIN_SIZE, MAX_SIZE);
     if (G2.pcs[id]) G2.pcs[id].size = t.size;
+    if (G2.npcs[id]) G2.npcs[id].size = t.size;
+    sync();
+  }
+  var TPL_KINDS = ["line", "cone", "circle", "square"];
+  function addTemplate(name, c, byGM) {
+    const m = byGM ? M2 : activeMap();
+    if (!m) return;
+    const num = (v) => {
+      v = Number(v);
+      return Number.isFinite(v) ? clamp(v, -2e3, 2e3) : 0;
+    };
+    const id = "r" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    m.templates || (m.templates = []);
+    if (m.templates.length >= 60) m.templates.shift();
+    m.templates.push({
+      id,
+      kind: TPL_KINDS.includes(c.kind) ? c.kind : "line",
+      by: name,
+      ox: num(c.ox),
+      oy: num(c.oy),
+      tx: num(c.tx),
+      ty: num(c.ty)
+    });
+    sync();
+  }
+  function delTemplate(name, id, byGM) {
+    const m = byGM ? M2 : activeMap();
+    if (!m || !m.templates) return;
+    const i = m.templates.findIndex((x) => x.id === id);
+    if (i < 0) return;
+    if (!(name === "GM" || m.templates[i].by === name)) return;
+    m.templates.splice(i, 1);
     sync();
   }
   function movePC(actor, id, x, y, byGM, m) {
@@ -5414,6 +5481,72 @@ img.pimg{cursor:zoom-in}
     if (role === "gm" && ui.mode !== "move") return null;
     return t;
   }
+  function tplOriginXY(tp) {
+    return { x: tp.ox * CELL, y: tp.oy * CELL };
+  }
+  function drawTemplate(tp, opts) {
+    const ox = tp.ox * CELL, oy = tp.oy * CELL, tx = tp.tx * CELL, ty = tp.ty * CELL;
+    const dx = tx - ox, dy = ty - oy, dist = Math.hypot(dx, dy);
+    if (dist < 1) return;
+    const ang = Math.atan2(dy, dx);
+    ctx.save();
+    ctx.fillStyle = opts.live ? "rgba(42,104,168,0.14)" : "rgba(42,104,168,0.22)";
+    ctx.strokeStyle = "#2a68a8";
+    ctx.lineWidth = 2;
+    if (opts.live) ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    if (tp.kind === "line") {
+      ctx.moveTo(ox, oy);
+      ctx.lineTo(tx, ty);
+    } else if (tp.kind === "circle") {
+      ctx.arc(ox, oy, dist, 0, Math.PI * 2);
+    } else if (tp.kind === "square") {
+      ctx.rect(ox - dist, oy - dist, dist * 2, dist * 2);
+    } else {
+      const half = Math.PI / 6;
+      ctx.moveTo(ox, oy);
+      ctx.arc(ox, oy, dist, ang - half, ang + half);
+      ctx.closePath();
+    }
+    if (tp.kind === "line") ctx.stroke();
+    else {
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    const cells = Math.round(dist / CELL * 2) / 2;
+    const lx = tp.kind === "line" ? (ox + tx) / 2 : ox + Math.cos(ang) * Math.min(dist, CELL * 0.6);
+    const ly = (tp.kind === "line" ? (oy + ty) / 2 : oy + Math.sin(ang) * Math.min(dist, CELL * 0.6)) - 8;
+    const label = `${cells}\uCE78`;
+    ctx.font = "700 12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(255,255,255,0.92)";
+    ctx.strokeText(label, lx, ly);
+    ctx.fillStyle = "#12314f";
+    ctx.fillText(label, lx, ly);
+    ctx.restore();
+    if (opts.del) {
+      const o = tplOriginXY(tp);
+      ctx.save();
+      ctx.fillStyle = "#c23b4f";
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(o.x - 3, o.y - 3);
+      ctx.lineTo(o.x + 3, o.y + 3);
+      ctx.moveTo(o.x + 3, o.y - 3);
+      ctx.lineTo(o.x - 3, o.y + 3);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
   function handleXY(t) {
     const sz = clamp(t.size || 1, MIN_SIZE, MAX_SIZE);
     const r = CELL * 0.38 * sz, k = Math.SQRT1_2;
@@ -5529,6 +5662,9 @@ img.pimg{cursor:zoom-in}
         ctx.restore();
       }
     }
+    for (const tp of M2.templates || []) drawTemplate(tp, { del: ui.mode === "ruler" && (role === "gm" || tp.by === myName) });
+    if (ui.rulerGhost && ui.rulerGhost.until > Date.now()) drawTemplate(ui.rulerGhost, {});
+    if (ui.rulerDrag) drawTemplate(ui.rulerDrag, { live: true });
     visibleIds = /* @__PURE__ */ new Set();
     const canSee = (t) => {
       if (role === "player" && t.owner === myName) return true;
@@ -5647,7 +5783,8 @@ img.pimg{cursor:zoom-in}
   function setupBoardText() {
     const hint = $("#hint");
     let t;
-    if (role === "player") t = "\uCE78\uC744 \uB204\uB974\uAC70\uB098 \uBC29\uD5A5\uD0A4/WASD\uB85C \uB0B4 \uB9D0\uC744 \uC6C0\uC9C1\uC5EC\uC694. \uBCBD\uC740 \uD1B5\uACFC\uD560 \uC218 \uC5C6\uC5B4\uC694. \uB9D0\uC744 \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. \uB9D0 \uBAA8\uC11C\uB9AC\uC758 \uC791\uC740 \uC0AC\uAC01\uD615\uC744 \uB04C\uBA74 \uD06C\uAE30\uAC00 \uBC14\uB00C\uC5B4\uC694.";
+    if (ui.mode === "ruler") t = '\uB4DC\uB798\uADF8\uD574\uC11C \uAC70\uB9AC\uB97C \uC7AC\uC694. "\uC720\uC9C0"\uB85C \uADF8\uB9B0 \uC790\uAD6D\uC740 \uC6D0\uC810\uC758 \uBE68\uAC04 \xD7 \uB97C \uB20C\uB7EC \uC9C0\uC6CC\uC694 (\uB0B4\uAC00 \uADF8\uB9B0 \uAC83\uACFC GM\uB9CC \uC9C0\uC6B8 \uC218 \uC788\uC5B4\uC694).';
+    else if (role === "player") t = "\uCE78\uC744 \uB204\uB974\uAC70\uB098 \uBC29\uD5A5\uD0A4/WASD\uB85C \uB0B4 \uB9D0\uC744 \uC6C0\uC9C1\uC5EC\uC694. \uBCBD\uC740 \uD1B5\uACFC\uD560 \uC218 \uC5C6\uC5B4\uC694. \uB9D0\uC744 \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. \uB9D0 \uBAA8\uC11C\uB9AC\uC758 \uC791\uC740 \uC0AC\uAC01\uD615\uC744 \uB04C\uBA74 \uD06C\uAE30\uAC00 \uBC14\uB00C\uC5B4\uC694.";
     else if (ui.mode === "move") t = "\uB9D0\uC744 \uB20C\uB7EC \uC120\uD0DD\uD55C \uB4A4 \uBE48 \uCE78\uC744 \uB204\uB974\uBA74 \uC774\uB3D9\uD574\uC694. \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. \uC120\uD0DD\uD55C \uB9D0 \uBAA8\uC11C\uB9AC\uC758 \uC791\uC740 \uC0AC\uAC01\uD615\uC744 \uB04C\uBA74 \uD06C\uAE30\uAC00 \uBC14\uB00C\uC5B4\uC694. (GM\uC740 \uBCBD\uC744 \uD1B5\uACFC\uD560 \uC218 \uC788\uC5B4\uC694)";
     else if (ui.mode === "wall") t = "\uACA9\uC790 \uAF2D\uC9D3\uC810 \uB450 \uACF3\uC744 \uCC28\uB840\uB85C \uB20C\uB7EC \uBCBD\uC744 \uB9CC\uB4E4\uC5B4\uC694. \uC624\uB978\uCABD \uD074\uB9AD\uC73C\uB85C \uCDE8\uC18C\uD574\uC694. (\uBCBD \uC120\uC740 GM\uC5D0\uAC8C\uB9CC \uBCF4\uC5EC\uC694)";
     else if (ui.mode === "erase") t = "\uC9C0\uC6B0\uACE0 \uC2F6\uC740 \uBCBD \uC704\uB97C \uB20C\uB7EC\uC694.";
@@ -5753,15 +5890,51 @@ img.pimg{cursor:zoom-in}
       ));
     }
   }
-  function charRow(t, where) {
-    const who = t.kind === "npc" ? "NPC" + (where ? ` \xB7 ${where}` : "") : t.owner;
+  function charRow(t) {
     return h(
       "div",
       { class: "crow" },
       avatarEl(t),
       h("button", { class: "link name", type: "button", text: t.name, onclick: () => openSheet(t.id) }),
-      h("span", { class: "small", text: who }),
+      h("span", { class: "small", text: t.kind === "npc" ? "NPC" : t.owner }),
       h("button", { type: "button", text: "\uC2DC\uD2B8", onclick: () => openSheet(t.id) })
+    );
+  }
+  function placeNpcHere(id) {
+    if (role !== "gm") return;
+    if (M2.tokens[id]) {
+      ui.sel = id;
+      toast("\uC774\uBBF8 \uC774 \uB9F5\uC5D0 \uC788\uC5B4\uC694");
+      renderSel();
+      drawSoon();
+      return;
+    }
+    if (placeNpcOnMap(id, M2)) {
+      ui.sel = id;
+      sync();
+      toast(`"${G2.npcs[id].name}" \uC744(\uB97C) \uC774 \uB9F5\uC5D0 \uB4F1\uC7A5\uC2DC\uCF30\uC5B4\uC694`);
+    }
+  }
+  function npcRow(npc) {
+    const onMaps = G2.mapOrder.filter((mid) => G2.maps[mid].tokens[npc.id]).map((mid) => G2.maps[mid].name);
+    const here = !!M2.tokens[npc.id];
+    return h(
+      "div",
+      { class: "crow" },
+      avatarEl(npc),
+      h("button", {
+        class: "link name",
+        type: "button",
+        text: npc.name,
+        onclick: () => openSheet(npc.id),
+        oncontextmenu: (e) => {
+          e.preventDefault();
+          placeNpcHere(npc.id);
+        }
+      }),
+      h("span", { class: "small", text: onMaps.length ? onMaps.join(", ") : "\uBC30\uCE58 \uC548 \uB428" }),
+      h("button", { type: "button", text: here ? "\uC774 \uB9F5\uC5D0 \uC788\uC74C" : "\uC774 \uB9F5\uC5D0 \uB193\uAE30", disabled: here, onclick: () => placeNpcHere(npc.id) }),
+      h("button", { type: "button", text: "\uC2DC\uD2B8", onclick: () => openSheet(npc.id) })
     );
   }
   function renderChars() {
@@ -5774,9 +5947,10 @@ img.pimg{cursor:zoom-in}
     };
     if (role === "gm") {
       group("\uD50C\uB808\uC774\uC5B4 \uCE90\uB9AD\uD130", Object.values(G2.pcs).map((p) => charRow({ ...p, kind: "pc" })), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
-      const npcs = [];
-      for (const mid of G2.mapOrder) for (const t of Object.values(G2.maps[mid].tokens)) if (t.kind === "npc") npcs.push(charRow(t, G2.maps[mid].name));
-      group("NPC (\uBAA8\uB4E0 \uB9F5)", npcs, "NPC\uAC00 \uC5C6\uC5B4\uC694");
+      box.append(h("h3", { text: "NPC (\uC5EC\uB7EC \uB9F5\uC5D0\uC11C \uD568\uAED8 \uC368\uC694)" }));
+      if (!Object.keys(G2.npcs).length) box.append(h("span", { class: "empty", text: "NPC\uAC00 \uC5C6\uC5B4\uC694" }));
+      else box.append(h("p", { class: "small", style: "margin:.1em 0 .4em" }, "\uC774\uB984\uC744 \uC624\uB978\uCABD \uD074\uB9AD\uD558\uBA74 \uC9C0\uAE08 \uBCF4\uB294 \uB9F5\uC5D0 \uBC14\uB85C \uB4F1\uC7A5\uD574\uC694."));
+      for (const npc of Object.values(G2.npcs)) box.append(npcRow(npc));
     } else {
       const all2 = Object.values(M2.tokens);
       group("\uB0B4 \uCE90\uB9AD\uD130", all2.filter((t) => t.owner === myName).map((t) => charRow(t)), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
@@ -5790,6 +5964,7 @@ img.pimg{cursor:zoom-in}
     if (!t) return;
     $("#selName").replaceChildren(avatarEl(t), h("b", { text: t.name }), h("span", { class: "small", text: t.kind === "npc" ? "NPC" : t.owner }));
     $("#selDel").hidden = !(role === "gm" || t.owner === myName);
+    $("#selDel").textContent = role === "gm" && t.kind === "npc" ? "\uC774 \uB9F5\uC5D0\uC11C \uB0B4\uB9AC\uAE30" : "\uC0AD\uC81C";
   }
   function renderGMPanel() {
     if (role !== "gm") return;
@@ -5991,8 +6166,10 @@ img.pimg{cursor:zoom-in}
         body.append(h(
           "div",
           { class: "inline", style: "margin-top:1em" },
-          h("button", { type: "button", class: "danger", text: "\uC774 \uCE90\uB9AD\uD130 \uC0AD\uC81C", onclick: () => {
-            if (confirm(`"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
+          h("button", { type: "button", class: "danger", text: t.kind === "npc" ? "\uC774 NPC \uC644\uC804\uD788 \uC0AD\uC81C" : "\uC774 \uCE90\uB9AD\uD130 \uC0AD\uC81C", onclick: () => {
+            const msg = t.kind === "npc" ? `"${t.name}"\uC744(\uB97C) \uC644\uC804\uD788 \uC0AD\uC81C\uD560\uAE4C\uC694?
+\uBC30\uCE58\uB41C \uBAA8\uB4E0 \uB9F5\uC5D0\uC11C \uC0AC\uB77C\uC9C0\uACE0 \uC2DC\uD2B8\xB7\uC774\uBBF8\uC9C0\uB3C4 \uC5C6\uC5B4\uC838\uC694. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.` : `"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`;
+            if (confirm(msg)) {
               closeSheet();
               act({ t: "delchar", id });
             }
@@ -6044,6 +6221,12 @@ img.pimg{cursor:zoom-in}
       return;
     }
     const p = pointer(e);
+    if (ui.mode === "ruler") {
+      const m = role === "gm" ? M2 : activeMap();
+      const hit = (m.templates || []).find((tp) => (role === "gm" || tp.by === myName) && Math.hypot(p.px - tp.ox * CELL, p.py - tp.oy * CELL) <= 10);
+      if (hit) act({ t: "tpl_del", id: hit.id });
+      return;
+    }
     if (p.cx < 0 || p.cx >= M2.cols || p.cy < 0 || p.cy >= M2.rows) return;
     if (role === "player") {
       const hit = tokenAt(p.cx, p.cy);
@@ -6110,6 +6293,16 @@ img.pimg{cursor:zoom-in}
         return;
       }
     }
+    if (ui.mode === "ruler") {
+      ui.rulerDrag = { ox: p.px / CELL, oy: p.py / CELL, tx: p.px / CELL, ty: p.py / CELL, kind: $("#rulerShape").value };
+      if (cv.setPointerCapture) {
+        try {
+          cv.setPointerCapture(e.pointerId);
+        } catch (err) {
+        }
+      }
+      return;
+    }
     if (role !== "gm" || ui.mode !== "img" || !M2.img) return;
     ui.drag = { sx: p.px, sy: p.py, ox: M2.img.x, oy: M2.img.y };
     if (cv.setPointerCapture) {
@@ -6120,6 +6313,13 @@ img.pimg{cursor:zoom-in}
     }
   });
   cv.addEventListener("pointermove", (e) => {
+    if (ui.rulerDrag) {
+      const p2 = pointer(e);
+      ui.rulerDrag.tx = p2.px / CELL;
+      ui.rulerDrag.ty = p2.py / CELL;
+      drawSoon();
+      return;
+    }
     if (ui.resize) {
       const p2 = pointer(e);
       const dist = Math.hypot(p2.px - ui.resize.cx, p2.py - ui.resize.cy);
@@ -6145,6 +6345,21 @@ img.pimg{cursor:zoom-in}
     }
   });
   var endDrag = () => {
+    if (ui.rulerDrag) {
+      const d = ui.rulerDrag;
+      ui.rulerDrag = null;
+      ui.suppressClick = true;
+      const dist = Math.hypot(d.tx - d.ox, d.ty - d.oy);
+      if (dist * CELL >= 8) {
+        if ($("#rulerMode").value === "persist") act({ t: "tpl_add", kind: d.kind, ox: d.ox, oy: d.oy, tx: d.tx, ty: d.ty });
+        else {
+          ui.rulerGhost = { ...d, until: Date.now() + 2600 };
+          setTimeout(drawSoon, 2650);
+        }
+      }
+      drawSoon();
+      return;
+    }
     if (ui.resize) {
       const t = M2.tokens[ui.resize.id];
       ui.resize = null;
@@ -6188,13 +6403,26 @@ img.pimg{cursor:zoom-in}
       ui.pending = null;
       cv.style.touchAction = ui.mode === "img" ? "none" : "manipulation";
       for (const x of document.querySelectorAll("[data-mode]")) x.classList.toggle("on", x === b);
+      $("#playerRuler").classList.toggle("on", ui.mode === "ruler");
       setupBoardText();
       drawSoon();
     };
   }
+  $("#playerRuler").onclick = () => {
+    ui.mode = ui.mode === "ruler" ? "move" : "ruler";
+    $("#playerRuler").classList.toggle("on", ui.mode === "ruler");
+    setupBoardText();
+    drawSoon();
+  };
   $("#undoWall").onclick = () => {
     M2.walls.pop();
     sync();
+  };
+  $("#clrTpl").onclick = () => {
+    if ((M2.templates || []).length && confirm("\uC774 \uB9F5\uC5D0 \uB0A8\uC740 \uC790\uB97C \uBAA8\uB450 \uC9C0\uC6B8\uAE4C\uC694?")) {
+      M2.templates = [];
+      sync();
+    }
   };
   $("#showPlayers").onclick = () => setActive(G2.viewId);
   $("#mapName").onchange = (e) => {
@@ -6208,7 +6436,17 @@ img.pimg{cursor:zoom-in}
   $("#selSheet").onclick = () => ui.sel && openSheet(ui.sel);
   $("#selDel").onclick = () => {
     const t = M2.tokens[ui.sel];
-    if (t && confirm(`"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
+    if (!t) return;
+    if (role === "gm" && t.kind === "npc") {
+      if (confirm(`"${t.name}"\uC744(\uB97C) \uC774 \uB9F5\uC5D0\uC11C \uB0B4\uB9B4\uAE4C\uC694?
+\uB2E4\uB978 \uB9F5\uC5D0 \uC788\uC73C\uBA74 \uADF8\uB300\uB85C \uB0A8\uACE0, NPC \uC790\uCCB4(\uBA85\uBD80\xB7\uC2DC\uD2B8)\uB3C4 \uC5C6\uC5B4\uC9C0\uC9C0 \uC54A\uC544\uC694.`)) {
+        delete M2.tokens[t.id];
+        ui.sel = null;
+        sync();
+      }
+      return;
+    }
+    if (confirm(`"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
       act({ t: "delchar", id: t.id });
       ui.sel = null;
     }
@@ -6489,7 +6727,12 @@ img.pimg{cursor:zoom-in}
       addFaces,
       setBack,
       shrinkSquare,
-      resizeTok
+      resizeTok,
+      addTemplate,
+      delTemplate,
+      renderAll,
+      placeNpcOnMap,
+      placeNpcHere
     };
   }
 })();
