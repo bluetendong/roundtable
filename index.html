@@ -5178,6 +5178,7 @@ img.pimg{cursor:zoom-in}
     sync();
   }
   var TPL_KINDS = ["line", "cone", "circle", "square"];
+  var FT_PER_CELL = 5;
   function addTemplate(name, c, byGM) {
     const m = byGM ? M2 : activeMap();
     if (!m) return;
@@ -5515,9 +5516,10 @@ img.pimg{cursor:zoom-in}
     }
     ctx.setLineDash([]);
     const cells = Math.round(dist / CELL * 2) / 2;
+    const feet = cells * FT_PER_CELL;
     const lx = tp.kind === "line" ? (ox + tx) / 2 : ox + Math.cos(ang) * Math.min(dist, CELL * 0.6);
     const ly = (tp.kind === "line" ? (oy + ty) / 2 : oy + Math.sin(ang) * Math.min(dist, CELL * 0.6)) - 8;
-    const label = `${cells}\uCE78`;
+    const label = `${feet}ft`;
     ctx.font = "700 12px sans-serif";
     ctx.textAlign = "center";
     ctx.lineWidth = 3;
