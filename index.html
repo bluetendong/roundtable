@@ -4803,6 +4803,7 @@ img.pimg{cursor:zoom-in}
     }
     G2.viewId = G2.activeId;
     M2 = G2.maps[G2.viewId];
+    const hadNpcRegistry = g.npcs && typeof g.npcs === "object";
     for (const id of G2.mapOrder) {
       for (const [k, t] of Object.entries(G2.maps[id].tokens)) {
         if (!t.id) t.id = k;
@@ -4810,7 +4811,7 @@ img.pimg{cursor:zoom-in}
         if (t.kind !== "npc") {
           t.kind = "pc";
           (_a = G2.pcs)[_b = t.id] || (_a[_b] = { id: t.id, name: t.name, color: t.color, owner: t.owner });
-        } else (_c = G2.npcs)[_d = t.id] || (_c[_d] = { id: t.id, name: t.name, color: t.color, owner: "GM", size: t.size || 1, ...t.pv ? { pv: t.pv } : {} });
+        } else if (!hadNpcRegistry) (_c = G2.npcs)[_d = t.id] || (_c[_d] = { id: t.id, name: t.name, color: t.color, owner: "GM", size: t.size || 1, ...t.pv ? { pv: t.pv } : {} });
         G2.sheets[t.id] = G2.sheets[t.id] ? cleanSheet(G2.sheets[t.id]) : newSheet("free", t.kind === "pc");
       }
     }
@@ -4987,11 +4988,27 @@ img.pimg{cursor:zoom-in}
     m.tokens[id] = { id, name: npc.name, color: npc.color, kind: "npc", owner: "GM", size: npc.size || 1, ...npc.pv ? { pv: npc.pv } : {}, ...freePos("GM", m) };
     return true;
   }
+  function duplicateNpcToken(npcId, m) {
+    const npc = G2.npcs[npcId];
+    if (!npc || !m) return null;
+    const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    G2.sheets[id] = G2.sheets[npcId] ? cleanSheet(G2.sheets[npcId]) : newSheet("free", false);
+    if (G2.portraits[npcId]) G2.portraits[id] = G2.portraits[npcId];
+    m.tokens[id] = { id, name: npc.name, color: npc.color, kind: "npc", owner: "GM", size: npc.size || 1, ...npc.pv ? { pv: npc.pv } : {}, ...freePos("GM", m) };
+    return id;
+  }
+  function findMapToken(id) {
+    for (const mid of G2.mapOrder) {
+      const t = G2.maps[mid].tokens[id];
+      if (t) return t;
+    }
+    return null;
+  }
   function charOf(id) {
     if (role !== "gm") return M2.tokens[id] || null;
     if (G2.pcs[id]) return { ...G2.pcs[id], kind: "pc" };
     if (G2.npcs[id]) return { ...G2.npcs[id], kind: "npc" };
-    return null;
+    return findMapToken(id);
   }
   function newChar(name, c) {
     const mine = Object.values(G2.pcs).filter((p) => p.owner === name);
@@ -5904,17 +5921,19 @@ img.pimg{cursor:zoom-in}
   }
   function placeNpcHere(id) {
     if (role !== "gm") return;
-    if (M2.tokens[id]) {
-      ui.sel = id;
-      toast("\uC774\uBBF8 \uC774 \uB9F5\uC5D0 \uC788\uC5B4\uC694");
-      renderSel();
-      drawSoon();
-      return;
-    }
+    const npc = G2.npcs[id];
+    if (!npc) return;
     if (placeNpcOnMap(id, M2)) {
       ui.sel = id;
       sync();
-      toast(`"${G2.npcs[id].name}" \uC744(\uB97C) \uC774 \uB9F5\uC5D0 \uB4F1\uC7A5\uC2DC\uCF30\uC5B4\uC694`);
+      toast(`"${npc.name}" \uC744(\uB97C) \uC774 \uB9F5\uC5D0 \uB4F1\uC7A5\uC2DC\uCF30\uC5B4\uC694`);
+      return;
+    }
+    const dupId = duplicateNpcToken(id, M2);
+    if (dupId) {
+      ui.sel = dupId;
+      sync();
+      toast(`"${npc.name}" \uC0AC\uBCF8\uC744 \uD558\uB098 \uB354 \uB193\uC558\uC5B4\uC694 (\uCCB4\uB825 \uB4F1\uC740 \uC11C\uB85C \uB530\uB85C\uC608\uC694)`);
     }
   }
   function npcRow(npc) {
@@ -5935,7 +5954,7 @@ img.pimg{cursor:zoom-in}
         }
       }),
       h("span", { class: "small", text: onMaps.length ? onMaps.join(", ") : "\uBC30\uCE58 \uC548 \uB428" }),
-      h("button", { type: "button", text: here ? "\uC774 \uB9F5\uC5D0 \uC788\uC74C" : "\uC774 \uB9F5\uC5D0 \uB193\uAE30", disabled: here, onclick: () => placeNpcHere(npc.id) }),
+      h("button", { type: "button", text: here ? "\uC0AC\uBCF8 \uD558\uB098 \uB354 \uB193\uAE30" : "\uC774 \uB9F5\uC5D0 \uB193\uAE30", onclick: () => placeNpcHere(npc.id) }),
       h("button", { type: "button", text: "\uC2DC\uD2B8", onclick: () => openSheet(npc.id) })
     );
   }
@@ -5951,7 +5970,7 @@ img.pimg{cursor:zoom-in}
       group("\uD50C\uB808\uC774\uC5B4 \uCE90\uB9AD\uD130", Object.values(G2.pcs).map((p) => charRow({ ...p, kind: "pc" })), "\uC544\uC9C1 \uC5C6\uC5B4\uC694");
       box.append(h("h3", { text: "NPC (\uC5EC\uB7EC \uB9F5\uC5D0\uC11C \uD568\uAED8 \uC368\uC694)" }));
       if (!Object.keys(G2.npcs).length) box.append(h("span", { class: "empty", text: "NPC\uAC00 \uC5C6\uC5B4\uC694" }));
-      else box.append(h("p", { class: "small", style: "margin:.1em 0 .4em" }, "\uC774\uB984\uC744 \uC624\uB978\uCABD \uD074\uB9AD\uD558\uBA74 \uC9C0\uAE08 \uBCF4\uB294 \uB9F5\uC5D0 \uBC14\uB85C \uB4F1\uC7A5\uD574\uC694."));
+      else box.append(h("p", { class: "small", style: "margin:.1em 0 .4em" }, "\uC774\uB984\uC744 \uC624\uB978\uCABD \uD074\uB9AD(\uB610\uB294 \uBC84\uD2BC)\uD558\uBA74 \uC9C0\uAE08 \uBCF4\uB294 \uB9F5\uC5D0 \uB4F1\uC7A5\uD574\uC694. \uC774\uBBF8 \uC788\uC73C\uBA74 \uC0AC\uBCF8\uC774 \uD558\uB098 \uB354 \uB193\uC5EC\uC694 \u2014 \uAC19\uC740 NPC\uB97C \uC5EC\uB7EC \uB9C8\uB9AC \uBC30\uCE58\uD560 \uC218 \uC788\uC5B4\uC694."));
       for (const npc of Object.values(G2.npcs)) box.append(npcRow(npc));
     } else {
       const all2 = Object.values(M2.tokens);
@@ -5966,7 +5985,7 @@ img.pimg{cursor:zoom-in}
     if (!t) return;
     $("#selName").replaceChildren(avatarEl(t), h("b", { text: t.name }), h("span", { class: "small", text: t.kind === "npc" ? "NPC" : t.owner }));
     $("#selDel").hidden = !(role === "gm" || t.owner === myName);
-    $("#selDel").textContent = role === "gm" && t.kind === "npc" ? "\uC774 \uB9F5\uC5D0\uC11C \uB0B4\uB9AC\uAE30" : "\uC0AD\uC81C";
+    $("#selDel").textContent = role === "gm" && t.kind === "npc" ? G2.npcs[t.id] ? "\uC774 \uB9F5\uC5D0\uC11C \uB0B4\uB9AC\uAE30" : "\uC0AD\uC81C(\uC0AC\uBCF8)" : "\uC0AD\uC81C";
   }
   function renderGMPanel() {
     if (role !== "gm") return;
@@ -6169,8 +6188,8 @@ img.pimg{cursor:zoom-in}
           "div",
           { class: "inline", style: "margin-top:1em" },
           h("button", { type: "button", class: "danger", text: t.kind === "npc" ? "\uC774 NPC \uC644\uC804\uD788 \uC0AD\uC81C" : "\uC774 \uCE90\uB9AD\uD130 \uC0AD\uC81C", onclick: () => {
-            const msg = t.kind === "npc" ? `"${t.name}"\uC744(\uB97C) \uC644\uC804\uD788 \uC0AD\uC81C\uD560\uAE4C\uC694?
-\uBC30\uCE58\uB41C \uBAA8\uB4E0 \uB9F5\uC5D0\uC11C \uC0AC\uB77C\uC9C0\uACE0 \uC2DC\uD2B8\xB7\uC774\uBBF8\uC9C0\uB3C4 \uC5C6\uC5B4\uC838\uC694. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.` : `"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`;
+            const msg = t.kind !== "npc" ? `"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.` : G2.npcs[id] ? `"${t.name}"\uC744(\uB97C) \uC644\uC804\uD788 \uC0AD\uC81C\uD560\uAE4C\uC694?
+\uBC30\uCE58\uB41C \uBAA8\uB4E0 \uB9F5\uC5D0\uC11C \uC0AC\uB77C\uC9C0\uACE0 \uC2DC\uD2B8\xB7\uC774\uBBF8\uC9C0\uB3C4 \uC5C6\uC5B4\uC838\uC694. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.` : `"${t.name}" \uC0AC\uBCF8\uC744 \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`;
             if (confirm(msg)) {
               closeSheet();
               act({ t: "delchar", id });
@@ -6440,11 +6459,17 @@ img.pimg{cursor:zoom-in}
     const t = M2.tokens[ui.sel];
     if (!t) return;
     if (role === "gm" && t.kind === "npc") {
-      if (confirm(`"${t.name}"\uC744(\uB97C) \uC774 \uB9F5\uC5D0\uC11C \uB0B4\uB9B4\uAE4C\uC694?
+      if (G2.npcs[t.id]) {
+        if (confirm(`"${t.name}"\uC744(\uB97C) \uC774 \uB9F5\uC5D0\uC11C \uB0B4\uB9B4\uAE4C\uC694?
 \uB2E4\uB978 \uB9F5\uC5D0 \uC788\uC73C\uBA74 \uADF8\uB300\uB85C \uB0A8\uACE0, NPC \uC790\uCCB4(\uBA85\uBD80\xB7\uC2DC\uD2B8)\uB3C4 \uC5C6\uC5B4\uC9C0\uC9C0 \uC54A\uC544\uC694.`)) {
-        delete M2.tokens[t.id];
+          delete M2.tokens[t.id];
+          ui.sel = null;
+          sync();
+        }
+      } else if (confirm(`"${t.name}" \uC0AC\uBCF8\uC744 \uC0AD\uC81C\uD560\uAE4C\uC694?
+\uC774 \uC0AC\uBCF8\uC740 \uB2E4\uB978 \uACF3\uC5D0 \uB0A8\uC544 \uC788\uC9C0 \uC54A\uC544\uC11C \uC644\uC804\uD788 \uC0AC\uB77C\uC838\uC694. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
+        act({ t: "delchar", id: t.id });
         ui.sel = null;
-        sync();
       }
       return;
     }
@@ -6734,7 +6759,8 @@ img.pimg{cursor:zoom-in}
       delTemplate,
       renderAll,
       placeNpcOnMap,
-      placeNpcHere
+      placeNpcHere,
+      duplicateNpcToken
     };
   }
 })();
