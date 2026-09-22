@@ -213,7 +213,6 @@ img.pimg{cursor:zoom-in}
       <div id="selbar" class="selbar" hidden>
         <span id="selName"></span>
         <button id="selSheet" type="button">시트 보기</button>
-        <button id="selReveal" data-gm type="button"></button>
         <button id="selDel" class="danger" type="button">삭제</button>
       </div>
       <p id="hint" class="hint"></p>
@@ -235,7 +234,7 @@ img.pimg{cursor:zoom-in}
           <select id="ncTpl" aria-label="시트 양식" style="flex:1"></select>
           <button id="ncMake" class="primary" type="button">만들기</button>
         </div>
-        <p class="small" data-gm style="margin:.2em 0">GM이 만든 캐릭터는 NPC예요. 처음엔 플레이어에게 보이지 않고, 말을 선택한 뒤 "플레이어에게 공개"를 눌러야 나타나요.</p>
+        <p class="small" data-gm style="margin:.2em 0">GM이 만든 캐릭터는 NPC예요. 지금 편집 중인 맵에 생기고, 그 맵을 플레이어에게 보여주면 함께 보여요.</p>
         <div id="charLists"></div>
         <p class="small">캐릭터 이름을 누르면 시트가 열려요. 맵의 말을 두 번 눌러도 열려요.</p>
       </section>
@@ -4319,7 +4318,7 @@ img.pimg{cursor:zoom-in}
   var activeMap = () => G2.maps[G2.activeId];
   function mapPub(m) {
     const { tokens, ...rest } = m;
-    return { ...rest, tokens: Object.fromEntries(Object.entries(tokens).filter(([, t]) => t.kind === "pc" || t.reveal)) };
+    return { ...rest, tokens };
   }
   function pubFor(name) {
     const p = { ...S };
@@ -4412,14 +4411,13 @@ img.pimg{cursor:zoom-in}
     const nw = img.naturalWidth || img.width, nh = img.naturalHeight || img.height;
     if (!nw || !nh) throw new Error("\uC774\uBBF8\uC9C0 \uD06C\uAE30\uB97C \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694");
     const s = Math.min(nw, nh);
-    for (const [size, q] of [[256, 0.85], [192, 0.75], [128, 0.7]]) {
+    for (const size of [256, 224, 192, 160, 128, 96]) {
       const c = document.createElement("canvas");
       c.width = c.height = size;
       const x = c.getContext("2d");
-      x.fillStyle = "#fff";
-      x.fillRect(0, 0, size, size);
+      x.clearRect(0, 0, size, size);
       x.drawImage(img, (nw - s) / 2, (nh - s) / 2, s, s, 0, 0, size, size);
-      const data = c.toDataURL("image/jpeg", q);
+      const data = c.toDataURL("image/png");
       if (data.length <= maxChars) return data;
     }
     return null;
@@ -4787,7 +4785,6 @@ img.pimg{cursor:zoom-in}
       for (const [k, t] of Object.entries(G2.maps[id].tokens)) {
         if (!t.id) t.id = k;
         if (!t.owner) t.owner = t.kind === "npc" ? "GM" : t.name;
-        if (t.kind === "npc" && t.reveal === void 0) t.reveal = false;
         if (t.kind !== "npc") {
           t.kind = "pc";
           (_a = G2.pcs)[_b = t.id] || (_a[_b] = { id: t.id, name: t.name, color: t.color, owner: t.owner });
@@ -4947,7 +4944,7 @@ img.pimg{cursor:zoom-in}
     const idx = Object.keys(G2.pcs).length + Object.values(M2.tokens).length;
     const col = validColor(color) ? color : COLORS[idx % COLORS.length];
     if (owner === "GM") {
-      const t = { id, name, color: col, kind: "npc", owner, reveal: false, ...freePos("GM", M2) };
+      const t = { id, name, color: col, kind: "npc", owner, ...freePos("GM", M2) };
       M2.tokens[id] = t;
     } else {
       G2.pcs[id] = { id, name, color: col, owner };
@@ -5043,7 +5040,7 @@ img.pimg{cursor:zoom-in}
     if (!ch || !(name === "GM" || ch.owner === name)) return;
     let pv = null;
     if (c.data != null) {
-      if (typeof c.data !== "string" || !IMG_RE.test(c.data) || c.data.length > 16e4) return tellTo(name, "\uC774\uBBF8\uC9C0\uB97C \uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC5B4\uC694 (\uD615\uC2DD\uC774 \uB2E4\uB974\uAC70\uB098 \uB108\uBB34 \uCEE4\uC694)");
+      if (typeof c.data !== "string" || !IMG_RE.test(c.data) || c.data.length > 26e4) return tellTo(name, "\uC774\uBBF8\uC9C0\uB97C \uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC5B4\uC694 (\uD615\uC2DD\uC774 \uB2E4\uB974\uAC70\uB098 \uB108\uBB34 \uCEE4\uC694)");
       if (!G2.portraits[id] && Object.keys(G2.portraits).length >= 120) return tellTo(name, "\uCE90\uB9AD\uD130 \uC774\uBBF8\uC9C0\uAC00 \uB108\uBB34 \uB9CE\uC544\uC694");
       G2.portraits[id] = c.data;
       pv = Math.max(Date.now(), (ch.pv || 0) + 1);
@@ -5251,7 +5248,7 @@ img.pimg{cursor:zoom-in}
       const id = String(c.id), data = G2.portraits[id], ch = charOf(id);
       if (!data || !ch || !ch.pv) return;
       const t = activeMap().tokens[id];
-      if (ch.owner === name || t && (t.kind === "pc" || t.reveal)) A.img.send({ k: "portrait", id, ver: ch.pv, data }, { target: pid });
+      if (ch.owner === name || t) A.img.send({ k: "portrait", id, ver: ch.pv, data }, { target: pid });
     } else if (c.k === "face") {
       const id = String(c.id), f = faceById(id);
       if (f && canSeeCard(name, id)) A.img.send({ k: "face", id, name: f.name, data: f.data }, { target: pid });
@@ -5506,7 +5503,6 @@ img.pimg{cursor:zoom-in}
     visibleIds = /* @__PURE__ */ new Set();
     const canSee = (t) => {
       if (role === "player" && t.owner === myName) return true;
-      if (role === "gm" && ui.preview && t.kind === "npc" && !t.reveal) return false;
       if (!fogOn) return true;
       const px = (t.x + 0.5) * CELL, py = (t.y + 0.5) * CELL;
       return lastPolys.some(({ t: v, poly }) => Math.hypot(px - (v.x + 0.5) * CELL, py - (v.y + 0.5) * CELL) <= R * 0.92 && pointInPoly(px, py, poly));
@@ -5517,7 +5513,7 @@ img.pimg{cursor:zoom-in}
       visibleIds.add(t.id);
       const cx = (t.x + 0.5) * CELL, cy = (t.y + 0.5) * CELL, r = CELL * 0.38;
       const off = t.kind === "pc" && S.players[t.owner] && S.players[t.owner].online === false;
-      ctx.globalAlpha = off ? 0.45 : role === "gm" && t.kind === "npc" && !t.reveal ? 0.7 : 1;
+      ctx.globalAlpha = off ? 0.45 : 1;
       const shape = () => {
         ctx.beginPath();
         if (t.kind === "npc") ctx.rect(cx - r, cy - r, r * 2, r * 2);
@@ -5536,7 +5532,6 @@ img.pimg{cursor:zoom-in}
         ctx.drawImage(pim, cx - r, cy - r, r * 2, r * 2);
         ctx.restore();
       }
-      if (role === "gm" && t.kind === "npc" && !t.reveal) ctx.setLineDash([4, 3]);
       shape();
       ctx.stroke();
       ctx.setLineDash([]);
@@ -5718,7 +5713,7 @@ img.pimg{cursor:zoom-in}
     }
   }
   function charRow(t, where) {
-    const who = t.kind === "npc" ? "NPC" + (t.reveal ? "" : " \xB7 \uC228\uAE40") + (where ? ` \xB7 ${where}` : "") : t.owner;
+    const who = t.kind === "npc" ? "NPC" + (where ? ` \xB7 ${where}` : "") : t.owner;
     return h(
       "div",
       { class: "crow" },
@@ -5753,9 +5748,6 @@ img.pimg{cursor:zoom-in}
     $("#selbar").hidden = !t;
     if (!t) return;
     $("#selName").replaceChildren(avatarEl(t), h("b", { text: t.name }), h("span", { class: "small", text: t.kind === "npc" ? "NPC" : t.owner }));
-    const rv = $("#selReveal");
-    rv.hidden = !(role === "gm" && t.kind === "npc");
-    rv.textContent = t.reveal ? "\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uC228\uAE30\uAE30" : "\uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uACF5\uAC1C";
     $("#selDel").hidden = !(role === "gm" || t.owner === myName);
   }
   function renderGMPanel() {
@@ -5825,7 +5817,7 @@ img.pimg{cursor:zoom-in}
       if (!f) return;
       if (!/^image\//.test(f.type)) return toast("\uC774\uBBF8\uC9C0 \uD30C\uC77C\uC744 \uACE8\uB77C \uC8FC\uC138\uC694");
       try {
-        const data = shrinkSquare(await fileToImage(f), 1e5);
+        const data = shrinkSquare(await fileToImage(f), 22e4);
         if (!data) return toast("\uC774\uBBF8\uC9C0\uB97C \uC904\uC77C \uC218 \uC5C6\uC5C8\uC5B4\uC694. \uB2E4\uB978 \uC774\uBBF8\uC9C0\uB97C \uC368 \uC8FC\uC138\uC694");
         act({ t: "portrait", id, data });
         toast("\uCE90\uB9AD\uD130 \uC774\uBBF8\uC9C0\uB97C \uC62C\uB838\uC5B4\uC694");
@@ -6132,13 +6124,6 @@ img.pimg{cursor:zoom-in}
   $("#mapDup").onclick = dupMap;
   $("#mapDel").onclick = delMap;
   $("#selSheet").onclick = () => ui.sel && openSheet(ui.sel);
-  $("#selReveal").onclick = () => {
-    const t = M2.tokens[ui.sel];
-    if (t && t.kind === "npc") {
-      t.reveal = !t.reveal;
-      sync();
-    }
-  };
   $("#selDel").onclick = () => {
     const t = M2.tokens[ui.sel];
     if (t && confirm(`"${t.name}" \uCE90\uB9AD\uD130\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694? \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC5B4\uC694.`)) {
@@ -6420,7 +6405,8 @@ img.pimg{cursor:zoom-in}
       makeSave,
       applySave,
       addFaces,
-      setBack
+      setBack,
+      shrinkSquare
     };
   }
 })();
