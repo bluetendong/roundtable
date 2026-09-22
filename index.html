@@ -4218,6 +4218,8 @@ img.pimg{cursor:zoom-in}
   var COLORS = ["#f28b9b", "#7bb6ea", "#8fd6a3", "#f5cc7a", "#c3a2ee", "#7fd3d6", "#f4a97c", "#f5a3c7"];
   var $ = (s, r = document) => r.querySelector(s);
   var clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  var MIN_SIZE = 0.5;
+  var MAX_SIZE = 4;
   var safeColor = (c) => validColor(c) ? c : "#a9d3f7";
   var IMG_RE = /^data:image\/(jpeg|png|webp);base64,/;
   var cleanMapName = (s) => String(s == null ? "" : s).trim().replace(/[<>&"'`]/g, "").slice(0, 20);
@@ -4260,6 +4262,8 @@ img.pimg{cursor:zoom-in}
     preview: false,
     sheetId: null,
     drag: null,
+    resize: null,
+    suppressClick: false,
     lastTap: null,
     knownOwn: /* @__PURE__ */ new Set()
   };
@@ -4932,7 +4936,7 @@ img.pimg{cursor:zoom-in}
     return { x: 0, y: 0 };
   }
   function pcToken(pc, m) {
-    const t = { id: pc.id, name: pc.name, color: pc.color, kind: "pc", owner: pc.owner, ...freePos(pc.owner, m) };
+    const t = { id: pc.id, name: pc.name, color: pc.color, kind: "pc", owner: pc.owner, size: pc.size || 1, ...freePos(pc.owner, m) };
     if (pc.pv) t.pv = pc.pv;
     return t;
   }
@@ -4944,10 +4948,10 @@ img.pimg{cursor:zoom-in}
     const idx = Object.keys(G2.pcs).length + Object.values(M2.tokens).length;
     const col = validColor(color) ? color : COLORS[idx % COLORS.length];
     if (owner === "GM") {
-      const t = { id, name, color: col, kind: "npc", owner, ...freePos("GM", M2) };
+      const t = { id, name, color: col, kind: "npc", owner, size: 1, ...freePos("GM", M2) };
       M2.tokens[id] = t;
     } else {
-      G2.pcs[id] = { id, name, color: col, owner };
+      G2.pcs[id] = { id, name, color: col, owner, size: 1 };
       ensurePCsOn(activeMap());
     }
     G2.sheets[id] = newSheet(tpl, owner !== "GM");
@@ -5123,7 +5127,19 @@ img.pimg{cursor:zoom-in}
       case "portrait":
         setPortrait(name, c);
         break;
+      case "resize":
+        resizeTok(name, String(c.id), c.size, name === "GM");
+        break;
     }
+  }
+  function resizeTok(actor, id, size, byGM, m) {
+    m = m || (byGM ? M2 : activeMap());
+    const t = m.tokens[id];
+    if (!t) return;
+    if (!byGM && t.owner !== actor) return;
+    t.size = clamp(Math.round((+size || 1) * 20) / 20, MIN_SIZE, MAX_SIZE);
+    if (G2.pcs[id]) G2.pcs[id].size = t.size;
+    sync();
   }
   function movePC(actor, id, x, y, byGM, m) {
     m = m || (byGM ? M2 : activeMap());
@@ -5390,6 +5406,19 @@ img.pimg{cursor:zoom-in}
     mapImgVer = null;
     sync();
   }
+  function focusedResizable() {
+    const id = role === "gm" ? ui.sel : ui.mine;
+    const t = id && M2.tokens[id];
+    if (!t) return null;
+    if (role !== "gm" && t.owner !== myName) return null;
+    if (role === "gm" && ui.mode !== "move") return null;
+    return t;
+  }
+  function handleXY(t) {
+    const sz = clamp(t.size || 1, MIN_SIZE, MAX_SIZE);
+    const r = CELL * 0.38 * sz, k = Math.SQRT1_2;
+    return { cx: (t.x + 0.5) * CELL, cy: (t.y + 0.5) * CELL, x: (t.x + 0.5) * CELL + r * k, y: (t.y + 0.5) * CELL + r * k };
+  }
   var cv = $("#cv");
   var ctx = cv.getContext("2d");
   var fogCv = document.createElement("canvas");
@@ -5508,10 +5537,12 @@ img.pimg{cursor:zoom-in}
       return lastPolys.some(({ t: v, poly }) => Math.hypot(px - (v.x + 0.5) * CELL, py - (v.y + 0.5) * CELL) <= R * 0.92 && pointInPoly(px, py, poly));
     };
     ctx.lineJoin = "round";
+    const focus = focusedResizable();
     for (const t of Object.values(M2.tokens)) {
       if (!canSee(t)) continue;
       visibleIds.add(t.id);
-      const cx = (t.x + 0.5) * CELL, cy = (t.y + 0.5) * CELL, r = CELL * 0.38;
+      const sz = clamp(t.size || 1, MIN_SIZE, MAX_SIZE);
+      const cx = (t.x + 0.5) * CELL, cy = (t.y + 0.5) * CELL, r = CELL * 0.38 * sz;
       const off = t.kind === "pc" && S.players[t.owner] && S.players[t.owner].online === false;
       ctx.globalAlpha = off ? 0.45 : 1;
       const shape = () => {
@@ -5519,22 +5550,22 @@ img.pimg{cursor:zoom-in}
         if (t.kind === "npc") ctx.rect(cx - r, cy - r, r * 2, r * 2);
         else ctx.arc(cx, cy, r, 0, Math.PI * 2);
       };
-      ctx.fillStyle = safeColor(t.color);
+      const pim = portraitImg(t);
       ctx.strokeStyle = "#12314f";
       ctx.lineWidth = 2;
-      shape();
-      ctx.fill();
-      const pim = portraitImg(t);
       if (pim) {
         ctx.save();
         shape();
         ctx.clip();
         ctx.drawImage(pim, cx - r, cy - r, r * 2, r * 2);
         ctx.restore();
+      } else {
+        ctx.fillStyle = safeColor(t.color);
+        shape();
+        ctx.fill();
       }
       shape();
       ctx.stroke();
-      ctx.setLineDash([]);
       ctx.textAlign = "center";
       if (!pim) {
         ctx.fillStyle = "#12314f";
@@ -5556,6 +5587,16 @@ img.pimg{cursor:zoom-in}
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      if (focus === t) {
+        const hp = handleXY(t);
+        ctx.fillStyle = "#2a68a8";
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.rect(hp.x - 5, hp.y - 5, 10, 10);
+        ctx.fill();
         ctx.stroke();
       }
     }
@@ -5606,8 +5647,8 @@ img.pimg{cursor:zoom-in}
   function setupBoardText() {
     const hint = $("#hint");
     let t;
-    if (role === "player") t = "\uCE78\uC744 \uB204\uB974\uAC70\uB098 \uBC29\uD5A5\uD0A4/WASD\uB85C \uB0B4 \uB9D0\uC744 \uC6C0\uC9C1\uC5EC\uC694. \uBCBD\uC740 \uD1B5\uACFC\uD560 \uC218 \uC5C6\uC5B4\uC694. \uB9D0\uC744 \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694.";
-    else if (ui.mode === "move") t = "\uB9D0\uC744 \uB20C\uB7EC \uC120\uD0DD\uD55C \uB4A4 \uBE48 \uCE78\uC744 \uB204\uB974\uBA74 \uC774\uB3D9\uD574\uC694. \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. (GM\uC740 \uBCBD\uC744 \uD1B5\uACFC\uD560 \uC218 \uC788\uC5B4\uC694)";
+    if (role === "player") t = "\uCE78\uC744 \uB204\uB974\uAC70\uB098 \uBC29\uD5A5\uD0A4/WASD\uB85C \uB0B4 \uB9D0\uC744 \uC6C0\uC9C1\uC5EC\uC694. \uBCBD\uC740 \uD1B5\uACFC\uD560 \uC218 \uC5C6\uC5B4\uC694. \uB9D0\uC744 \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. \uB9D0 \uBAA8\uC11C\uB9AC\uC758 \uC791\uC740 \uC0AC\uAC01\uD615\uC744 \uB04C\uBA74 \uD06C\uAE30\uAC00 \uBC14\uB00C\uC5B4\uC694.";
+    else if (ui.mode === "move") t = "\uB9D0\uC744 \uB20C\uB7EC \uC120\uD0DD\uD55C \uB4A4 \uBE48 \uCE78\uC744 \uB204\uB974\uBA74 \uC774\uB3D9\uD574\uC694. \uB450 \uBC88 \uB204\uB974\uBA74 \uC2DC\uD2B8\uAC00 \uC5F4\uB824\uC694. \uC120\uD0DD\uD55C \uB9D0 \uBAA8\uC11C\uB9AC\uC758 \uC791\uC740 \uC0AC\uAC01\uD615\uC744 \uB04C\uBA74 \uD06C\uAE30\uAC00 \uBC14\uB00C\uC5B4\uC694. (GM\uC740 \uBCBD\uC744 \uD1B5\uACFC\uD560 \uC218 \uC788\uC5B4\uC694)";
     else if (ui.mode === "wall") t = "\uACA9\uC790 \uAF2D\uC9D3\uC810 \uB450 \uACF3\uC744 \uCC28\uB840\uB85C \uB20C\uB7EC \uBCBD\uC744 \uB9CC\uB4E4\uC5B4\uC694. \uC624\uB978\uCABD \uD074\uB9AD\uC73C\uB85C \uCDE8\uC18C\uD574\uC694. (\uBCBD \uC120\uC740 GM\uC5D0\uAC8C\uB9CC \uBCF4\uC5EC\uC694)";
     else if (ui.mode === "erase") t = "\uC9C0\uC6B0\uACE0 \uC2F6\uC740 \uBCBD \uC704\uB97C \uB20C\uB7EC\uC694.";
     else t = M2.img ? "\uB9F5 \uADF8\uB9BC\uC744 \uB04C\uC5B4\uC11C \uC704\uCE58\uB97C \uB9DE\uCDB0\uC694." : "\uBA3C\uC800 GM \uB3C4\uAD6C \uD0ED\uC5D0\uC11C \uC774\uBBF8\uC9C0\uB97C \uBD88\uB7EC\uC640 \uC8FC\uC138\uC694.";
@@ -5998,6 +6039,10 @@ img.pimg{cursor:zoom-in}
     }
   }
   cv.addEventListener("click", (e) => {
+    if (ui.suppressClick) {
+      ui.suppressClick = false;
+      return;
+    }
     const p = pointer(e);
     if (p.cx < 0 || p.cx >= M2.cols || p.cy < 0 || p.cy >= M2.rows) return;
     if (role === "player") {
@@ -6048,9 +6093,24 @@ img.pimg{cursor:zoom-in}
     drawSoon();
   });
   var dragSent = 0;
+  var resizeSent = 0;
   cv.addEventListener("pointerdown", (e) => {
-    if (role !== "gm" || ui.mode !== "img" || !M2.img) return;
     const p = pointer(e);
+    const ft = focusedResizable();
+    if (ft) {
+      const hp = handleXY(ft);
+      if (Math.abs(p.px - hp.x) <= 9 && Math.abs(p.py - hp.y) <= 9) {
+        ui.resize = { id: ft.id, cx: hp.cx, cy: hp.cy };
+        if (cv.setPointerCapture) {
+          try {
+            cv.setPointerCapture(e.pointerId);
+          } catch (err) {
+          }
+        }
+        return;
+      }
+    }
+    if (role !== "gm" || ui.mode !== "img" || !M2.img) return;
     ui.drag = { sx: p.px, sy: p.py, ox: M2.img.x, oy: M2.img.y };
     if (cv.setPointerCapture) {
       try {
@@ -6060,6 +6120,20 @@ img.pimg{cursor:zoom-in}
     }
   });
   cv.addEventListener("pointermove", (e) => {
+    if (ui.resize) {
+      const p2 = pointer(e);
+      const dist = Math.hypot(p2.px - ui.resize.cx, p2.py - ui.resize.cy);
+      const size = clamp(dist / (CELL * 0.38 * Math.SQRT1_2), MIN_SIZE, MAX_SIZE);
+      const t = M2.tokens[ui.resize.id];
+      if (t) t.size = Math.round(size * 20) / 20;
+      drawSoon();
+      if (Date.now() - resizeSent > 150) {
+        resizeSent = Date.now();
+        if (role === "gm") pushState();
+        else if (t) act({ t: "resize", id: ui.resize.id, size: t.size });
+      }
+      return;
+    }
     if (!ui.drag || !M2.img) return;
     const p = pointer(e);
     M2.img.x = Math.round(ui.drag.ox + p.px - ui.drag.sx);
@@ -6071,6 +6145,14 @@ img.pimg{cursor:zoom-in}
     }
   });
   var endDrag = () => {
+    if (ui.resize) {
+      const t = M2.tokens[ui.resize.id];
+      ui.resize = null;
+      ui.suppressClick = true;
+      if (role === "gm") sync();
+      else if (t) act({ t: "resize", id: t.id, size: t.size });
+      return;
+    }
     if (ui.drag) {
       ui.drag = null;
       sync();
@@ -6406,7 +6488,8 @@ img.pimg{cursor:zoom-in}
       applySave,
       addFaces,
       setBack,
-      shrinkSquare
+      shrinkSquare,
+      resizeTok
     };
   }
 })();
