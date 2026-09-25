@@ -90,6 +90,17 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 .crow button{padding:.2em .55em;font-size:.85em}
 #toast{position:fixed;left:50%;bottom:1.2em;transform:translateX(-50%);background:#fff;border:1px solid var(--deep);border-radius:8px;padding:.6em 1em;z-index:30;max-width:90vw;box-shadow:0 4px 16px rgba(42,104,168,.2)}
 
+/* 채팅 */
+.chatlog{display:flex;flex-direction:column;gap:.1em;max-height:360px;min-height:120px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.5em .6em;margin-bottom:.4em}
+.cmsg{padding:.28em 0;border-bottom:1px solid #eef3f9}
+.cmsg:last-child{border-bottom:0}
+.cmeta{display:flex;align-items:baseline;gap:.4em}
+.cname{font-weight:700;color:var(--deep)}
+.ctime{color:var(--dim);font-size:.72em}
+.ctext{white-space:pre-wrap;word-break:break-word;font-size:.94em;margin-top:.05em}
+#chatMore{width:100%;margin-bottom:.4em}
+.chatinput{margin-bottom:.3em}
+
 /* 맵 탭 */
 .maptabs{display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-bottom:.3em}
 .mtabs{display:flex;gap:.3em;flex-wrap:wrap;flex:1}
@@ -98,6 +109,14 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 .maplegend{margin:.2em 0 .5em}
 .ruler-tools{display:flex;gap:.4em;align-items:center;flex-wrap:wrap;margin:.4em 0}
 .ruler-tools select{width:auto}
+
+/* 아이콘 버튼 + 말풍선 툴팁 */
+.icbtn{position:relative;font-size:1.25rem;line-height:1;padding:.45em .6em;min-width:2.4em;text-align:center}
+.icbtn .ictxt{display:none}
+.icbtn::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 9px);transform:translateX(-50%) translateY(2px) scale(.94);background:var(--deep);color:#fff;padding:.32em .65em;border-radius:8px;font-size:.74rem;font-weight:600;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s ease,transform .12s ease;z-index:45;box-shadow:0 3px 10px rgba(42,104,168,.28)}
+.icbtn::before{content:"";position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%) translateY(2px);border:5px solid transparent;border-top-color:var(--deep);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s ease,transform .12s ease;z-index:45}
+.icbtn:hover::after,.icbtn:focus-visible::after{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0) scale(1)}
+.icbtn:hover::before,.icbtn:focus-visible::before{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
 
 /* 카드 */
 .pilerow{display:flex;gap:.8em;align-items:flex-start}
@@ -205,15 +224,15 @@ img.pimg{cursor:zoom-in}
       <p class="small maplegend" data-gm>◉ 표시는 지금 플레이어가 보고 있는 맵이에요. 다른 맵을 편집해도 플레이어 화면은 바뀌지 않아요.</p>
       <p id="mapTitle" class="small maplegend" data-player></p>
       <div class="tools" data-gm>
-        <button data-mode="move" class="on" type="button">말 이동·선택</button>
-        <button data-mode="wall" type="button">벽 그리기</button>
-        <button data-mode="erase" type="button">벽 지우기</button>
-        <button data-mode="img" type="button">그림 이동</button>
-        <button data-mode="ruler" type="button">자로 재기</button>
-        <button id="undoWall" type="button">벽 되돌리기</button>
+        <button data-mode="move" class="on icbtn" type="button" data-tip="말 이동·선택" aria-label="말 이동·선택" title="말 이동·선택">🖐️</button>
+        <button data-mode="wall" class="icbtn" type="button" data-tip="벽 그리기" aria-label="벽 그리기" title="벽 그리기">🧱</button>
+        <button data-mode="erase" class="icbtn" type="button" data-tip="벽 지우기" aria-label="벽 지우기" title="벽 지우기">🧹</button>
+        <button data-mode="img" class="icbtn" type="button" data-tip="그림 이동" aria-label="그림 이동" title="그림 이동">🖼️</button>
+        <button data-mode="ruler" class="icbtn" type="button" data-tip="자로 재기" aria-label="자로 재기" title="자로 재기">📏</button>
+        <button id="undoWall" class="icbtn" type="button" data-tip="벽 되돌리기" aria-label="벽 되돌리기" title="벽 되돌리기">↩️</button>
       </div>
       <div class="ruler-tools">
-        <button id="playerRuler" data-player type="button">📏 자로 재기</button>
+        <button id="playerRuler" class="icbtn" data-player type="button" data-tip="자로 재기" aria-label="자로 재기" title="자로 재기">📏</button>
         <select id="rulerShape" aria-label="자 모양">
           <option value="line">직선</option>
           <option value="cone">원뿔형</option>
@@ -224,7 +243,7 @@ img.pimg{cursor:zoom-in}
           <option value="instant">즉시 (잠깐 보이고 사라짐)</option>
           <option value="persist">유지 (지울 때까지 남음)</option>
         </select>
-        <button id="clrTpl" data-gm type="button">이 맵 자국 모두 지우기</button>
+        <button id="clrTpl" class="icbtn" data-gm type="button" data-tip="이 맵 자국 모두 지우기" aria-label="이 맵 자국 모두 지우기" title="이 맵 자국 모두 지우기">🧽</button>
       </div>
       <div class="cvwrap"><canvas id="cv"></canvas><div id="veil">GM을 찾는 중이에요…</div></div>
       <div id="selbar" class="selbar" hidden>
@@ -238,6 +257,7 @@ img.pimg{cursor:zoom-in}
       <nav class="tabs">
         <button data-tab="chars" type="button">캐릭터</button>
         <button data-tab="cards" class="on" type="button">카드</button>
+        <button data-tab="chat" type="button">채팅</button>
         <button data-tab="gm" data-gm type="button">GM 도구</button>
       </nav>
 
@@ -321,6 +341,17 @@ img.pimg{cursor:zoom-in}
         </div>
       </section>
 
+      <section id="tab-chat" class="pane" hidden>
+        <div id="chatLog" class="chatlog"></div>
+        <button id="chatMore" type="button" hidden>더보기 (전체 <span id="chatMoreN">0</span>개 · 인쇄용 새 페이지)</button>
+        <div class="inline chatinput">
+          <select id="chatSpk" aria-label="말하는 주체" style="flex:0 0 auto;min-width:7em"></select>
+          <input id="chatText" maxlength="500" placeholder="메시지를 입력하세요" style="flex:1;min-width:6em" aria-label="채팅 메시지">
+          <button id="chatSend" class="primary" type="button">보내기</button>
+        </div>
+        <p class="small">'나'로 말하면 내 이름으로, 캐릭터를 골라 말하면 그 캐릭터 이름으로 보여요. 400개가 넘으면 최근 400개만 보이고, "더보기"를 누르면 전체 기록이 새 페이지로 열려요 — 거기서 인쇄(PDF로 저장)할 수 있어요.</p>
+      </section>
+
       <section id="tab-gm" class="pane" data-gm hidden>
         <h3 style="margin-top:.2em">맵 관리 <span id="editingName" class="small"></span></h3>
         <label for="mapName">맵 이름 (플레이어에게도 보여요)</label>
@@ -368,7 +399,7 @@ img.pimg{cursor:zoom-in}
 
         <h3>시야와 이동</h3>
         <label for="visR">시야 반경: <span id="visRv"></span>칸</label>
-        <input id="visR" type="range" min="2" max="14" value="6">
+        <input id="visR" type="range" min="2" max="60" value="6">
         <label class="chk"><input id="fogOn" type="checkbox" checked> 플레이어에게 시야 밖을 가리기 (안개)</label>
         <label class="chk"><input id="shareOn" type="checkbox"> 파티 시야 공유 (모두의 시야를 합쳐서 보기)</label>
         <label class="chk"><input id="prevOn" type="checkbox"> 내 화면에서도 플레이어 시점 미리보기</label>
@@ -4207,7 +4238,8 @@ img.pimg{cursor:zoom-in}
       public: !!isPc,
       stats: t.stats.map((x) => ({ ...x })),
       res: t.res.map((x) => ({ ...x })),
-      notes: ""
+      notes: "",
+      visionR: 0
     };
   }
   function cleanSheet(sh) {
@@ -4223,7 +4255,8 @@ img.pimg{cursor:zoom-in}
       public: !!sh.public,
       stats: [],
       res: [],
-      notes: str(sh.notes, 4e3)
+      notes: str(sh.notes, 4e3),
+      visionR: Math.max(0, Math.min(60, Math.trunc(Number(sh.visionR) || 0)))
     };
     for (const s of (Array.isArray(sh.stats) ? sh.stats : []).slice(0, 40)) out.stats.push({ k: str(s && s.k, 20), v: num(s && s.v) });
     for (const r of (Array.isArray(sh.res) ? sh.res : []).slice(0, 12)) out.res.push({ k: str(r && r.k, 20), v: num(r && r.v), max: num(r && r.max) });
@@ -4237,6 +4270,8 @@ img.pimg{cursor:zoom-in}
   var clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   var MIN_SIZE = 0.5;
   var MAX_SIZE = 4;
+  var CHAT_CAP = 2e3;
+  var CHAT_INLINE = 400;
   var safeColor = (c) => validColor(c) ? c : "#a9d3f7";
   var IMG_RE = /^data:image\/(jpeg|png|webp);base64,/;
   var cleanMapName = (s) => String(s == null ? "" : s).trim().replace(/[<>&"'`]/g, "").slice(0, 20);
@@ -4300,6 +4335,7 @@ img.pimg{cursor:zoom-in}
   var portraitC = {};
   var portraitAsked = {};
   var pimgCache = {};
+  var playerChat = [];
   function newState() {
     return {
       players: {},
@@ -4336,7 +4372,9 @@ img.pimg{cursor:zoom-in}
       back: null,
       tableSeq: 0,
       peerByName: {},
-      nameByPeer: {}
+      nameByPeer: {},
+      chat: [],
+      chatSeq: 0
     };
   }
   var activeMap = () => G2.maps[G2.activeId];
@@ -4505,13 +4543,14 @@ img.pimg{cursor:zoom-in}
         }
       }
       showLegacyBox();
+      renderChatLog();
     }
     const cfg = { appId: APP_ID };
     if (pw) cfg.password = pw;
     room = joinRoom(cfg, roomId, {
       onJoinError: (d) => showBanner("\uC5F0\uACB0\uC5D0 \uC2E4\uD328\uD588\uC5B4\uC694. \uBC29 \uBE44\uBC00\uBC88\uD638\uAC00 \uC11C\uB85C \uB2E4\uB974\uAC70\uB098, \uC0AC\uC6A9 \uC911\uC778 \uB124\uD2B8\uC6CC\uD06C\uAC00 \uC9C1\uC811 \uC5F0\uACB0\uC744 \uB9C9\uACE0 \uC788\uC744 \uC218 \uC788\uC5B4\uC694. (" + (d && d.error ? d.error : "\uC54C \uC218 \uC5C6\uB294 \uC624\uB958") + ")")
     });
-    for (const n of ["jn", "full", "st", "hd", "cm", "er", "sh", "img"]) A[n] = room.makeAction(n);
+    for (const n of ["jn", "full", "st", "hd", "cm", "er", "sh", "img", "ct"]) A[n] = room.makeAction(n);
     A.jn.onMessage = onJoinReq;
     A.cm.onMessage = (c, { peerId }) => {
       if (role !== "gm") return;
@@ -4525,11 +4564,13 @@ img.pimg{cursor:zoom-in}
       myName = d.you;
       receiveState(d.st);
       myHand = d.hand || [];
+      playerChat = Array.isArray(d.chat) ? d.chat.slice(-CHAT_CAP) : [];
       for (const k of Object.keys(faceC)) delete faceC[k];
       for (const k of Object.keys(faceAsked)) delete faceAsked[k];
       showBanner("");
       $("#veil").hidden = true;
       afterState();
+      renderChatLog();
     };
     A.st.onMessage = (d, { peerId }) => {
       if (role !== "player" || peerId !== gmId) return;
@@ -4574,6 +4615,12 @@ img.pimg{cursor:zoom-in}
         if (ui.paintPortrait && ui.sheetId === String(d.id)) ui.paintPortrait();
       }
     };
+    A.ct.onMessage = (msg, { peerId }) => {
+      if (role !== "player" || peerId !== gmId || !msg || typeof msg !== "object" || typeof msg.text !== "string") return;
+      playerChat.push(msg);
+      if (playerChat.length > CHAT_CAP) playerChat.splice(0, playerChat.length - CHAT_CAP);
+      appendChatMsg(msg);
+    };
     room.onPeerJoin = (pid) => {
       if (role === "player") A.jn.send({ name: myName }, { target: pid });
       updateStatus2();
@@ -4611,6 +4658,7 @@ img.pimg{cursor:zoom-in}
       $("#veil").hidden = false;
       $("#veil").textContent = "GM\uC774 \uBC29\uC744 \uB098\uAC14\uC5B4\uC694. GM\uC774 \uB2E4\uC2DC \uBC29\uC744 \uC5F4\uBA74 \uC790\uB3D9\uC73C\uB85C \uC774\uC5B4\uC838\uC694. (\uBC1B\uC544 \uB454 \uADF8\uB9BC\uC740 \uBAA8\uB450 \uC9C0\uC6E0\uC5B4\uC694)";
       renderAll();
+      renderChatLog();
     }
     updateStatus2();
   }
@@ -4718,7 +4766,6 @@ img.pimg{cursor:zoom-in}
     S = newState();
     G2 = newPrivate();
     const m = addMap("\uB9F5 1");
-    m.walls = defaultWalls(24, 16);
     G2.activeId = G2.viewId = m.id;
     M2 = m;
     buildDeck("std54");
@@ -4746,7 +4793,9 @@ img.pimg{cursor:zoom-in}
         faceSeq: G2.faceSeq,
         back: G2.back,
         portraits: G2.portraits,
-        customText: $("#deckCustom").value
+        customText: $("#deckCustom").value,
+        chat: G2.chat,
+        chatSeq: G2.chatSeq
       }
     };
   }
@@ -4780,7 +4829,9 @@ img.pimg{cursor:zoom-in}
       faceSeq: +g.faceSeq || 0,
       back: g.back || null,
       tableSeq: +g.tableSeq || 0,
-      portraits: g.portraits && typeof g.portraits === "object" ? g.portraits : {}
+      portraits: g.portraits && typeof g.portraits === "object" ? g.portraits : {},
+      chat: Array.isArray(g.chat) ? g.chat.slice(-CHAT_CAP).filter((m) => m && typeof m === "object" && typeof m.text === "string") : [],
+      chatSeq: +g.chatSeq || 0
     }, keepPeers);
     $("#deckCustom").value = g.customText || "";
     if (g.maps && typeof g.maps === "object") {
@@ -4919,7 +4970,7 @@ img.pimg{cursor:zoom-in}
     const created = ensureChar(name);
     ensurePCsOn(activeMap());
     refreshDerived();
-    A.full.send({ you: name, st: pubFor(name), hand: G2.hands[name] }, { target: peerId });
+    A.full.send({ you: name, st: pubFor(name), hand: G2.hands[name], chat: G2.chat.slice(-CHAT_CAP) }, { target: peerId });
     sync(!created);
   }
   function refreshDerived() {
@@ -5057,6 +5108,8 @@ img.pimg{cursor:zoom-in}
       if (t) {
         if (nm) t.name = nm;
         if (col) t.color = col;
+        if (sh.visionR > 0) t.visionR = sh.visionR;
+        else delete t.visionR;
       }
     }
     const sender = G2.peerByName[name];
@@ -5182,7 +5235,31 @@ img.pimg{cursor:zoom-in}
       case "tpl_del":
         delTemplate(name, String(c.id), name === "GM");
         break;
+      case "chat":
+        chatCmd(name, c);
+        break;
     }
+  }
+  function chatCmd(actor, c) {
+    let kind = "self", charId = null, name2, color = null;
+    const spk = c && c.spk;
+    if (spk && spk !== "self") {
+      const ch = charOf(String(spk));
+      if (!ch || !(actor === "GM" || ch.owner === actor)) return;
+      kind = "char";
+      charId = ch.id;
+      name2 = ch.name;
+      color = ch.color;
+    } else {
+      name2 = actor === "GM" ? "GM" : actor;
+    }
+    const text = String((c && c.text) || "").trim().slice(0, 500);
+    if (!text) return;
+    const msg = { id: "g" + ++G2.chatSeq, at: Date.now(), kind, charId, by: actor, name: name2, color, text };
+    G2.chat.push(msg);
+    if (G2.chat.length > CHAT_CAP) G2.chat.splice(0, G2.chat.length - CHAT_CAP);
+    for (const pid of Object.keys(G2.nameByPeer)) A.ct.send(msg, { target: pid });
+    appendChatMsg(msg);
   }
   function resizeTok(actor, id, size, byGM, m) {
     m = m || (byGM ? M2 : activeMap());
@@ -5638,10 +5715,12 @@ img.pimg{cursor:zoom-in}
       }
       ctx.stroke();
     }
-    const R = M2.vision * CELL;
     const segs = M2.walls.map((w) => w.map((v) => v * CELL));
     const fogOn = M2.fog && (role === "player" || ui.preview);
-    lastPolys = viewers().map((t) => ({ t, poly: visibility((t.x + 0.5) * CELL, (t.y + 0.5) * CELL, R, segs) }));
+    lastPolys = viewers().map((t) => {
+      const R2 = (t.visionR > 0 ? t.visionR : M2.vision) * CELL;
+      return { t, poly: visibility((t.x + 0.5) * CELL, (t.y + 0.5) * CELL, R2, segs), R: R2 };
+    });
     if (fogOn) {
       fx.setTransform(Z, 0, 0, Z, 0, 0);
       fx.globalCompositeOperation = "source-over";
@@ -5649,7 +5728,7 @@ img.pimg{cursor:zoom-in}
       fx.fillStyle = "rgba(20,36,58,0.985)";
       fx.fillRect(0, 0, W, H);
       fx.globalCompositeOperation = "destination-out";
-      for (const { t, poly } of lastPolys) {
+      for (const { t, poly, R } of lastPolys) {
         if (!poly.length) continue;
         const ox = (t.x + 0.5) * CELL, oy = (t.y + 0.5) * CELL;
         const g = fx.createRadialGradient(ox, oy, 0, ox, oy, R);
@@ -5668,7 +5747,7 @@ img.pimg{cursor:zoom-in}
       ctx.setTransform(Z, 0, 0, Z, 0, 0);
     } else if (role === "gm") {
       ctx.fillStyle = "rgba(255,214,102,0.13)";
-      for (const { t, poly } of lastPolys) {
+      for (const { t, poly, R } of lastPolys) {
         if (!poly.length) continue;
         ctx.save();
         ctx.beginPath();
@@ -5689,7 +5768,7 @@ img.pimg{cursor:zoom-in}
       if (role === "player" && t.owner === myName) return true;
       if (!fogOn) return true;
       const px = (t.x + 0.5) * CELL, py = (t.y + 0.5) * CELL;
-      return lastPolys.some(({ t: v, poly }) => Math.hypot(px - (v.x + 0.5) * CELL, py - (v.y + 0.5) * CELL) <= R * 0.92 && pointInPoly(px, py, poly));
+      return lastPolys.some(({ t: v, poly, R }) => Math.hypot(px - (v.x + 0.5) * CELL, py - (v.y + 0.5) * CELL) <= R * 0.92 && pointInPoly(px, py, poly));
     };
     ctx.lineJoin = "round";
     const focus = focusedResizable();
@@ -5978,6 +6057,111 @@ img.pimg{cursor:zoom-in}
       const others = all2.filter((t) => t.kind === "pc" && t.owner !== myName);
       if (others.length) group("\uB2E4\uB978 \uCC38\uAC00\uC790\uC758 \uCE90\uB9AD\uD130", others.map((t) => charRow(t)), "");
     }
+    renderChatSpeakers();
+  }
+  function renderChatSpeakers() {
+    const sel = $("#chatSpk");
+    if (!sel) return;
+    const prev = sel.value;
+    sel.textContent = "";
+    sel.append(h("option", { value: "self", text: role === "gm" ? "\uB098 (GM)" : `\uB098 (${myName})` }));
+    const mine = role === "gm" ? Object.values(G2.npcs) : Object.values(M2.tokens).filter((t) => t.kind === "pc" && t.owner === myName);
+    for (const c of mine) sel.append(h("option", { value: c.id, text: c.name }));
+    if (Array.from(sel.options).some((o) => o.value === prev)) sel.value = prev;
+  }
+  function chatArr() {
+    return role === "gm" ? G2.chat : playerChat;
+  }
+  function fmtChatTime(ts) {
+    const d = new Date(ts);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function chatMsgEl(msg) {
+    return h(
+      "div",
+      { class: "cmsg" },
+      h(
+        "div",
+        { class: "cmeta" },
+        h("span", { class: "cname", style: msg.color ? `color:${safeColor(msg.color)}` : "", text: msg.name }),
+        h("span", { class: "ctime", text: fmtChatTime(msg.at) })
+      ),
+      h("div", { class: "ctext", text: msg.text })
+    );
+  }
+  function renderChatLog() {
+    const box = $("#chatLog");
+    if (!box) return;
+    box.textContent = "";
+    const arr = chatArr();
+    for (const m of arr.slice(-CHAT_INLINE)) box.append(chatMsgEl(m));
+    box.scrollTop = box.scrollHeight;
+    updateChatMoreBtn();
+  }
+  function updateChatMoreBtn() {
+    const btn = $("#chatMore");
+    if (!btn) return;
+    const n = chatArr().length;
+    btn.hidden = n <= CHAT_INLINE;
+    const nEl = $("#chatMoreN");
+    if (nEl) nEl.textContent = n;
+  }
+  function appendChatMsg(msg) {
+    const box = $("#chatLog");
+    if (!box) return;
+    const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+    box.append(chatMsgEl(msg));
+    while (box.children.length > CHAT_INLINE) box.removeChild(box.firstChild);
+    if (nearBottom) box.scrollTop = box.scrollHeight;
+    updateChatMoreBtn();
+  }
+  function escHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+  function openFullChatPage() {
+    const arr = chatArr();
+    const title = "\uCC44\uD305 \uC804\uCCB4 \uAE30\uB85D";
+    const rows = arr.map((m) => {
+      const d = new Date(m.at);
+      const p = (n) => String(n).padStart(2, "0");
+      const stamp = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+      const col = m.color && validColor(m.color) ? ` style="color:${m.color}"` : "";
+      return `<div class="row"><span class="nm"${col}>${escHtml(m.name)}</span><span class="tm">${stamp}</span><div class="tx">${escHtml(m.text)}</div></div>`;
+    }).join("\n");
+    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${escHtml(title)}</title>
+<style>
+body{font-family:-apple-system,"Malgun Gothic",sans-serif;max-width:760px;margin:1.5em auto;padding:0 1em;color:#1c2b3a;line-height:1.5}
+h1{font-size:1.3em;margin:0 0 .2em}
+.meta{color:#667;font-size:.85em;margin-bottom:1em}
+.row{padding:.5em 0;border-bottom:1px solid #e2e8f0}
+.nm{font-weight:700;margin-right:.6em}
+.tm{color:#8a99ab;font-size:.8em}
+.tx{white-space:pre-wrap;word-break:break-word;margin-top:.15em}
+.pbar{margin:1em 0}
+.pbar button{font:inherit;padding:.5em 1em;border-radius:8px;border:1px solid #2a68a8;background:#eaf3fc;color:#12314f;cursor:pointer}
+@media print{.pbar{display:none}}
+</style></head><body>
+<div class="pbar"><button onclick="window.print()">\uC778\uC1C4 (\uC778\uC1C4 \uCC3D\uC5D0\uC11C "PDF\uB85C \uC800\uC7A5"\uC744 \uACE0\uB974\uBA74 \uB3FC\uC694)</button></div>
+<h1>${escHtml(title)}</h1>
+<p class="meta">\uCD1D ${arr.length}\uAC1C \uBA54\uC2DC\uC9C0${arr.length >= CHAT_CAP ? " (\uAC00\uC7A5 \uC624\uB798\uB41C \uAE30\uB85D\uBD80\uD130 \uC790\uB3D9\uC73C\uB85C \uC815\uB9AC\uB420 \uC218 \uC788\uC5B4\uC694)" : ""}</p>
+${rows || '<p class="meta">\uC544\uC9C1 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694</p>'}
+</body></html>`;
+    const w = window.open("", "_blank");
+    if (!w) return toast("\uC0C8 \uCC3D\uC744 \uC5F4 \uC218 \uC5C6\uC5B4\uC694. \uD31D\uC5C5 \uCC28\uB2E8\uC744 \uD655\uC778\uD574 \uC8FC\uC138\uC694");
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  }
+  function sendChatFromUI() {
+    const input = $("#chatText");
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+    const spk = $("#chatSpk").value;
+    act({ t: "chat", spk, text });
+    input.value = "";
+    input.focus();
   }
   function renderSel() {
     const t = ui.sel && M2.tokens[ui.sel];
@@ -6103,6 +6287,19 @@ img.pimg{cursor:zoom-in}
         } });
         pubChk.checked = !!draft.public;
         body.append(h("label", { class: "chk" }, pubChk, "\uB2E4\uB978 \uCC38\uAC00\uC790\uB3C4 \uC774 \uC2DC\uD2B8\uB97C \uBCFC \uC218 \uC788\uAC8C \uD558\uAE30"));
+      }
+      if (t.kind !== "npc") {
+        const visIn = h("input", { type: "number", min: "0", max: "60", disabled: dis, "aria-label": "\uC2DC\uC57C \uBC18\uACBD(\uCE78)", oninput: (e) => {
+          draft.visionR = Math.max(0, Math.min(60, Math.trunc(+e.target.value) || 0));
+          save();
+        } });
+        visIn.value = draft.visionR || 0;
+        body.append(h(
+          "div",
+          { class: "srow" },
+          h("span", { class: "small", text: "\uC2DC\uC57C \uBC18\uACBD(\uCE78, 0\uC774\uBA74 \uB9F5 \uAE30\uBCF8\uAC12 \uB530\uB984)" }),
+          visIn
+        ));
       }
       body.append(h("h3", { text: "\uB2A5\uB825\uCE58" }));
       if (!draft.stats.length) body.append(h("span", { class: "empty", text: "\uB2A5\uB825\uCE58\uAC00 \uC5C6\uC5B4\uC694" }));
@@ -6415,7 +6612,11 @@ img.pimg{cursor:zoom-in}
   function selectTab(tab) {
     ui.tab = tab;
     for (const x of document.querySelectorAll(".tabs button")) x.classList.toggle("on", x.dataset.tab === tab);
-    for (const id of ["chars", "cards", "gm"]) $("#tab-" + id).hidden = id !== tab;
+    for (const id of ["chars", "cards", "chat", "gm"]) $("#tab-" + id).hidden = id !== tab;
+    if (tab === "chat") {
+      const box = $("#chatLog");
+      if (box) box.scrollTop = box.scrollHeight;
+    }
   }
   for (const b of document.querySelectorAll(".tabs button")) b.onclick = () => selectTab(b.dataset.tab);
   for (const b of document.querySelectorAll("[data-mode]")) {
@@ -6439,6 +6640,14 @@ img.pimg{cursor:zoom-in}
     M2.walls.pop();
     sync();
   };
+  $("#chatSend").onclick = sendChatFromUI;
+  $("#chatMore").onclick = openFullChatPage;
+  $("#chatText").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendChatFromUI();
+    }
+  });
   $("#clrTpl").onclick = () => {
     if ((M2.templates || []).length && confirm("\uC774 \uB9F5\uC5D0 \uB0A8\uC740 \uC790\uB97C \uBAA8\uB450 \uC9C0\uC6B8\uAE4C\uC694?")) {
       M2.templates = [];
@@ -6642,6 +6851,7 @@ img.pimg{cursor:zoom-in}
       applySave(JSON.parse(await readFileText(f)));
       resyncAll();
       sync();
+      renderChatLog();
       toast("\uBC29 \uD30C\uC77C\uC744 \uBD88\uB7EC\uC654\uC5B4\uC694");
     } catch (err) {
       toast("\uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694: " + err.message);
