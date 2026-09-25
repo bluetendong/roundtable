@@ -91,7 +91,7 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 #toast{position:fixed;left:50%;bottom:1.2em;transform:translateX(-50%);background:#fff;border:1px solid var(--deep);border-radius:8px;padding:.6em 1em;z-index:30;max-width:90vw;box-shadow:0 4px 16px rgba(42,104,168,.2)}
 
 /* 채팅 */
-.chatlog{display:flex;flex-direction:column;gap:.1em;max-height:360px;min-height:120px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.5em .6em;margin-bottom:.4em}
+.chatlog{display:flex;flex-direction:column;gap:.1em;height:360px;min-height:160px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.5em .6em;margin-bottom:.4em}
 .cmsg{padding:.28em 0;border-bottom:1px solid #eef3f9}
 .cmsg:last-child{border-bottom:0}
 .cmeta{display:flex;align-items:baseline;gap:.4em}
@@ -245,7 +245,7 @@ img.pimg{cursor:zoom-in}
         </select>
         <button id="clrTpl" class="icbtn" data-gm type="button" data-tip="이 맵 자국 모두 지우기" aria-label="이 맵 자국 모두 지우기" title="이 맵 자국 모두 지우기">🧽</button>
       </div>
-      <div class="cvwrap"><canvas id="cv"></canvas><div id="veil">GM을 찾는 중이에요…</div></div>
+      <div class="cvwrap" id="cvwrap"><canvas id="cv"></canvas><div id="veil">GM을 찾는 중이에요…</div></div>
       <div id="selbar" class="selbar" hidden>
         <span id="selName"></span>
         <button id="selSheet" type="button">시트 보기</button>
@@ -255,11 +255,22 @@ img.pimg{cursor:zoom-in}
     </section>
     <aside class="side">
       <nav class="tabs">
+        <button data-tab="chat" type="button">채팅</button>
         <button data-tab="chars" type="button">캐릭터</button>
         <button data-tab="cards" class="on" type="button">카드</button>
-        <button data-tab="chat" type="button">채팅</button>
         <button data-tab="gm" data-gm type="button">GM 도구</button>
       </nav>
+
+      <section id="tab-chat" class="pane" hidden>
+        <div id="chatLog" class="chatlog"></div>
+        <button id="chatMore" type="button" hidden>더보기 (전체 <span id="chatMoreN">0</span>개 · 인쇄용 새 페이지)</button>
+        <div class="inline chatinput">
+          <select id="chatSpk" aria-label="말하는 주체" style="flex:0 0 auto;min-width:7em"></select>
+          <input id="chatText" maxlength="500" placeholder="메시지를 입력하세요" style="flex:1;min-width:6em" aria-label="채팅 메시지">
+          <button id="chatSend" class="primary" type="button">보내기</button>
+        </div>
+        <p class="small">'나'로 말하면 내 이름으로, 캐릭터를 골라 말하면 그 캐릭터 이름으로 보여요. 400개가 넘으면 최근 400개만 보이고, "더보기"를 누르면 전체 기록이 새 페이지로 열려요 — 거기서 인쇄(PDF로 저장)할 수 있어요.</p>
+      </section>
 
       <section id="tab-chars" class="pane" hidden>
         <h3 style="margin-top:.2em">새 캐릭터 만들기</h3>
@@ -339,17 +350,6 @@ img.pimg{cursor:zoom-in}
           <h3>플레이어 손패 (GM만 보여요)</h3>
           <div id="allHands" class="hands"></div>
         </div>
-      </section>
-
-      <section id="tab-chat" class="pane" hidden>
-        <div id="chatLog" class="chatlog"></div>
-        <button id="chatMore" type="button" hidden>더보기 (전체 <span id="chatMoreN">0</span>개 · 인쇄용 새 페이지)</button>
-        <div class="inline chatinput">
-          <select id="chatSpk" aria-label="말하는 주체" style="flex:0 0 auto;min-width:7em"></select>
-          <input id="chatText" maxlength="500" placeholder="메시지를 입력하세요" style="flex:1;min-width:6em" aria-label="채팅 메시지">
-          <button id="chatSend" class="primary" type="button">보내기</button>
-        </div>
-        <p class="small">'나'로 말하면 내 이름으로, 캐릭터를 골라 말하면 그 캐릭터 이름으로 보여요. 400개가 넘으면 최근 400개만 보이고, "더보기"를 누르면 전체 기록이 새 페이지로 열려요 — 거기서 인쇄(PDF로 저장)할 수 있어요.</p>
       </section>
 
       <section id="tab-gm" class="pane" data-gm hidden>
@@ -4523,6 +4523,7 @@ img.pimg{cursor:zoom-in}
     document.body.dataset.role = role;
     $("#lobby").hidden = true;
     $("#app").hidden = false;
+    requestAnimationFrame(syncChatHeight);
     $("#roomLabel").textContent = `\uBC29 ${roomId}`;
     $("#veil").hidden = role === "gm";
     joinedAt = Date.now();
@@ -6090,6 +6091,17 @@ img.pimg{cursor:zoom-in}
       h("div", { class: "ctext", text: msg.text })
     );
   }
+  function syncChatHeight() {
+    const wrap = $("#cvwrap"), box = $("#chatLog");
+    if (!wrap || !box) return;
+    const hgt = wrap.getBoundingClientRect().height;
+    if (hgt > 40) box.style.height = hgt + "px";
+  }
+  if (typeof ResizeObserver !== "undefined") {
+    const cvwrapEl = document.getElementById("cvwrap");
+    if (cvwrapEl) new ResizeObserver(() => syncChatHeight()).observe(cvwrapEl);
+  }
+  window.addEventListener("resize", syncChatHeight);
   function renderChatLog() {
     const box = $("#chatLog");
     if (!box) return;
@@ -6614,6 +6626,7 @@ ${rows || '<p class="meta">\uC544\uC9C1 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694</p
     for (const x of document.querySelectorAll(".tabs button")) x.classList.toggle("on", x.dataset.tab === tab);
     for (const id of ["chars", "cards", "chat", "gm"]) $("#tab-" + id).hidden = id !== tab;
     if (tab === "chat") {
+      syncChatHeight();
       const box = $("#chatLog");
       if (box) box.scrollTop = box.scrollHeight;
     }
