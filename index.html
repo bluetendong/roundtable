@@ -92,8 +92,11 @@ canvas{width:100%;height:auto;display:block;touch-action:manipulation}
 
 /* 채팅 */
 .chatlog{display:flex;flex-direction:column;gap:.1em;height:360px;min-height:160px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.5em .6em;margin-bottom:.4em}
-.cmsg{padding:.28em 0;border-bottom:1px solid #eef3f9}
+.cmsg{display:flex;gap:.5em;align-items:flex-start;padding:.32em 0;border-bottom:1px solid #eef3f9}
 .cmsg:last-child{border-bottom:0}
+.cavatar{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid rgba(18,49,79,.35);flex:none;margin-top:.1em}
+span.cavatar.ph{display:grid;place-items:center;font:700 .85rem var(--serif);color:#12314f}
+.cbody{flex:1;min-width:0}
 .cmeta{display:flex;align-items:baseline;gap:.4em}
 .cname{font-weight:700;color:var(--deep)}
 .ctime{color:var(--dim);font-size:.72em}
@@ -266,10 +269,10 @@ img.pimg{cursor:zoom-in}
         <button id="chatMore" type="button" hidden>더보기 (전체 <span id="chatMoreN">0</span>개 · 인쇄용 새 페이지)</button>
         <div class="inline chatinput">
           <select id="chatSpk" aria-label="말하는 주체" style="flex:0 0 auto;min-width:7em"></select>
-          <input id="chatText" maxlength="500" placeholder="메시지를 입력하세요" style="flex:1;min-width:6em" aria-label="채팅 메시지">
+          <input id="chatText" maxlength="500" placeholder="메시지 입력… [[2d6]] 주사위, /clear 로 화면 지우기" style="flex:1;min-width:6em" aria-label="채팅 메시지">
           <button id="chatSend" class="primary" type="button">보내기</button>
         </div>
-        <p class="small">'나'로 말하면 내 이름으로, 캐릭터를 골라 말하면 그 캐릭터 이름으로 보여요. 400개가 넘으면 최근 400개만 보이고, "더보기"를 누르면 전체 기록이 새 페이지로 열려요 — 거기서 인쇄(PDF로 저장)할 수 있어요.</p>
+        <p class="small">'나'로 말하면 내 이름으로, 캐릭터를 골라 말하면 그 캐릭터 이름으로 보여요. 메시지에 [[2d6]]처럼 쓰면 주사위를 굴려 결과를 보여줘요. /clear를 입력하면 내 화면의 채팅만 비워져요(기록은 남아있어요). 400개가 넘으면 최근 400개만 보이고, "더보기"를 누르면 전체 기록이 새 페이지로 열려요 — 거기서 인쇄(PDF로 저장)할 수 있어요.</p>
       </section>
 
       <section id="tab-chars" class="pane" hidden>
@@ -4613,6 +4616,7 @@ img.pimg{cursor:zoom-in}
         drawSoon();
         renderChars();
         renderSel();
+        refreshChatAvatars();
         if (ui.paintPortrait && ui.sheetId === String(d.id)) ui.paintPortrait();
       }
     };
@@ -6078,24 +6082,52 @@ img.pimg{cursor:zoom-in}
     const p = (n) => String(n).padStart(2, "0");
     return `${p(d.getHours())}:${p(d.getMinutes())}`;
   }
+  function chatAvatarEl(msg) {
+    let img = null;
+    if (msg.kind === "char" && msg.charId) {
+      const ch = charOf(String(msg.charId));
+      if (ch && ch.pv) {
+        const data = portraitData(ch.id, ch.pv);
+        if (data) img = assetUrl(data);
+        else needPortrait(ch.id, ch.pv);
+      }
+    }
+    const col = msg.color && validColor(msg.color) ? msg.color : "#b8c6d9";
+    const initial = Array.from(msg.name || "?")[0] || "?";
+    return img ? h("img", { class: "cavatar", src: img, alt: "" }) : h("span", { class: "cavatar ph", style: "background:" + col, text: initial });
+  }
+  function refreshChatAvatars() {
+    if (!$("#chatLog")) return;
+    renderChatLog();
+  }
   function chatMsgEl(msg) {
     return h(
       "div",
       { class: "cmsg" },
+      chatAvatarEl(msg),
       h(
         "div",
-        { class: "cmeta" },
-        h("span", { class: "cname", style: msg.color ? `color:${safeColor(msg.color)}` : "", text: msg.name }),
-        h("span", { class: "ctime", text: fmtChatTime(msg.at) })
-      ),
-      h("div", { class: "ctext", text: msg.text })
+        { class: "cbody" },
+        h(
+          "div",
+          { class: "cmeta" },
+          h("span", { class: "cname", style: msg.color ? `color:${safeColor(msg.color)}` : "", text: msg.name }),
+          h("span", { class: "ctime", text: fmtChatTime(msg.at) })
+        ),
+        h("div", { class: "ctext", text: msg.text })
+      )
     );
   }
   function syncChatHeight() {
     const wrap = $("#cvwrap"), box = $("#chatLog");
     if (!wrap || !box) return;
-    const hgt = wrap.getBoundingClientRect().height;
-    if (hgt > 40) box.style.height = hgt + "px";
+    const mapH = wrap.getBoundingClientRect().height;
+    if (mapH <= 40) return;
+    const top = box.getBoundingClientRect().top;
+    const below = 150;
+    const avail = window.innerHeight - top - below;
+    const hgt = Math.max(160, Math.min(mapH, avail > 160 ? avail : mapH));
+    box.style.height = hgt + "px";
   }
   if (typeof ResizeObserver !== "undefined") {
     const cvwrapEl = document.getElementById("cvwrap");
@@ -6165,11 +6197,67 @@ ${rows || '<p class="meta">\uC544\uC9C1 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694</p
     w.document.write(html);
     w.document.close();
   }
+  function rollDice(expr) {
+    const clean = String(expr).replace(/\s+/g, "");
+    if (!clean || clean.length > 40) return null;
+    if (!/^[+-]?(\d*d\d+|\d+)([+-](\d*d\d+|\d+))*$/i.test(clean)) return null;
+    const terms = clean.match(/[+-]?(\d*d\d+|\d+)/gi);
+    if (!terms || !terms.length) return null;
+    let total = 0, diceCount = 0;
+    const parts = [];
+    for (const t of terms) {
+      const sign = t[0] === "-" ? -1 : 1;
+      const body = t.replace(/^[+-]/, "");
+      const m = /^(\d*)d(\d+)$/i.exec(body);
+      if (m) {
+        const n = clamp(parseInt(m[1] || "1", 10) || 1, 1, 100);
+        const sides = clamp(parseInt(m[2], 10) || 1, 1, 1000);
+        diceCount += n;
+        if (diceCount > 200) return null;
+        const rolls = [];
+        let sum = 0;
+        for (let i = 0; i < n; i++) {
+          const r = rand(sides);
+          rolls.push(r);
+          sum += r;
+        }
+        total += sign * sum;
+        parts.push((sign < 0 ? "-" : parts.length ? "+" : "") + n + "d" + sides + "(" + rolls.join(",") + ")");
+      } else {
+        const v = parseInt(body, 10) || 0;
+        total += sign * v;
+        parts.push((sign < 0 ? "-" : parts.length ? "+" : "") + v);
+      }
+    }
+    return { total, detail: parts.join("") };
+  }
+  function resolveDice(text) {
+    let hit = false;
+    const out = text.replace(/\[\[([^\[\]]{1,40})\]\]/g, (whole, expr) => {
+      const r = rollDice(expr);
+      if (!r) return whole;
+      hit = true;
+      return "\u{1F3B2}" + expr.trim() + "→" + r.detail + "=" + r.total;
+    });
+    return { text: out, hit };
+  }
+  function clearChatView() {
+    const box = $("#chatLog");
+    if (box) box.textContent = "";
+    updateChatMoreBtn();
+    toast("채팅창을 비워실어요 (기록은 남아있어요)");
+  }
   function sendChatFromUI() {
     const input = $("#chatText");
     if (!input) return;
-    const text = input.value.trim();
+    let text = input.value.trim();
     if (!text) return;
+    if (/^\/(clear|cls|지우기)$/i.test(text) || text === "클리어") {
+      clearChatView();
+      input.value = "";
+      return;
+    }
+    text = resolveDice(text).text;
     const spk = $("#chatSpk").value;
     act({ t: "chat", spk, text });
     input.value = "";
